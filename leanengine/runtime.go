@@ -39,7 +39,7 @@ func (runtime *Runtime) detectType() {
 }
 
 func (runtime *Runtime) detectPython() bool {
-	return isFileExist("/requirements.txt") && isFileExist("wsgi.py")
+	return isFileExist("requirements.txt") && isFileExist("wsgi.py")
 }
 
 func (runtime *Runtime) detectNode() bool {
