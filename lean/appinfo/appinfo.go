@@ -1,4 +1,4 @@
-package main
+package appinfo
 
 import (
 	"encoding/json"
@@ -14,7 +14,7 @@ type AppInfo struct {
 	MasterKey string `json:"masterKey"`
 }
 
-func newAppInfoFromInput() error {
+func NewFromInput() error {
 	var appId string
 	var appKey string
 	var masterKey string
@@ -41,7 +41,7 @@ func newAppInfoFromInput() error {
 	return nil
 }
 
-func printAppInfoFromLocal() error {
+func PrintFromLocal() error {
 	appInfo, err := loadAppInfoFromLocal()
 	if err != nil {
 		return err

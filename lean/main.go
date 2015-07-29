@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/leancloud/leanengine-cli/lean/appinfo"
 	"github.com/spf13/cobra"
 	"os"
 )
@@ -48,7 +49,7 @@ func main() {
 		Use:   "init",
 		Short: "Init LeanEngine app in current directory",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := newAppInfoFromInput()
+			err := appinfo.NewFromInput()
 			if err != nil {
 				fmt.Println("Error: ", err)
 				os.Exit(1)
@@ -70,7 +71,7 @@ func main() {
 		Use:   "info",
 		Short: "Show current app info",
 		Run: func(cmd *cobra.Command, args []string) {
-			err := printAppInfoFromLocal()
+			err := appinfo.PrintFromLocal()
 			if err != nil {
 				fmt.Println("Error: ", err)
 				os.Exit(4)
