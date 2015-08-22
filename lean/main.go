@@ -8,7 +8,7 @@ import (
 func main() {
 	var rootCmd = &cobra.Command{
 		Use:   "lean",
-		Short: "LeanEngine command line",
+		Short: "LeanEngine command line tool",
 	}
 
 	var versionCmd = &cobra.Command{
