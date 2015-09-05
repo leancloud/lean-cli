@@ -2,8 +2,14 @@ package main
 
 import (
 	"github.com/codegangsta/cli"
+	"os/exec"
 	"os"
+	"fmt"
 )
+
+func callSubCmd(cmd string) error {
+	return exec.Command(cmd).Run()
+}
 
 func main() {
 	app := cli.NewApp()
@@ -20,7 +26,11 @@ func main() {
 			return
 		}
 		subCmd := ctx.Args()[0]
-		println(subCmd)
+		subCmd = "lean-" + subCmd
+		err := callSubCmd(subCmd)
+		fmt.Fprintln(os.Stderr, "Call sub command error:")
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
 
 	app.Run(os.Args)
