@@ -49,7 +49,7 @@ func saveAuthResult(authRst authResult) error {
 	}
 
 	// fmt.Println(string(raw))
-	
+
 	user, err := user.Current()
 	if err != nil {
 		return err
