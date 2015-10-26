@@ -2,7 +2,7 @@
 
 LeanEngine command tools, used for fetch user's authorization info from LeanCloud server.
 
-User's info will saved in `$HOME/.lean/user.json`, content like this:
+User's info will be saved in `$HOME/.leancloud/user.json`, which like this:
 
 ```json
 {

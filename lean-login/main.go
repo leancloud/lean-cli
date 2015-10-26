@@ -1,3 +1,4 @@
+
 package main
 
 import (
@@ -55,15 +56,15 @@ func saveAuthResult(authRst authResult) error {
 		return err
 	}
 
-	if err = os.Mkdir(path.Join(user.HomeDir, ".lean"), 0700); err != nil {
+	if err = os.Mkdir(path.Join(user.HomeDir, ".leancloud"), 0700); err != nil {
 		if os.IsNotExist(err) {
 			return err
 		}
 	}
 
-	fileName := path.Join(user.HomeDir, ".lean", "user.json")
+	fileName := path.Join(user.HomeDir, ".leancloud", "user.json")
 
-	err = ioutil.WriteFile(fileName, raw, 0644)
+	err = ioutil.WriteFile(fileName, raw, 0600)
 
 	return err
 }
