@@ -1,2 +1,6 @@
 *.swp
 lean/lean
+lean-login/lean-login
+lean-whoami/lean-whoami
+lean-create/lean-create
+lean-init/lean-init
