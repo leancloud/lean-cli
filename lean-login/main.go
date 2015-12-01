@@ -1,15 +1,18 @@
-
 package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/howeyc/gopass"
-	"github.com/parnurzeal/gorequest"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"os/user"
 	"path"
+	"strings"
+
+	"github.com/howeyc/gopass"
+	"github.com/parnurzeal/gorequest"
 )
 
 type errorResult struct {
@@ -17,15 +20,10 @@ type errorResult struct {
 	Error string `json:"error"`
 }
 
-type authResult struct {
-	UserName     string `json:"username"`
-	SessionToken string `json:"session_token"`
-}
-
-func printServerErrorResult(body string) {
+func formatServerErrorResult(body string) string {
 	var result errorResult
 	json.Unmarshal([]byte(body), &result)
-	fmt.Println(result.Error)
+	return result.Error
 }
 
 func getLoginInfoFromInput() (string, string) {
@@ -38,68 +36,60 @@ func getLoginInfoFromInput() (string, string) {
 	fmt.Print("Your LeanCloud login password (will hidden while input): ")
 	password = string(gopass.GetPasswd())
 
-	// fmt.Printf("email: %s, password: %s\r\n", email, password)
-
 	return email, password
 }
 
-func saveAuthResult(authRst authResult) error {
-	raw, err := json.MarshalIndent(authRst, "", "    ")
-	if err != nil {
-		return err
-	}
-
-	// fmt.Println(string(raw))
-
-	user, err := user.Current()
-	if err != nil {
-		return err
-	}
-
-	if err = os.Mkdir(path.Join(user.HomeDir, ".leancloud"), 0700); err != nil {
-		if os.IsNotExist(err) {
-			return err
-		}
-	}
-
-	fileName := path.Join(user.HomeDir, ".leancloud", "user.json")
-
-	err = ioutil.WriteFile(fileName, raw, 0600)
-
-	return err
-}
-
-func getAuthResult(email string, password string) authResult {
+func login(email string, password string) ([]*http.Cookie, []error) {
 	request := gorequest.New()
-	resp, body, err := request.Post("https://leancloud.cn/1/signin").
+	resp, body, errs := request.Post("https://leancloud.cn/1/signin").
 		Set("User-Agent", "leanengine-cli x.x.x"). // TODO
 		Send(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, email, password)).
 		End()
 
-	if err != nil {
-		fmt.Fprint(os.Stderr, "Error in login: ")
-		fmt.Fprintln(os.Stderr, err)
-		os.Exit(1)
+	if len(errs) != 0 {
+		return nil, errs
 	}
 
 	if resp.StatusCode != 200 {
-		fmt.Fprint(os.Stderr, "Login failed: ")
-		printServerErrorResult(body)
-		os.Exit(1)
+		return nil, []error{errors.New(formatServerErrorResult(body))}
 	}
 
-	var result authResult
-	json.Unmarshal([]byte(body), &result)
-	// fmt.Println(result)
+	cookies := request.Client.Jar.Cookies(resp.Request.URL)
+	return cookies, []error{}
+}
 
-	return result
+func cookiesToString(cookies []*http.Cookie) string {
+	var cookieStrings []string
+	for _, cookie := range cookies {
+		cookieStrings = append(cookieStrings, cookie.String())
+	}
+	return strings.Join(cookieStrings, ",")
+}
+
+func saveCookies(cookies []*http.Cookie) error {
+	cookieStrings := cookiesToString(cookies)
+
+	currentUser, err := user.Current()
+	if err != nil {
+		return err
+	}
+
+	fileName := path.Join(currentUser.HomeDir, ".leancloud", "cookies")
+
+	return ioutil.WriteFile(fileName, []byte(cookieStrings), 0600)
 }
 
 func main() {
 	email, password := getLoginInfoFromInput()
-	authRst := getAuthResult(email, password)
-	err := saveAuthResult(authRst)
+	cookies, errs := login(email, password)
+	if len(errs) != 0 {
+		fmt.Fprintf(os.Stderr, "Error: %s\r\n", errs)
+		os.Exit(1)
+	}
+	err := saveCookies(cookies)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\r\n", err)
+		os.Exit(1)
 	}
+	fmt.Println("login ok")
 }
