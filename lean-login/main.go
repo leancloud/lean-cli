@@ -39,7 +39,7 @@ func getLoginInfoFromInput() (string, string) {
 	return email, password
 }
 
-func login(email string, password string) ([]*http.Cookie, []error) {
+func login(email string, password string) ([]*http.Cookie, error) {
 	request := gorequest.New()
 	resp, body, errs := request.Post("https://leancloud.cn/1/signin").
 		Set("User-Agent", "leanengine-cli x.x.x"). // TODO
@@ -47,15 +47,15 @@ func login(email string, password string) ([]*http.Cookie, []error) {
 		End()
 
 	if len(errs) != 0 {
-		return nil, errs
+		return nil, errs[0]
 	}
 
 	if resp.StatusCode != 200 {
-		return nil, []error{errors.New(formatServerErrorResult(body))}
+		return nil, errors.New(formatServerErrorResult(body))
 	}
 
 	cookies := request.Client.Jar.Cookies(resp.Request.URL)
-	return cookies, []error{}
+	return cookies, nil
 }
 
 func cookiesToString(cookies []*http.Cookie) string {
@@ -81,12 +81,12 @@ func saveCookies(cookies []*http.Cookie) error {
 
 func main() {
 	email, password := getLoginInfoFromInput()
-	cookies, errs := login(email, password)
-	if len(errs) != 0 {
-		fmt.Fprintf(os.Stderr, "Error: %s\r\n", errs)
+	cookies, err := login(email, password)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %s\r\n", err)
 		os.Exit(1)
 	}
-	err := saveCookies(cookies)
+	err = saveCookies(cookies)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %s\r\n", err)
 		os.Exit(1)
