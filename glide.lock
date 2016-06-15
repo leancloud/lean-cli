@@ -1,0 +1,32 @@
+hash: 74f2fde3c9092ef461e4ebd0389d7777e8a3c9871294b09da1e504b507a64b7e
+updated: 2016-06-15T15:58:44.035389683+08:00
+imports:
+- name: github.com/aisk/wizard
+  version: c8fd83f2d712018e6e1a44ba6c97efea2bec8e96
+- name: github.com/bgentry/speakeasy
+  version: e1439544d8ecd0f3e9373a636d447668096a8f81
+- name: github.com/bitly/go-simplejson
+  version: aabad6e819789e569bd6aabf444c935aa9ba1e44
+- name: github.com/codegangsta/cli
+  version: 4733699ce30faa633c4db36ebfbe427963593d7d
+- name: github.com/fatih/color
+  version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
+- name: github.com/google/go-querystring
+  version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
+  subpackages:
+  - query
+- name: github.com/levigross/grequests
+  version: 9a756785142a030246588a196517065604da0532
+- name: github.com/mattn/go-colorable
+  version: 9056b7a9f2d1f2d96498d6d146acd1f9d5ed3d59
+- name: github.com/mattn/go-isatty
+  version: 56b76bdf51f7708750eac80fa38b952bb9f32639
+- name: golang.org/x/net
+  version: 3f122ce3dbbe488b7e6a8bdb26f41edec852a40b
+  subpackages:
+  - publicsuffix
+- name: golang.org/x/sys
+  version: 62bee037599929a6e9146f29d10dd5208c43507d
+  subpackages:
+  - unix
+devImports: []

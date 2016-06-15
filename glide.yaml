@@ -1,0 +1,6 @@
+package: github.com/leancloud/lean
+import:
+- package: github.com/aisk/wizard
+- package: github.com/codegangsta/cli
+- package: github.com/levigross/grequests
+- package: github.com/bitly/go-simplejson
