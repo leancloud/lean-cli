@@ -12,7 +12,8 @@ const (
 
 // API server regions
 const (
-	RegionCN = iota
+	RegionInvalid = iota
+	RegionCN
 	RegionUS
 )
 
@@ -23,6 +24,12 @@ type Client struct {
 	AppID     string
 	MasterKey string
 	Region    int
+	inited    bool // eg: if router is fetched
+}
+
+func fetchRouter() error {
+	// TODO: fetch router from server
+	return nil
 }
 
 func (client *Client) baseURL() string {
@@ -61,4 +68,9 @@ func (client *Client) get(path string) (*simplejson.Json, error) {
 // AppDetail returns the app's detail infomation
 func (client *Client) AppDetail() (*simplejson.Json, error) {
 	return client.get("/__leancloud/apps/appDetail")
+}
+
+// EngineInfo returns the app's engine infomation
+func (client *Client) EngineInfo() (*simplejson.Json, error) {
+	return client.get("/functions/_ops/engine")
 }
