@@ -11,9 +11,9 @@ import (
 
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
-	"github.com/leancloud/lean/api"
-	"github.com/leancloud/lean/apps"
-	"github.com/leancloud/lean/utils"
+	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/apps"
+	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/levigross/grequests"
 )
 

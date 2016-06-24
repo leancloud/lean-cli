@@ -9,9 +9,9 @@ import (
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/codegangsta/cli"
 	"github.com/jhoonb/archivex"
-	"github.com/leancloud/lean/api"
-	"github.com/leancloud/lean/apps"
-	"github.com/leancloud/lean/utils"
+	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/apps"
+	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func deployGroupName(appInfo apps.AppInfo) (string, error) {

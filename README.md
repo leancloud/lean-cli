@@ -10,4 +10,6 @@ Instatall the dependences first:
 - [glide](https://glide.sh)
 
 
-and clone this repo to your `${GOPATH}/src/github.com/leancloud/lean`, and run `glide install` to get the third party dependences, then run `go build` to get the `lean` binary.
+Clone this repo to your `${GOPATH}/src/github.com/leancloud/lean-cli`
+
+Goto `lean` directory, and run `glide install` to get the third party dependences, then run `go build` to get the `lean` binary.

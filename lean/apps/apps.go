@@ -10,8 +10,8 @@ import (
 
 	"github.com/aisk/wizard"
 	"github.com/bitly/go-simplejson"
-	"github.com/leancloud/lean/api"
-	"github.com/leancloud/lean/utils"
+	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 var errAppInfoNotFound = errors.New("app info not found")
