@@ -18,6 +18,9 @@ func (err Error) Error() string {
 // NewErrorFromBody format LeanCloud Server
 func NewErrorFromBody(body string) error {
 	var err Error
-	json.Unmarshal([]byte(body), &err)
+	err2 := json.Unmarshal([]byte(body), &err)
+	if err2 != nil {
+		panic(err2)
+	}
 	return err
 }

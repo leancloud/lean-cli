@@ -1,6 +1,8 @@
-hash: 74f2fde3c9092ef461e4ebd0389d7777e8a3c9871294b09da1e504b507a64b7e
-updated: 2016-06-15T15:58:44.035389683+08:00
+hash: b93104bcfe0b83dc8f58cba5d5add5e3bfdbab52558e1e11f51986b00863fb1a
+updated: 2016-06-22T14:19:39.881306864+08:00
 imports:
+- name: github.com/ahmetalpbalkan/go-linq
+  version: 32a9c2bd73213b024e8bd5a687927eaf9bdfe0b9
 - name: github.com/aisk/wizard
   version: c8fd83f2d712018e6e1a44ba6c97efea2bec8e96
 - name: github.com/bgentry/speakeasy
@@ -15,6 +17,8 @@ imports:
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
   - query
+- name: github.com/jhoonb/archivex
+  version: 333107c714224dd425951d488a51a03a42592fd8
 - name: github.com/levigross/grequests
   version: 9a756785142a030246588a196517065604da0532
 - name: github.com/mattn/go-colorable

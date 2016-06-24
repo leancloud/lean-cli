@@ -4,3 +4,5 @@ import:
 - package: github.com/codegangsta/cli
 - package: github.com/levigross/grequests
 - package: github.com/bitly/go-simplejson
+- package: github.com/ahmetalpbalkan/go-linq
+- package: github.com/jhoonb/archivex
