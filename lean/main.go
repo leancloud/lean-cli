@@ -30,6 +30,7 @@ func main() {
 
 	// add banner text to help text
 	cli.AppHelpTemplate = banner + cli.AppHelpTemplate
+	cli.SubcommandHelpTemplate = banner + cli.SubcommandHelpTemplate
 
 	app := cli.NewApp()
 	app.Name = "lean"
@@ -66,8 +67,9 @@ func main() {
 					Action: appAddAction,
 				},
 				{
-					Name:  "switch",
-					Usage: "切换到新的应用，deploy / status 等命令将运行在该应用上",
+					Name:   "switch",
+					Usage:  "切换到新的应用，deploy / status 等命令将运行在该应用上",
+					Action: appSwitchAction,
 				},
 				{
 					Name:  "remove",

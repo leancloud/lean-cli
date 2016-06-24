@@ -205,3 +205,28 @@ func CurrentAppName(projectPath string) (string, error) {
 	}
 	return string(content), nil
 }
+
+// SwitchApp changes the current used app to specific app
+func SwitchApp(projectPath string, appName string) error {
+	appList, err := LinkedApps("")
+	if err != nil {
+		return err
+	}
+
+	contains := false
+	for _, app := range appList {
+		if app.AppName == appName {
+			contains = true
+		}
+		break
+	}
+
+	if !contains {
+		return errors.New("指定应用没有关联在当前项目中，请使用 lean app add 进行关联")
+	}
+
+	filePath := currentAppFilePath(projectPath)
+	ioutil.WriteFile(filePath, []byte(appName), 0600)
+
+	return nil
+}
