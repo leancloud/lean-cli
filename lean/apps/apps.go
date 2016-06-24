@@ -37,8 +37,12 @@ func appFilePath(projectPath string) string {
 	return filepath.Join(appDirPath(projectPath), "apps.json")
 }
 
-// GetApps returns the current project's linked apps
-func GetApps(projectPath string) (apps []App, err error) {
+func currentAppFilePath(projectPath string) string {
+	return filepath.Join(appDirPath(projectPath), "curr_app")
+}
+
+// LinkedApps returns the current project's linked apps
+func LinkedApps(projectPath string) (apps []App, err error) {
 	content, err := ioutil.ReadFile(appFilePath(projectPath))
 	if os.IsNotExist(err) {
 		return apps, nil
@@ -165,7 +169,7 @@ func GetAppInfo(appID string) (appInfo AppInfo, err error) {
 
 // AddApp add new app into project's linked apps
 func AddApp(projectPath string, name string, ID string) error {
-	apps, err := GetApps(projectPath)
+	apps, err := LinkedApps(projectPath)
 	if err != nil {
 		return err
 	}
@@ -190,4 +194,14 @@ func AddApp(projectPath string, name string, ID string) error {
 	}
 
 	return nil
+}
+
+// CurrentAppName returns the current checkouted app id
+func CurrentAppName(projectPath string) (string, error) {
+	filePath := currentAppFilePath(projectPath)
+	content, err := ioutil.ReadFile(filePath)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
 }

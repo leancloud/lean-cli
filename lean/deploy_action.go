@@ -111,7 +111,7 @@ func deployFromLocal(appID string) {
 }
 
 func deployAction(*cli.Context) {
-	_apps, err := apps.GetApps(".")
+	_apps, err := apps.LinkedApps(".")
 	utils.CheckError(err)
 	if len(_apps) == 0 {
 		log.Fatalln("没有关联任何 app，请使用 lean app add 来关联应用。")

@@ -56,16 +56,22 @@ func main() {
 			Usage: "多应用管理，可以使用一个云引擎项目关联多个 LeanCloud 应用",
 			Subcommands: []cli.Command{
 				{
-					Name: "list",
+					Name:   "list",
+					Usage:  "显示已关联应用",
+					Action: appListAction,
 				},
 				{
-					Name: "add",
+					Name:   "add",
+					Usage:  "关联项目到一个新的应用",
+					Action: appAddAction,
 				},
 				{
-					Name: "switch",
+					Name:  "switch",
+					Usage: "切换到新的应用，deploy / status 等命令将运行在该应用上",
 				},
 				{
-					Name: "remove",
+					Name:  "remove",
+					Usage: "移除已关联的应用",
 				},
 			},
 		},
