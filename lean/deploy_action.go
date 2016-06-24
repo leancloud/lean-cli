@@ -103,7 +103,11 @@ func deployFromLocal(appID string) {
 		Region:    api.RegionCN,
 	}
 
-	log.Println(client.BuildAndDeploy(groupName, file))
+	_, err = client.BuildAndDeploy(groupName, file.URL)
+	utils.CheckError(err)
+
+	err = client.DeleteFile(file.ID)
+	utils.CheckError(err)
 }
 
 func deployAction(*cli.Context) {

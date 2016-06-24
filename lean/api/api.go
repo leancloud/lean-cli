@@ -20,9 +20,9 @@ func (client *Client) Groups() (*simplejson.Json, error) {
 }
 
 // BuildAndDeploy ...
-func (client *Client) BuildAndDeploy(groupName string, file *File) (*simplejson.Json, error) {
+func (client *Client) BuildAndDeploy(groupName string, fileURL string) (*simplejson.Json, error) {
 	return client.post("/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
-		"zipUrl":              file.URL,
+		"zipUrl":              fileURL,
 		"comment":             "",
 		"noDependenciesCache": false,
 		"async":               true,

@@ -82,3 +82,17 @@ func (client *Client) post(path string, params map[string]interface{}, options *
 	}
 	return simplejson.NewFromReader(resp)
 }
+
+func (client *Client) delete(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
+	if options == nil {
+		options = client.options()
+	}
+	resp, err := grequests.Delete(client.baseURL()+path, options)
+	if err != nil {
+		return nil, err
+	}
+	if !resp.Ok {
+		return nil, NewErrorFromBody(resp.String())
+	}
+	return simplejson.NewFromReader(resp)
+}

@@ -37,3 +37,9 @@ func (client *Client) UploadFile(filePath string) (*File, error) {
 		URL: jsonObj.Get("url").MustString(),
 	}, nil
 }
+
+// DeleteFile ...
+func (client *Client) DeleteFile(ID string) error {
+	_, err := client.delete("/files/"+ID, nil)
+	return err
+}
