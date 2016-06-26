@@ -72,8 +72,9 @@ func main() {
 					Action: appSwitchAction,
 				},
 				{
-					Name:  "remove",
-					Usage: "移除已关联的应用",
+					Name:   "remove",
+					Usage:  "移除已关联的应用",
+					Action: appRemoveAction,
 				},
 			},
 		},

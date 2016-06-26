@@ -14,7 +14,11 @@ import (
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
-var errAppInfoNotFound = errors.New("app info not found")
+// errors for app operation
+var (
+	ErrAppInfoNotFound  = errors.New("app info not found")
+	ErrRemoveCurrentApp = errors.New("can't remove current app")
+)
 
 // App ...
 type App struct {
@@ -127,7 +131,7 @@ func getAppInfoFromLocal(appID string) (AppInfo, error) {
 	content, err := ioutil.ReadFile(infoPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return AppInfo{}, errAppInfoNotFound
+			return AppInfo{}, ErrAppInfoNotFound
 		}
 		return AppInfo{}, err
 	}
@@ -139,7 +143,7 @@ func getAppInfoFromLocal(appID string) (AppInfo, error) {
 
 	_, err = jsonObj.Get(appID).Map()
 	if err != nil {
-		return AppInfo{}, errAppInfoNotFound
+		return AppInfo{}, ErrAppInfoNotFound
 	}
 
 	return AppInfo{
@@ -154,7 +158,7 @@ func getAppInfoFromLocal(appID string) (AppInfo, error) {
 // file system first, or from LeanCloud API server if not found
 func GetAppInfo(appID string) (appInfo AppInfo, err error) {
 	appInfo, err = getAppInfoFromLocal(appID)
-	if err == errAppInfoNotFound {
+	if err == ErrAppInfoNotFound {
 		appInfo, err = getAppInfoFromServer(appID)
 		if err != nil {
 			return
@@ -196,6 +200,42 @@ func AddApp(projectPath string, name string, ID string) error {
 	return nil
 }
 
+// RemoveApp removes the app from project's linked apps
+func RemoveApp(projectPath string, name string) error {
+	currentApp := currentAppFilePath(projectPath)
+	if currentApp == name {
+		return ErrRemoveCurrentApp
+	}
+
+	apps, err := LinkedApps(projectPath)
+	if err != nil {
+		return err
+	}
+
+	newApps := []App{}
+	for _, app := range apps {
+		if app.AppName == name {
+			continue
+		}
+		newApps = append(newApps, app)
+	}
+
+	jsonApps := map[string]string{}
+	for _, app := range apps {
+		jsonApps[app.AppName] = app.AppID
+	}
+	data, err := json.Marshal(jsonApps)
+	if err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(appFilePath(projectPath), data, 0700); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // CurrentAppName returns the current checkouted app id
 func CurrentAppName(projectPath string) (string, error) {
 	filePath := currentAppFilePath(projectPath)
@@ -217,8 +257,8 @@ func SwitchApp(projectPath string, appName string) error {
 	for _, app := range appList {
 		if app.AppName == appName {
 			contains = true
+			break
 		}
-		break
 	}
 
 	if !contains {
