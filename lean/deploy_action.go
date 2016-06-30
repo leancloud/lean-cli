@@ -81,19 +81,7 @@ func uploadProject(appInfo apps.AppInfo, repoPath string) (*api.File, error) {
 	return file, nil
 }
 
-func deployFromLocal(appID string) {
-	appInfo, err := apps.GetAppInfo(appID)
-	utils.CheckError(err)
-
-	groupName, err := deployGroupName(appInfo)
-	utils.CheckError(err)
-
-	if groupName == "staging" {
-		log.Println("准备部署应用到预备环境")
-	} else {
-		log.Println("准备部署应用到生产环境: " + groupName)
-	}
-
+func deployFromLocal(appInfo apps.AppInfo, groupName string) {
 	file, err := uploadProject(appInfo, "")
 	utils.CheckError(err)
 
@@ -103,10 +91,21 @@ func deployFromLocal(appID string) {
 		Region:    api.RegionCN,
 	}
 
-	_, err = client.BuildAndDeploy(groupName, file.URL)
+	_, err = client.BuildFromURL(groupName, file.URL)
 	utils.CheckError(err)
 
 	err = client.DeleteFile(file.ID)
+	utils.CheckError(err)
+}
+
+func deployFromGit(appInfo apps.AppInfo, groupName string) {
+	client := api.Client{
+		AppID:     appInfo.AppID,
+		MasterKey: appInfo.MasterKey,
+		Region:    api.RegionCN,
+	}
+
+	_, err := client.BuildFromGit(groupName)
 	utils.CheckError(err)
 }
 
@@ -120,5 +119,21 @@ func deployAction(*cli.Context) {
 	// TODO: specific app
 	app := _apps[0]
 
-	deployFromLocal(app.AppID)
+	appInfo, err := apps.GetAppInfo(app.AppID)
+	utils.CheckError(err)
+
+	groupName, err := deployGroupName(appInfo)
+	utils.CheckError(err)
+
+	if groupName == "staging" {
+		log.Println("准备部署应用到预备环境")
+	} else {
+		log.Println("准备部署应用到生产环境: " + groupName)
+	}
+
+	if isDeployFromGit {
+		deployFromGit(appInfo, groupName)
+	} else {
+		deployFromLocal(appInfo, groupName)
+	}
 }
