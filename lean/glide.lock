@@ -1,5 +1,5 @@
-hash: b93104bcfe0b83dc8f58cba5d5add5e3bfdbab52558e1e11f51986b00863fb1a
-updated: 2016-06-22T14:19:39.881306864+08:00
+hash: 8518eda342bf5535c2eec37fab62167f1b1732cf482b62e5d21e874cdfb13180
+updated: 2016-07-05T19:00:02.273761724+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 32a9c2bd73213b024e8bd5a687927eaf9bdfe0b9
@@ -13,6 +13,8 @@ imports:
   version: 4733699ce30faa633c4db36ebfbe427963593d7d
 - name: github.com/fatih/color
   version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
+- name: github.com/fsnotify/fsnotify
+  version: a8a77c9133d2d6fd8334f3260d06f60e8d80a5fb
 - name: github.com/google/go-querystring
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:

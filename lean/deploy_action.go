@@ -14,7 +14,7 @@ import (
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
-func deployGroupName(appInfo apps.AppInfo) (string, error) {
+func deployGroupName(appInfo *apps.AppInfo) (string, error) {
 	client := api.Client{
 		AppID:     appInfo.AppID,
 		MasterKey: appInfo.MasterKey,
@@ -50,7 +50,7 @@ func deployGroupName(appInfo apps.AppInfo) (string, error) {
 	return groupName.(string), nil
 }
 
-func uploadProject(appInfo apps.AppInfo, repoPath string) (*api.File, error) {
+func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.File, error) {
 	// TODO: ignore files
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -81,7 +81,7 @@ func uploadProject(appInfo apps.AppInfo, repoPath string) (*api.File, error) {
 	return file, nil
 }
 
-func deployFromLocal(appInfo apps.AppInfo, groupName string) {
+func deployFromLocal(appInfo *apps.AppInfo, groupName string) {
 	file, err := uploadProject(appInfo, "")
 	utils.CheckError(err)
 
@@ -98,7 +98,7 @@ func deployFromLocal(appInfo apps.AppInfo, groupName string) {
 	utils.CheckError(err)
 }
 
-func deployFromGit(appInfo apps.AppInfo, groupName string) {
+func deployFromGit(appInfo *apps.AppInfo, groupName string) {
 	client := api.Client{
 		AppID:     appInfo.AppID,
 		MasterKey: appInfo.MasterKey,

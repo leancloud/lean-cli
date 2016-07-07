@@ -45,11 +45,9 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  "up",
-			Usage: "本地启动云引擎应用。",
-			Action: func(c *cli.Context) {
-
-			},
+			Name:   "up",
+			Usage:  "本地启动云引擎应用。",
+			Action: upAction,
 		},
 		{
 			Name:   "new",
