@@ -1,25 +1,42 @@
 package main
 
 import (
-	"log"
+	"strconv"
 
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/apps"
-	"github.com/leancloud/lean-cli/lean/utils"
+	"github.com/leancloud/lean-cli/lean/console"
 )
 
-func upAction(c *cli.Context) {
+// get the console port. now console port is just runtime port plus one.
+func getConsolePort(runtimePort string) (string, error) {
+	port, err := strconv.Atoi(runtimePort)
+	if err != nil {
+		return "", nil
+	}
+	return strconv.Itoa(port + 1), nil
+}
+
+func upAction(c *cli.Context) error {
 	// TODO: get port from args
 	port := "3000"
+	consPort, err := getConsolePort(port)
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
+
 	// TODO:
 	apiServerURL := "https://api.leancloud.cn"
 
 	appInfo, err := apps.CurrentAppInfo(".")
-	utils.CheckError(err)
-	log.Println(">>", appInfo)
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
 
 	rtm, err := apps.DetectRuntime(".")
-	utils.CheckError(err)
+	if err != nil {
+		return cli.NewExitError(err.Error(), 1)
+	}
 
 	rtm.Envs["LC_APP_ID"] = appInfo.AppID
 	rtm.Envs["LC_APP_KEY"] = appInfo.AppKey
@@ -32,5 +49,10 @@ func upAction(c *cli.Context) {
 	rtm.Envs["LEANCLOUD_APP_PORT"] = port
 	rtm.Envs["LEANCLOUD_API_SERVER"] = apiServerURL
 
-	rtm.Run()
+	// rtm.Run()
+	cons := &console.Server{
+		Port: consPort,
+	}
+	cons.Run()
+	return nil
 }
