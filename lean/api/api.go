@@ -19,10 +19,19 @@ func (client *Client) Groups() (*simplejson.Json, error) {
 	return client.get("/functions/_ops/groups", nil)
 }
 
-// BuildAndDeploy ...
-func (client *Client) BuildAndDeploy(groupName string, fileURL string) (*simplejson.Json, error) {
+// BuildFromURL ...
+func (client *Client) BuildFromURL(groupName string, fileURL string) (*simplejson.Json, error) {
 	return client.post("/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"zipUrl":              fileURL,
+		"comment":             "",
+		"noDependenciesCache": false,
+		"async":               true,
+	}, nil)
+}
+
+// BuildFromGit ...
+func (client *Client) BuildFromGit(groupName string) (*simplejson.Json, error) {
+	return client.post("/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"comment":             "",
 		"noDependenciesCache": false,
 		"async":               true,

@@ -19,6 +19,10 @@ const banner = `
 
 const version = "0.0.1"
 
+var (
+	isDeployFromGit = false
+)
+
 func thirdPartyCommand(c *cli.Context, _cmd string) {
 	cmd := "lean-" + _cmd
 	println(cmd)
@@ -41,11 +45,9 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
-			Name:  "up",
-			Usage: "本地启动云引擎应用。",
-			Action: func(c *cli.Context) {
-
-			},
+			Name:   "up",
+			Usage:  "本地启动云引擎应用。",
+			Action: upAction,
 		},
 		{
 			Name:   "new",
@@ -82,6 +84,13 @@ func main() {
 			Name:   "deploy",
 			Usage:  "部署云引擎项目到服务器",
 			Action: deployAction,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:        "g",
+					Usage:       "从 git 部署项目",
+					Destination: &isDeployFromGit,
+				},
+			},
 		},
 	}
 

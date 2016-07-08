@@ -68,7 +68,7 @@ func LinkedApps(projectPath string) (apps []App, err error) {
 	return
 }
 
-func updateAppInfoToLocal(appInfo AppInfo) error {
+func updateAppInfoToLocal(appInfo *AppInfo) error {
 	var jsonObj *simplejson.Json
 	infoPath := filepath.Join(utils.HomeDir(), ".leancloud", "app_keys")
 	content, err := ioutil.ReadFile(infoPath)
@@ -83,7 +83,6 @@ func updateAppInfoToLocal(appInfo AppInfo) error {
 			return err
 		}
 	}
-	fmt.Println(jsonObj)
 	jsonObj.Set(appInfo.AppID, map[string]string{
 		"appKey":    appInfo.AppKey,
 		"masterKey": appInfo.MasterKey,
@@ -95,7 +94,7 @@ func updateAppInfoToLocal(appInfo AppInfo) error {
 	return ioutil.WriteFile(infoPath, body, 0600)
 }
 
-func getAppInfoFromServer(appID string) (AppInfo, error) {
+func getAppInfoFromServer(appID string) (*AppInfo, error) {
 	masterKey := new(string)
 	wizard.Ask([]wizard.Question{
 		{
@@ -115,38 +114,37 @@ func getAppInfoFromServer(appID string) (AppInfo, error) {
 
 	content, err := client.AppDetail()
 	if err != nil {
-		return AppInfo{}, err
+		return nil, err
 	}
-	fmt.Println(content)
 
-	return AppInfo{
+	return &AppInfo{
 		AppID:     appID,
 		AppKey:    content.Get("app_key").MustString(),
 		MasterKey: *masterKey,
 	}, nil
 }
 
-func getAppInfoFromLocal(appID string) (AppInfo, error) {
+func getAppInfoFromLocal(appID string) (*AppInfo, error) {
 	infoPath := filepath.Join(utils.HomeDir(), ".leancloud", "app_keys")
 	content, err := ioutil.ReadFile(infoPath)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return AppInfo{}, ErrAppInfoNotFound
+			return nil, ErrAppInfoNotFound
 		}
-		return AppInfo{}, err
+		return nil, err
 	}
 
 	jsonObj, err := simplejson.NewJson(content)
 	if err != nil {
-		return AppInfo{}, err
+		return nil, err
 	}
 
 	_, err = jsonObj.Get(appID).Map()
 	if err != nil {
-		return AppInfo{}, ErrAppInfoNotFound
+		return nil, ErrAppInfoNotFound
 	}
 
-	return AppInfo{
+	return &AppInfo{
 		AppID:     appID,
 		AppKey:    jsonObj.Get(appID).Get("appKey").MustString(),
 		MasterKey: jsonObj.Get(appID).Get("masterKey").MustString(),
@@ -156,7 +154,7 @@ func getAppInfoFromLocal(appID string) (AppInfo, error) {
 // GetAppInfo returns the app's info (with master key)
 // and this function will try to get these info's from local
 // file system first, or from LeanCloud API server if not found
-func GetAppInfo(appID string) (appInfo AppInfo, err error) {
+func GetAppInfo(appID string) (appInfo *AppInfo, err error) {
 	appInfo, err = getAppInfoFromLocal(appID)
 	if err == ErrAppInfoNotFound {
 		appInfo, err = getAppInfoFromServer(appID)
@@ -244,6 +242,34 @@ func CurrentAppName(projectPath string) (string, error) {
 		return "", err
 	}
 	return string(content), nil
+}
+
+// CurrentAppInfo returns the current linked and checkouted app info
+func CurrentAppInfo(projectPath string) (*AppInfo, error) {
+	apps, err := LinkedApps(projectPath)
+	if err != nil {
+		return nil, err
+	}
+
+	currentAppName, err := CurrentAppName(projectPath)
+	if err != nil {
+		return nil, err
+	}
+
+	var currentAppID string
+	for _, app := range apps {
+		if app.AppName == currentAppName {
+			fmt.Println(app)
+			currentAppID = app.AppID
+			break
+		}
+	}
+
+	if currentAppID == "" {
+		return nil, errors.New("can't find current app info")
+	}
+
+	return GetAppInfo(currentAppID)
 }
 
 // SwitchApp changes the current used app to specific app
