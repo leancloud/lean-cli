@@ -159,7 +159,7 @@ func fetchRepo(t int, appName string, appID string) error {
 func newAction(*cli.Context) {
 	appID, masterKey, runtime := askNewAppInfo()
 
-	client := api.Client{AppID: appID, MasterKey: masterKey, Region: api.RegionCN}
+	client := api.NewKeyAuthClient(appID, masterKey)
 
 	detail, err := client.AppDetail()
 	utils.CheckError(err)

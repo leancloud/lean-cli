@@ -50,6 +50,11 @@ func main() {
 			Action: loginAction,
 		},
 		{
+			Name:   "whoami",
+			Usage:  "查看当前登录账户。",
+			Action: whoAmIAction,
+		},
+		{
 			Name:   "up",
 			Usage:  "本地启动云引擎应用。",
 			Action: upAction,
