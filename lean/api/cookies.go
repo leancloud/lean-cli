@@ -1,7 +1,6 @@
 package api
 
 import (
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -9,11 +8,6 @@ import (
 
 	"github.com/aisk/cookieparser"
 	"github.com/leancloud/lean-cli/lean/utils"
-)
-
-var (
-	// ErrNotLogined means user not logined LeanCloud
-	ErrNotLogined = errors.New("Not logined")
 )
 
 // saveCookies saves the cookies to `${HOME}/.leancloud/cookies`

@@ -1,10 +1,10 @@
 hash: f4dd043d3434556ae9e0034dda2630a0988335e98d92998a0356a625cbc1022a
-updated: 2016-07-08T17:37:56.163047051+08:00
+updated: 2016-07-11T15:16:37.273209111+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
 - name: github.com/aisk/cookieparser
-  version: de00953107ec225e84a1376a7f73dbe5689b17ee
+  version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
   version: c8fd83f2d712018e6e1a44ba6c97efea2bec8e96
 - name: github.com/bgentry/speakeasy

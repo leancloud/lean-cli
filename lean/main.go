@@ -52,7 +52,7 @@ func main() {
 		{
 			Name:   "whoami",
 			Usage:  "查看当前登录账户。",
-			Action: whoAmIAction,
+			Action: whoamiAction,
 		},
 		{
 			Name:   "up",
