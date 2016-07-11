@@ -7,3 +7,4 @@ import:
 - package: github.com/ahmetalpbalkan/go-linq
 - package: github.com/jhoonb/archivex
 - package: github.com/fsnotify/fsnotify
+- package: github.com/aisk/cookieparser

@@ -45,6 +45,16 @@ func main() {
 
 	app.Commands = []cli.Command{
 		{
+			Name:   "login",
+			Usage:  "登录 LeanCloud 账户。",
+			Action: loginAction,
+		},
+		{
+			Name:   "whoami",
+			Usage:  "查看当前登录账户。",
+			Action: whoamiAction,
+		},
+		{
 			Name:   "up",
 			Usage:  "本地启动云引擎应用。",
 			Action: upAction,

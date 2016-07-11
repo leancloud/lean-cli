@@ -15,11 +15,7 @@ import (
 )
 
 func deployGroupName(appInfo *apps.AppInfo) (string, error) {
-	client := api.Client{
-		AppID:     appInfo.AppID,
-		MasterKey: appInfo.MasterKey,
-		Region:    api.RegionCN,
-	}
+	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
 
 	engineInfo, err := client.EngineInfo()
 	if err != nil {
@@ -70,11 +66,7 @@ func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.File, error) {
 	}()
 
 	log.Println("上传项目文件 ...")
-	client := api.Client{
-		AppID:     appInfo.AppID,
-		MasterKey: appInfo.MasterKey,
-		Region:    api.RegionCN,
-	}
+	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
 	file, err := client.UploadFile(filePath)
 	utils.CheckError(err)
 
@@ -85,11 +77,7 @@ func deployFromLocal(appInfo *apps.AppInfo, groupName string) {
 	file, err := uploadProject(appInfo, "")
 	utils.CheckError(err)
 
-	client := api.Client{
-		AppID:     appInfo.AppID,
-		MasterKey: appInfo.MasterKey,
-		Region:    api.RegionCN,
-	}
+	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
 
 	_, err = client.BuildFromURL(groupName, file.URL)
 	utils.CheckError(err)
@@ -99,11 +87,7 @@ func deployFromLocal(appInfo *apps.AppInfo, groupName string) {
 }
 
 func deployFromGit(appInfo *apps.AppInfo, groupName string) {
-	client := api.Client{
-		AppID:     appInfo.AppID,
-		MasterKey: appInfo.MasterKey,
-		Region:    api.RegionCN,
-	}
+	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
 
 	_, err := client.BuildFromGit(groupName)
 	utils.CheckError(err)

@@ -1,8 +1,10 @@
-hash: 8518eda342bf5535c2eec37fab62167f1b1732cf482b62e5d21e874cdfb13180
-updated: 2016-07-08T16:02:49.56380404+08:00
+hash: f4dd043d3434556ae9e0034dda2630a0988335e98d92998a0356a625cbc1022a
+updated: 2016-07-11T15:16:37.273209111+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
+- name: github.com/aisk/cookieparser
+  version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
   version: c8fd83f2d712018e6e1a44ba6c97efea2bec8e96
 - name: github.com/bgentry/speakeasy
@@ -11,8 +13,6 @@ imports:
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/codegangsta/cli
   version: 1efa31f08b9333f1bd4882d61f9d668a70cd902e
-- name: github.com/dgrijalva/jwt-go
-  version: 01aeca54ebda6e0fbfafd0a524d234159c05ec20
 - name: github.com/fatih/color
   version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
 - name: github.com/fsnotify/fsnotify
@@ -23,29 +23,16 @@ imports:
   - query
 - name: github.com/jhoonb/archivex
   version: b669bdadd30ace382d6e082dfcc8e33b926db1a1
-- name: github.com/labstack/echo
-  version: 451b2ccc9ffda7fd7fad2027b75d93b18ff87cbe
-  subpackages:
-  - engine/standard
-  - middleware
-  - engine
-  - log
-- name: github.com/labstack/gommon
-  version: 722aa12d41c236ce78ff48eac1cafe0107ecdc9d
-  subpackages:
-  - log
-  - bytes
-  - color
 - name: github.com/levigross/grequests
   version: 09a7f1722d5bb4477cf9b91d2ce50316f1550aca
 - name: github.com/mattn/go-colorable
   version: 9056b7a9f2d1f2d96498d6d146acd1f9d5ed3d59
 - name: github.com/mattn/go-isatty
   version: 56b76bdf51f7708750eac80fa38b952bb9f32639
-- name: github.com/valyala/fasttemplate
-  version: 3b874956e03f1636d171bda64b130f9135f42cff
 - name: golang.org/x/net
   version: f841c39de738b1d0df95b5a7187744f0e03d8112
+  subpackages:
+  - publicsuffix
 - name: golang.org/x/sys
   version: a408501be4d17ee978c04a618e7a1b22af058c0e
   subpackages:

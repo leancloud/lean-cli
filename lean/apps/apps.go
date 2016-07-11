@@ -106,11 +106,7 @@ func getAppInfoFromServer(appID string) (*AppInfo, error) {
 		},
 	})
 
-	client := api.Client{
-		AppID:     appID,
-		MasterKey: *masterKey,
-		Region:    api.RegionCN,
-	}
+	client := api.NewKeyAuthClient(appID, *masterKey)
 
 	content, err := client.AppDetail()
 	if err != nil {
