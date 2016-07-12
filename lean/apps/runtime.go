@@ -2,7 +2,6 @@ package apps
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -10,7 +9,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fsnotify/fsnotify"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
@@ -33,36 +31,34 @@ func (runtime *Runtime) Run() error {
 		command.Env = append(command.Env, key+"="+value)
 	}
 
-	// ch := make(chan bool)
+	return command.Run()
+	// if err != nil {
+	// 	return err
+	// }
 
-	err := command.Start()
-	if err != nil {
-		return err
-	}
+	// // watch file changes
+	// watcher, err := fsnotify.NewWatcher()
+	// if err != nil {
+	// 	return err
+	// }
+	// defer watcher.Close()
+	// go func() {
+	// 	for {
+	// 		select {
+	// 		case event := <-watcher.Events:
+	// 			fmt.Println("event:", event)
+	// 			command.Process.Kill()
+	// 		case err := <-watcher.Errors:
+	// 			fmt.Println("error:", err)
+	// 		}
+	// 	}
+	// }()
+	// for _, file := range runtime.WatchFiles {
+	// 	err = watcher.Add(file)
+	// }
 
-	// watch file changes
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return err
-	}
-	defer watcher.Close()
-	go func() {
-		for {
-			select {
-			case event := <-watcher.Events:
-				fmt.Println("event:", event)
-				command.Process.Kill()
-			case err := <-watcher.Errors:
-				fmt.Println("error:", err)
-			}
-		}
-	}()
-	for _, file := range runtime.WatchFiles {
-		err = watcher.Add(file)
-	}
-
-	// start the command line
-	return command.Wait()
+	// // start the command line
+	// return command.Wait()
 }
 
 // DetectRuntime returns the project's runtime

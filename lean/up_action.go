@@ -49,10 +49,21 @@ func upAction(c *cli.Context) error {
 	rtm.Envs["LEANCLOUD_APP_PORT"] = port
 	rtm.Envs["LEANCLOUD_API_SERVER"] = apiServerURL
 
-	// rtm.Run()
+	go func() {
+		err := rtm.Run()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
 	cons := &console.Server{
-		Port: consPort,
+		AppID:       appInfo.AppID,
+		AppKey:      appInfo.AppKey,
+		MasterKey:   appInfo.MasterKey,
+		AppPort:     port,
+		ConsolePort: consPort,
 	}
+
 	cons.Run()
 	return nil
 }

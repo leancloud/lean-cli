@@ -1,5 +1,5 @@
-hash: f4dd043d3434556ae9e0034dda2630a0988335e98d92998a0356a625cbc1022a
-updated: 2016-07-11T15:16:37.273209111+08:00
+hash: ffcc7888b28e711ffb7a4551e86a1bb0e1a490e56a8f0bec44721c7272b8c32f
+updated: 2016-07-11T18:07:14.89299141+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
@@ -12,7 +12,7 @@ imports:
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/codegangsta/cli
-  version: 1efa31f08b9333f1bd4882d61f9d668a70cd902e
+  version: 166bb4fa6231099fd582b9d0b33b647d8112a9f5
 - name: github.com/fatih/color
   version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
 - name: github.com/fsnotify/fsnotify
@@ -21,6 +21,10 @@ imports:
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
   - query
+- name: github.com/gorilla/context
+  version: aed02d124ae4a0e94fea4541c8effd05bf0c8296
+- name: github.com/gorilla/mux
+  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
 - name: github.com/jhoonb/archivex
   version: b669bdadd30ace382d6e082dfcc8e33b926db1a1
 - name: github.com/levigross/grequests
