@@ -1,8 +1,6 @@
 package main
 
 import (
-	"log"
-
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -10,33 +8,31 @@ import (
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
-func askNewAppInfo() (string, string, int) {
-	appID := new(string)
-	masterKey := new(string)
+func selectApp(appList []interface{}) map[string]interface{} {
+	var selectedApp map[string]interface{}
+	question := wizard.Question{
+		Content: "请选择 APP",
+		Answers: []wizard.Answer{},
+	}
+	for _, _app := range appList {
+		app := _app.(map[string]interface{})
+		answer := wizard.Answer{
+			Content: app["app_name"].(string),
+		}
+		// for scope problem
+		func(app map[string]interface{}) {
+			answer.Handler = func() {
+				selectedApp = app
+			}
+		}(app)
+		question.Answers = append(question.Answers, answer)
+	}
+	wizard.Ask([]wizard.Question{question})
+	return selectedApp
+}
+
+func selectRuntime() int {
 	runtimeType := 0
-
-	log.Println("开始输入应用信息，这些信息可以从'开发者平台的应用设置 -> 应用 key'里找到。")
-
-	wizard.Ask([]wizard.Question{
-		{
-			Content: "请输入应用的 Application ID:",
-			Input: &wizard.Input{
-				Hidden: false,
-				Result: appID,
-			},
-		},
-	})
-
-	// TODO: get the masterKey from local first
-	wizard.Ask([]wizard.Question{
-		{
-			Content: "请输入应用的 Master Key:",
-			Input: &wizard.Input{
-				Hidden: true,
-				Result: masterKey,
-			},
-		},
-	})
 
 	wizard.Ask([]wizard.Question{
 		{
@@ -62,11 +58,19 @@ func askNewAppInfo() (string, string, int) {
 			},
 		},
 	})
-	return *appID, *masterKey, runtimeType
+	return runtimeType
 }
 
-func newAction(*cli.Context) {
-	appID, masterKey, runtime := askNewAppInfo()
+func newAction(*cli.Context) error {
+	apps, err := api.GetAppList()
+	if err != nil {
+		return err
+	}
+	app := selectApp(apps)
+	appID := app["app_id"].(string)
+	masterKey := app["master_key"].(string)
+
+	runtime := selectRuntime()
 
 	client := api.NewKeyAuthClient(appID, masterKey)
 
@@ -75,5 +79,5 @@ func newAction(*cli.Context) {
 	appName := detail.Get("app_name").MustString()
 
 	err = boilerplate.FetchRepo(runtime, appName, appID)
-	utils.CheckError(err)
+	return err
 }
