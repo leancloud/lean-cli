@@ -3,7 +3,6 @@ package apps
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -255,7 +254,6 @@ func CurrentAppInfo(projectPath string) (*AppInfo, error) {
 	var currentAppID string
 	for _, app := range apps {
 		if app.AppName == currentAppName {
-			fmt.Println(app)
 			currentAppID = app.AppID
 			break
 		}
@@ -270,7 +268,7 @@ func CurrentAppInfo(projectPath string) (*AppInfo, error) {
 
 // SwitchApp changes the current used app to specific app
 func SwitchApp(projectPath string, appName string) error {
-	appList, err := LinkedApps("")
+	appList, err := LinkedApps(projectPath)
 	if err != nil {
 		return err
 	}
