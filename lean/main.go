@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"os/exec"
 
 	"github.com/codegangsta/cli"
 )
@@ -23,9 +24,25 @@ var (
 	isDeployFromGit = false
 )
 
-func thirdPartyCommand(c *cli.Context, _cmd string) {
-	cmd := "lean-" + _cmd
-	println(cmd)
+func thirdPartyCommand(c *cli.Context, _cmdName string) {
+	cmdName := "lean-" + _cmdName
+
+	// executeble not found:
+	execPath, err := exec.LookPath(cmdName)
+	if e, ok := err.(*exec.Error); ok {
+		if e.Err == exec.ErrNotFound {
+			cli.ShowAppHelp(c)
+			return
+		}
+	}
+	cmd := exec.Command(execPath, c.Args()[1:]...)
+	cmd.Stderr = os.Stderr
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	err = cmd.Run()
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func main() {
