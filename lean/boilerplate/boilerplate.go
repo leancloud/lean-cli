@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/levigross/grequests"
 )
@@ -93,10 +92,6 @@ func FetchRepo(t int, appName string, appID string) error {
 		if err != nil {
 			return err
 		}
-	}
-
-	if err := apps.AddApp(appName, appName, appID); err != nil {
-		return err
 	}
 
 	log.Println("创建项目完成")

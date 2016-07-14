@@ -1,9 +1,12 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/boilerplate"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
@@ -62,11 +65,11 @@ func selectRuntime() int {
 }
 
 func newAction(*cli.Context) error {
-	apps, err := api.GetAppList()
+	appList, err := api.GetAppList()
 	if err != nil {
 		return err
 	}
-	app := selectApp(apps)
+	app := selectApp(appList)
 	appID := app["app_id"].(string)
 	masterKey := app["master_key"].(string)
 
@@ -78,6 +81,19 @@ func newAction(*cli.Context) error {
 	utils.CheckError(err)
 	appName := detail.Get("app_name").MustString()
 
-	err = boilerplate.FetchRepo(runtime, appName, appID)
-	return err
+	if err := boilerplate.FetchRepo(runtime, appName, appID); err != nil {
+		return err
+	}
+
+	if err := apps.AddApp(appName, appName, appID); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	if err := apps.SwitchApp(appName, appName); err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	return nil
 }
