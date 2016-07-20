@@ -8,7 +8,6 @@ import (
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/boilerplate"
-	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func selectApp(appList []interface{}) map[string]interface{} {
@@ -71,17 +70,18 @@ func newAction(*cli.Context) error {
 	}
 	app := selectApp(appList)
 	appID := app["app_id"].(string)
-	masterKey := app["master_key"].(string)
 
 	runtime := selectRuntime()
 
-	client := api.NewKeyAuthClient(appID, masterKey)
+	appInfo, err := api.GetAppInfo(appID)
+	if err != nil {
+		return newCliError(err)
+	}
 
-	detail, err := client.AppDetail()
-	utils.CheckError(err)
-	appName := detail.Get("app_name").MustString()
+	appName := appInfo.AppName
 
 	if err := boilerplate.FetchRepo(runtime, appName, appID); err != nil {
+		fmt.Println(err)
 		return err
 	}
 

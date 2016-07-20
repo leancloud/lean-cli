@@ -32,9 +32,6 @@ func Login(email string, password string) (*simplejson.Json, error) {
 
 // UserInfo returns the current logined user info
 func UserInfo() (*simplejson.Json, error) {
-	client, err := NewCookieAuthClient()
-	if err != nil {
-		return nil, err
-	}
-	return client.get("/clients/self", nil)
+	client := NewClient()
+	return client.get("/1/clients/self", nil)
 }

@@ -2,7 +2,13 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
+)
+
+var (
+	// ErrNotLogined means user was not logined
+	ErrNotLogined = errors.New("not logined")
 )
 
 // Error is the LeanCloud API Server API common error format

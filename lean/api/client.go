@@ -17,31 +17,55 @@ const (
 	RegionUS
 )
 
-const apiVersion = "1.1"
-
-type authProvider interface {
-	options() *grequests.RequestOptions
-	baseURL() string
-}
-
 // Client info
 type Client struct {
-	provider authProvider
-	// AppID     string
-	// MasterKey string
-	// Region    int
 }
 
-func fetchRouter() error {
+// NewClient initilized a new Client
+func NewClient() *Client {
+	return &Client{}
+}
+
+func (client *Client) fetchRouter() error {
 	// TODO: fetch router from server
 	return nil
 }
 
-func (client *Client) get(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
-	if options == nil {
-		options = client.provider.options()
+func (client *Client) baseURL() string {
+	// TODO: return base URL per region
+	return hostCN
+}
+
+func (client *Client) options() (*grequests.RequestOptions, error) {
+	cookies, err := getCookies()
+	if err != nil {
+		return nil, ErrNotLogined
 	}
-	resp, err := grequests.Get(client.provider.baseURL()+path, options)
+
+	xsrfTok := ""
+	for _, cookie := range cookies {
+		if cookie.Name == "XSRF-TOKEN" {
+			xsrfTok = cookie.Value
+			break
+		}
+	}
+
+	return &grequests.RequestOptions{
+		Cookies: cookies,
+		Headers: map[string]string{
+			"X-XSRF-TOKEN": xsrfTok,
+		},
+	}, nil
+}
+
+func (client *Client) get(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
+	var err error
+	if options == nil {
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
+	}
+	resp, err := grequests.Get(client.baseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -52,11 +76,14 @@ func (client *Client) get(path string, options *grequests.RequestOptions) (*simp
 	return simplejson.NewFromReader(resp)
 }
 
-func (client *Client) getJSON(path string, options *grequests.RequestOptions) (interface{}, error) {
+func (client *Client) getX(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
+	var err error
 	if options == nil {
-		options = client.provider.options()
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
 	}
-	resp, err := grequests.Get(client.provider.baseURL()+path, options)
+	resp, err := grequests.Get(client.baseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -64,17 +91,18 @@ func (client *Client) getJSON(path string, options *grequests.RequestOptions) (i
 		return nil, NewErrorFromBody(resp.String())
 	}
 
-	var result interface{}
-	err = resp.JSON(&result)
-	return result, err
+	return resp, nil
 }
 
 func (client *Client) post(path string, params map[string]interface{}, options *grequests.RequestOptions) (*simplejson.Json, error) {
+	var err error
 	if options == nil {
-		options = client.provider.options()
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
 	}
 	options.JSON = params
-	resp, err := grequests.Post(client.provider.baseURL()+path, options)
+	resp, err := grequests.Post(client.baseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -84,11 +112,32 @@ func (client *Client) post(path string, params map[string]interface{}, options *
 	return simplejson.NewFromReader(resp)
 }
 
-func (client *Client) delete(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
+func (client *Client) postX(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+	var err error
 	if options == nil {
-		options = client.provider.options()
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
 	}
-	resp, err := grequests.Delete(client.provider.baseURL()+path, options)
+	options.JSON = params
+	resp, err := grequests.Post(client.baseURL()+path, options)
+	if err != nil {
+		return nil, err
+	}
+	if !resp.Ok {
+		return nil, NewErrorFromBody(resp.String())
+	}
+	return resp, nil
+}
+
+func (client *Client) delete(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
+	var err error
+	if options == nil {
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
+	}
+	resp, err := grequests.Delete(client.baseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}

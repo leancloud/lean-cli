@@ -7,9 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aisk/wizard"
 	"github.com/bitly/go-simplejson"
-	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
@@ -93,31 +91,31 @@ func updateAppInfoToLocal(appInfo *AppInfo) error {
 	return ioutil.WriteFile(infoPath, body, 0600)
 }
 
-func getAppInfoFromServer(appID string) (*AppInfo, error) {
-	masterKey := new(string)
-	wizard.Ask([]wizard.Question{
-		{
-			Content: "请输入应用的 Master Key:",
-			Input: &wizard.Input{
-				Hidden: true,
-				Result: masterKey,
-			},
-		},
-	})
-
-	client := api.NewKeyAuthClient(appID, *masterKey)
-
-	content, err := client.AppDetail()
-	if err != nil {
-		return nil, err
-	}
-
-	return &AppInfo{
-		AppID:     appID,
-		AppKey:    content.Get("app_key").MustString(),
-		MasterKey: *masterKey,
-	}, nil
-}
+// func getAppInfoFromServer(appID string) (*AppInfo, error) {
+// 	masterKey := new(string)
+// 	wizard.Ask([]wizard.Question{
+// 		{
+// 			Content: "请输入应用的 Master Key:",
+// 			Input: &wizard.Input{
+// 				Hidden: true,
+// 				Result: masterKey,
+// 			},
+// 		},
+// 	})
+//
+// 	client := api.NewKeyAuthClient(appID, *masterKey)
+//
+// 	content, err := client.AppDetail()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	return &AppInfo{
+// 		AppID:     appID,
+// 		AppKey:    content.Get("app_key").MustString(),
+// 		MasterKey: *masterKey,
+// 	}, nil
+// }
 
 func getAppInfoFromLocal(appID string) (*AppInfo, error) {
 	infoPath := filepath.Join(utils.HomeDir(), ".leancloud", "app_keys")
@@ -151,17 +149,18 @@ func getAppInfoFromLocal(appID string) (*AppInfo, error) {
 // file system first, or from LeanCloud API server if not found
 func GetAppInfo(appID string) (appInfo *AppInfo, err error) {
 	appInfo, err = getAppInfoFromLocal(appID)
-	if err == ErrAppInfoNotFound {
-		appInfo, err = getAppInfoFromServer(appID)
-		if err != nil {
-			return
-		}
-		err = updateAppInfoToLocal(appInfo)
-		if err != nil {
-			return
-		}
-	}
-	return appInfo, nil
+	return appInfo, err
+	// if err == ErrAppInfoNotFound {
+	// 	appInfo, err = getAppInfoFromServer(appID)
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// 	err = updateAppInfoToLocal(appInfo)
+	// 	if err != nil {
+	// 		return
+	// 	}
+	// }
+	// return appInfo, nil
 }
 
 // AddApp add new app into project's linked apps
