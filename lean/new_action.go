@@ -10,19 +10,18 @@ import (
 	"github.com/leancloud/lean-cli/lean/boilerplate"
 )
 
-func selectApp(appList []interface{}) map[string]interface{} {
-	var selectedApp map[string]interface{}
+func selectApp(appList []*api.GetAppListResult) *api.GetAppListResult {
+	var selectedApp *api.GetAppListResult
 	question := wizard.Question{
 		Content: "请选择 APP",
 		Answers: []wizard.Answer{},
 	}
-	for _, _app := range appList {
-		app := _app.(map[string]interface{})
+	for _, app := range appList {
 		answer := wizard.Answer{
-			Content: app["app_name"].(string),
+			Content: app.AppName,
 		}
 		// for scope problem
-		func(app map[string]interface{}) {
+		func(app *api.GetAppListResult) {
 			answer.Handler = func() {
 				selectedApp = app
 			}
@@ -69,31 +68,18 @@ func newAction(*cli.Context) error {
 		return err
 	}
 	app := selectApp(appList)
-	appID := app["app_id"].(string)
+	appID := app.AppID
 
 	runtime := selectRuntime()
 
-	appInfo, err := api.GetAppInfo(appID)
-	if err != nil {
-		return newCliError(err)
-	}
-
-	appName := appInfo.AppName
+	appName := app.AppName
 
 	if err := boilerplate.FetchRepo(runtime, appName, appID); err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	if err := apps.AddApp(appName, appName, appID); err != nil {
-		fmt.Println(err)
-		return err
-	}
+	err = apps.LinkApp(app.AppName, app.AppID)
 
-	if err := apps.SwitchApp(appName, appName); err != nil {
-		fmt.Println(err)
-		return err
-	}
-
-	return nil
+	return newCliError(err)
 }

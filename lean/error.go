@@ -8,6 +8,8 @@ import (
 // newCliError create a *cli.ExitError from given error interface, and the new error's content is human readable
 func newCliError(err error) *cli.ExitError {
 	switch e := err.(type) {
+	case nil:
+		return nil
 	case api.Error:
 		return cli.NewExitError(e.Content, 1)
 	default:

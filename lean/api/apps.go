@@ -1,16 +1,30 @@
 package api
 
-import "github.com/leancloud/lean-cli/lean/apps"
+import (
+	"github.com/leancloud/lean-cli/lean/apps"
+)
+
+// GetAppListResult is GetAppList function's result type
+type GetAppListResult struct {
+	AppID     string `json:"app_id"`
+	AppKey    string `json:"app_key"`
+	AppName   string `json:"app_name"`
+	MasterKey string `json:"master_key"`
+	AppDomain string `json:"app_domain"`
+}
 
 // GetAppList returns the current user's all LeanCloud application
-func GetAppList() ([]interface{}, error) {
+func GetAppList() ([]*GetAppListResult, error) {
 	client := NewClient()
 
-	result, err := client.get("/1/clients/self/apps", nil)
+	resp, err := client.getX("/1/clients/self/apps", nil)
 	if err != nil {
 		return nil, err
 	}
-	return result.MustArray(), nil
+
+	var result []*GetAppListResult
+	err = resp.JSON(&result)
+	return result, err
 }
 
 // DeployAppFromGit will deploy applications with user's git repo
@@ -18,7 +32,7 @@ func GetAppList() ([]interface{}, error) {
 func DeployAppFromGit(projectPath string, groupName string) (string, error) {
 	client := NewClient()
 
-	appInfo, err := apps.CurrentAppInfo(projectPath)
+	appID, err := apps.GetCurrentAppID(projectPath)
 	if err != nil {
 		return "", err
 	}
@@ -27,7 +41,7 @@ func DeployAppFromGit(projectPath string, groupName string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	opts.Headers["X-LC-Id"] = appInfo.AppID
+	opts.Headers["X-LC-Id"] = appID
 
 	resp, err := client.post("/1.1/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"comment":             "",
@@ -47,7 +61,7 @@ func DeployAppFromGit(projectPath string, groupName string) (string, error) {
 func DeployAppFromFile(projectPath string, groupName string, fileURL string) (string, error) {
 	client := NewClient()
 
-	appInfo, err := apps.CurrentAppInfo(projectPath)
+	appID, err := apps.GetCurrentAppID(projectPath)
 	if err != nil {
 		return "", err
 	}
@@ -56,7 +70,7 @@ func DeployAppFromFile(projectPath string, groupName string, fileURL string) (st
 	if err != nil {
 		return "", err
 	}
-	opts.Headers["X-LC-Id"] = appInfo.AppID
+	opts.Headers["X-LC-Id"] = appID
 
 	resp, err := client.post("/1.1/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"zipUrl":              fileURL,

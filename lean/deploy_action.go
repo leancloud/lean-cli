@@ -11,7 +11,6 @@ import (
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
-	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func determineGroupName(appID string) (string, error) {
@@ -44,7 +43,7 @@ func determineGroupName(appID string) (string, error) {
 	return groupName.(string), nil
 }
 
-func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.UploadFileResult, error) {
+func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error) {
 	// TODO: ignore files
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -64,7 +63,7 @@ func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.UploadFileResul
 	}()
 
 	log.Println("上传项目文件 ...")
-	file, err := api.UploadFile(appInfo.AppID, filePath)
+	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
 		return nil, err
 	}
@@ -72,12 +71,13 @@ func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.UploadFileResul
 	return file, nil
 }
 
-func deployFromLocal(appInfo *apps.AppInfo, groupName string) error {
-	file, err := uploadProject(appInfo, "")
+func deployFromLocal(appID string, groupName string) error {
+	file, err := uploadProject(appID, "")
 	if err != nil {
 		return err
 	}
 
+	// TODO: remove after deploy finished
 	// defer func() {
 	// 	err := api.DeleteFile(appInfo.AppID, file.ObjectID)
 	// 	if err != nil {
@@ -93,21 +93,17 @@ func deployFromLocal(appInfo *apps.AppInfo, groupName string) error {
 }
 
 func deployAction(*cli.Context) error {
-	_apps, err := apps.LinkedApps(".")
-	utils.CheckError(err)
-	if len(_apps) == 0 {
-		log.Fatalln("没有关联任何 app，请使用 lean app add 来关联应用。")
+	// TODO: specific app
+	appID, err := apps.GetCurrentAppID("")
+	if err == apps.ErrNoAppLinked {
+		log.Fatalln("没有关联任何 app，请使用 lean switch 来关联应用。")
 	}
 
-	// TODO: specific app
-	app := _apps[0]
-
-	appInfo, err := apps.GetAppInfo(app.AppID)
 	if err != nil {
 		return newCliError(err)
 	}
 
-	groupName, err := determineGroupName(appInfo.AppID)
+	groupName, err := determineGroupName(appID)
 	if err != nil {
 		return newCliError(err)
 	}
@@ -126,6 +122,6 @@ func deployAction(*cli.Context) error {
 		log.Println(eventTok)
 		return nil
 	}
-	deployFromLocal(appInfo, groupName)
+	deployFromLocal(appID, groupName)
 	return nil
 }

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/codegangsta/cli"
+	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/console"
 )
@@ -28,14 +29,19 @@ func upAction(c *cli.Context) error {
 	// TODO:
 	apiServerURL := "https://api.leancloud.cn"
 
-	appInfo, err := apps.CurrentAppInfo(".")
+	appID, err := apps.GetCurrentAppID("")
 	if err != nil {
-		return cli.NewExitError(err.Error(), 1)
+		return newCliError(err)
 	}
 
-	rtm, err := apps.DetectRuntime(".")
+	rtm, err := apps.DetectRuntime("")
 	if err != nil {
-		return cli.NewExitError(err.Error(), 1)
+		return newCliError(err)
+	}
+
+	appInfo, err := api.GetAppInfo(appID)
+	if err != nil {
+		return newCliError(err)
 	}
 
 	rtm.Envs["LC_APP_ID"] = appInfo.AppID
