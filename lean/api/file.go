@@ -6,14 +6,19 @@ import (
 	"time"
 )
 
-// File ...
-type File struct {
-	ID  string
-	URL string
+// UploadFileResult is the UploadFile's return type
+type UploadFileResult struct {
+	ObjectID string `json:"objectID"`
+	URL      string `json:"url"`
 }
 
-// UploadFile ...
-func (client *Client) UploadFile(filePath string) (*File, error) {
+// UploadFile upload specific file to LeanCloud
+func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
+	appInfo, err := GetAppInfo(appID)
+	if err != nil {
+		return nil, err
+	}
+
 	fileName := "leanengine" + time.Now().Format("20060102150405") + ".zip"
 
 	content, err := ioutil.ReadFile(filePath)
@@ -27,19 +32,36 @@ func (client *Client) UploadFile(filePath string) (*File, error) {
 		"mime_type":    "application/zip",
 	}
 
-	jsonObj, err := client.post("/files/"+fileName, params, nil)
+	client := NewClient()
+	opts, err := client.options()
+	if err != nil {
+		return nil, err
+	}
+	opts.Headers["X-LC-Id"] = appInfo.AppID
+	opts.Headers["X-LC-Key"] = appInfo.MasterKey + ",master"
+	resp, err := client.postX("/1.1/files/"+fileName, params, opts)
 	if err != nil {
 		return nil, err
 	}
 
-	return &File{
-		ID:  jsonObj.Get("objectId").MustString(),
-		URL: jsonObj.Get("url").MustString(),
-	}, nil
+	result := new(UploadFileResult)
+	err = resp.JSON(result)
+	return result, err
 }
 
-// DeleteFile ...
-func (client *Client) DeleteFile(ID string) error {
-	_, err := client.delete("/files/"+ID, nil)
+// DeleteFile will delete the specific file
+func DeleteFile(appID string, objectID string) error {
+	appInfo, err := GetAppInfo(appID)
+	if err != nil {
+		return err
+	}
+	client := NewClient()
+	opts, err := client.options()
+	if err != nil {
+		return err
+	}
+	opts.Headers["X-LC-Id"] = appInfo.AppID
+	opts.Headers["X-LC-Key"] = appInfo.MasterKey + ",master"
+	_, err = client.delete("/1.1/files/"+objectID, opts)
 	return err
 }

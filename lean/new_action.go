@@ -8,22 +8,20 @@ import (
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/boilerplate"
-	"github.com/leancloud/lean-cli/lean/utils"
 )
 
-func selectApp(appList []interface{}) map[string]interface{} {
-	var selectedApp map[string]interface{}
+func selectApp(appList []*api.GetAppListResult) *api.GetAppListResult {
+	var selectedApp *api.GetAppListResult
 	question := wizard.Question{
 		Content: "请选择 APP",
 		Answers: []wizard.Answer{},
 	}
-	for _, _app := range appList {
-		app := _app.(map[string]interface{})
+	for _, app := range appList {
 		answer := wizard.Answer{
-			Content: app["app_name"].(string),
+			Content: app.AppName,
 		}
 		// for scope problem
-		func(app map[string]interface{}) {
+		func(app *api.GetAppListResult) {
 			answer.Handler = func() {
 				selectedApp = app
 			}
@@ -70,30 +68,18 @@ func newAction(*cli.Context) error {
 		return err
 	}
 	app := selectApp(appList)
-	appID := app["app_id"].(string)
-	masterKey := app["master_key"].(string)
+	appID := app.AppID
 
 	runtime := selectRuntime()
 
-	client := api.NewKeyAuthClient(appID, masterKey)
-
-	detail, err := client.AppDetail()
-	utils.CheckError(err)
-	appName := detail.Get("app_name").MustString()
+	appName := app.AppName
 
 	if err := boilerplate.FetchRepo(runtime, appName, appID); err != nil {
-		return err
-	}
-
-	if err := apps.AddApp(appName, appName, appID); err != nil {
 		fmt.Println(err)
 		return err
 	}
 
-	if err := apps.SwitchApp(appName, appName); err != nil {
-		fmt.Println(err)
-		return err
-	}
+	err = apps.LinkApp(app.AppName, app.AppID)
 
-	return nil
+	return newCliError(err)
 }

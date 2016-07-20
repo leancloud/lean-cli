@@ -11,31 +11,28 @@ import (
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
-	"github.com/leancloud/lean-cli/lean/utils"
 )
 
-func deployGroupName(appInfo *apps.AppInfo) (string, error) {
-	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
-
-	engineInfo, err := client.EngineInfo()
+func determineGroupName(appID string) (string, error) {
+	info, err := api.GetAppInfo(appID)
 	if err != nil {
 		return "", err
 	}
-	mode := engineInfo.Get("mode").MustString()
+	mode := info.LeanEngineMode
 
-	groups, err := client.Groups()
+	groups, err := api.GetGroups(appID)
 	if err != nil {
 		return "", err
 	}
 
-	groupName, found, err := linq.From(groups.MustArray()).Where(func(_group linq.T) (bool, error) {
-		groupName := _group.(map[string]interface{})["groupName"].(string)
+	groupName, found, err := linq.From(groups).Where(func(group linq.T) (bool, error) {
+		groupName := group.(*api.GetGroupsResult).GroupName
 		if mode == "free" {
 			return groupName != "staging", nil
 		}
 		return groupName == "staging", nil
 	}).Select(func(group linq.T) (linq.T, error) {
-		return group.(map[string]interface{})["groupName"], nil
+		return group.(*api.GetGroupsResult).GroupName, nil
 	}).First()
 	if err != nil {
 		return "", err
@@ -46,7 +43,7 @@ func deployGroupName(appInfo *apps.AppInfo) (string, error) {
 	return groupName.(string), nil
 }
 
-func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.File, error) {
+func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error) {
 	// TODO: ignore files
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -66,48 +63,50 @@ func uploadProject(appInfo *apps.AppInfo, repoPath string) (*api.File, error) {
 	}()
 
 	log.Println("上传项目文件 ...")
-	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
-	file, err := client.UploadFile(filePath)
-	utils.CheckError(err)
+	file, err := api.UploadFile(appID, filePath)
+	if err != nil {
+		return nil, err
+	}
 
 	return file, nil
 }
 
-func deployFromLocal(appInfo *apps.AppInfo, groupName string) {
-	file, err := uploadProject(appInfo, "")
-	utils.CheckError(err)
-
-	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
-
-	_, err = client.BuildFromURL(groupName, file.URL)
-	utils.CheckError(err)
-
-	err = client.DeleteFile(file.ID)
-	utils.CheckError(err)
-}
-
-func deployFromGit(appInfo *apps.AppInfo, groupName string) {
-	client := api.NewKeyAuthClient(appInfo.AppID, appInfo.MasterKey)
-
-	_, err := client.BuildFromGit(groupName)
-	utils.CheckError(err)
-}
-
-func deployAction(*cli.Context) {
-	_apps, err := apps.LinkedApps(".")
-	utils.CheckError(err)
-	if len(_apps) == 0 {
-		log.Fatalln("没有关联任何 app，请使用 lean app add 来关联应用。")
+func deployFromLocal(appID string, groupName string) error {
+	file, err := uploadProject(appID, "")
+	if err != nil {
+		return err
 	}
 
+	// TODO: remove after deploy finished
+	// defer func() {
+	// 	err := api.DeleteFile(appInfo.AppID, file.ObjectID)
+	// 	if err != nil {
+	// 		log.Println("删除临时文件失败：", err)
+	// 	} else {
+	// 		log.Println("删除临时文件成功")
+	// 	}
+	// }()
+
+	tok, err := api.DeployAppFromFile("", groupName, file.URL)
+	log.Println(tok)
+	return err
+}
+
+func deployAction(*cli.Context) error {
 	// TODO: specific app
-	app := _apps[0]
+	appID, err := apps.GetCurrentAppID("")
+	if err == apps.ErrNoAppLinked {
+		log.Fatalln("没有关联任何 app，请使用 lean switch 来关联应用。")
+	}
 
-	appInfo, err := apps.GetAppInfo(app.AppID)
-	utils.CheckError(err)
+	if err != nil {
+		return newCliError(err)
+	}
 
-	groupName, err := deployGroupName(appInfo)
-	utils.CheckError(err)
+	groupName, err := determineGroupName(appID)
+	if err != nil {
+		return newCliError(err)
+	}
 
 	if groupName == "staging" {
 		log.Println("准备部署应用到预备环境")
@@ -116,8 +115,13 @@ func deployAction(*cli.Context) {
 	}
 
 	if isDeployFromGit {
-		deployFromGit(appInfo, groupName)
-	} else {
-		deployFromLocal(appInfo, groupName)
+		eventTok, err := api.DeployAppFromGit("", groupName)
+		if err != nil {
+			return newCliError(err)
+		}
+		log.Println(eventTok)
+		return nil
 	}
+	deployFromLocal(appID, groupName)
+	return nil
 }
