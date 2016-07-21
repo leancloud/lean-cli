@@ -77,9 +77,9 @@ func main() {
 			Action: upAction,
 		},
 		{
-			Name:   "new",
-			Usage:  "创建云引擎项目。",
-			Action: newAction,
+			Name:   "init",
+			Usage:  "初始化云引擎项目。",
+			Action: initAction,
 		},
 		{
 			Name:   "switch",
