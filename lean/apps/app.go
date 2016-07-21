@@ -33,6 +33,9 @@ func LinkApp(projectPath string, appID string) error {
 // GetCurrentAppID will return the content of ${projectPath}/.leancloud/current_app_id
 func GetCurrentAppID(projectPath string) (string, error) {
 	content, err := ioutil.ReadFile(currentAppIDFilePath(projectPath))
+	if os.IsNotExist(err) {
+		return "", ErrNoAppLinked
+	}
 	if err != nil {
 		return "", err
 	}

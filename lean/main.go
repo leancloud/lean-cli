@@ -67,9 +67,9 @@ func main() {
 			Action: loginAction,
 		},
 		{
-			Name:   "whoami",
-			Usage:  "查看当前登录账户。",
-			Action: whoamiAction,
+			Name:   "info",
+			Usage:  "查看当前登录用户以及应用信息。",
+			Action: infoAction,
 		},
 		{
 			Name:   "up",
