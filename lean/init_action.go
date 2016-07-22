@@ -32,54 +32,53 @@ func selectApp(appList []*api.GetAppListResult) *api.GetAppListResult {
 	return selectedApp
 }
 
-func selectRuntime() int {
-	runtimeType := 0
+func selectBoilerplate() (*boilerplate.Boilerplate, error) {
+	selectBoil := new(boilerplate.Boilerplate)
+	boils, err := boilerplate.GetBoilerplateList()
+	if err != nil {
+		return nil, err
+	}
 
-	wizard.Ask([]wizard.Question{
-		{
-			Content: "请选择项目语言:",
-			Answers: []wizard.Answer{
-				{
-					Content: "Python",
-					Handler: func() {
-						runtimeType = boilerplate.Python
-					},
-				}, {
-					Content: "Node.js",
-					Handler: func() {
-						runtimeType = boilerplate.NodeJS
-					},
-				},
-				// {
-				// 	Content: "PHP",
-				// 	Handler: func() {
-				// 		runtimeType = runtimePHP
-				// 	},
-				// },
+	question := wizard.Question{
+		Content: "请选择需要创建的应用模版：",
+		Answers: []wizard.Answer{},
+	}
+	for _, boil := range boils {
+		answer := wizard.Answer{
+			Content: boil.Name,
+			Handler: func() {
+				selectBoil = boil
 			},
-		},
-	})
-	return runtimeType
+		}
+		question.Answers = append(question.Answers, answer)
+	}
+	wizard.Ask([]wizard.Question{question})
+	return selectBoil, nil
 }
 
 func initAction(*cli.Context) error {
 	appList, err := api.GetAppList()
 	if err != nil {
-		return err
+		return newCliError(err)
 	}
 	app := selectApp(appList)
 	appID := app.AppID
 
-	runtime := selectRuntime()
+	boil, err := selectBoilerplate()
+	if err != nil {
+		return newCliError(err)
+	}
+	fmt.Println(boil)
 
 	appName := app.AppName
 
-	if err := boilerplate.FetchRepo(runtime, appName, appID); err != nil {
-		fmt.Println(err)
-		return err
+	if err := boilerplate.FetchRepo(boil, appName, appID); err != nil {
+		return newCliError(err)
 	}
 
 	err = apps.LinkApp(app.AppName, app.AppID)
-
-	return newCliError(err)
+	if err != nil {
+		return newCliError(err)
+	}
+	return nil
 }
