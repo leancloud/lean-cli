@@ -30,8 +30,22 @@ func Login(email string, password string) (*simplejson.Json, error) {
 	return simplejson.NewFromReader(response)
 }
 
-// UserInfo returns the current logined user info
-func UserInfo() (*simplejson.Json, error) {
+// GetUserInfoResult is the return type of GetUserInfo
+type GetUserInfoResult struct {
+	Email    string `json:"email"`
+	UserName string `json:"username"`
+}
+
+// GetUserInfo returns the current logined user info
+func GetUserInfo() (*GetUserInfoResult, error) {
 	client := NewClient()
-	return client.get("/1/clients/self", nil)
+
+	resp, err := client.getX("/1.1/clients/self", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	result := new(GetUserInfoResult)
+	err = resp.JSON(result)
+	return result, err
 }

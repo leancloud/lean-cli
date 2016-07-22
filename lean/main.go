@@ -67,9 +67,9 @@ func main() {
 			Action: loginAction,
 		},
 		{
-			Name:   "whoami",
-			Usage:  "查看当前登录账户。",
-			Action: whoamiAction,
+			Name:   "info",
+			Usage:  "查看当前登录用户以及应用信息。",
+			Action: infoAction,
 		},
 		{
 			Name:   "up",
@@ -77,9 +77,9 @@ func main() {
 			Action: upAction,
 		},
 		{
-			Name:   "new",
-			Usage:  "创建云引擎项目。",
-			Action: newAction,
+			Name:   "init",
+			Usage:  "初始化云引擎项目。",
+			Action: initAction,
 		},
 		{
 			Name:   "switch",

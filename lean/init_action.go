@@ -62,7 +62,7 @@ func selectRuntime() int {
 	return runtimeType
 }
 
-func newAction(*cli.Context) error {
+func initAction(*cli.Context) error {
 	appList, err := api.GetAppList()
 	if err != nil {
 		return err
