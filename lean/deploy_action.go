@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 
 	"github.com/ahmetalpbalkan/go-linq"
@@ -77,19 +78,39 @@ func deployFromLocal(appID string, groupName string) error {
 		return err
 	}
 
-	// TODO: remove after deploy finished
-	// defer func() {
-	// 	err := api.DeleteFile(appInfo.AppID, file.ObjectID)
-	// 	if err != nil {
-	// 		log.Println("删除临时文件失败：", err)
-	// 	} else {
-	// 		log.Println("删除临时文件成功")
-	// 	}
-	// }()
+	defer func() {
+		err := api.DeleteFile(appID, file.ObjectID)
+		if err != nil {
+			log.Println("删除临时文件失败：", err)
+		} else {
+			log.Println("删除临时文件成功")
+		}
+	}()
 
-	tok, err := api.DeployAppFromFile("", groupName, file.URL)
-	log.Println(tok)
-	return err
+	eventTok, err := api.DeployAppFromFile("", groupName, file.URL)
+	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return cli.NewExitError("部署失败", 1)
+	}
+	return nil
+}
+
+func deployFromGit(appID string, groupName string) error {
+	eventTok, err := api.DeployAppFromGit("", groupName)
+	if err != nil {
+		return err
+	}
+	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return cli.NewExitError("部署失败", 1)
+	}
+	return nil
 }
 
 func deployAction(*cli.Context) error {
@@ -115,13 +136,15 @@ func deployAction(*cli.Context) error {
 	}
 
 	if isDeployFromGit {
-		eventTok, err := api.DeployAppFromGit("", groupName)
+		err = deployFromGit(appID, groupName)
 		if err != nil {
 			return newCliError(err)
 		}
-		log.Println(eventTok)
-		return nil
+	} else {
+		err = deployFromLocal(appID, groupName)
+		if err != nil {
+			return newCliError(err)
+		}
 	}
-	deployFromLocal(appID, groupName)
 	return nil
 }
