@@ -66,22 +66,21 @@ func (runtime *Runtime) Run() error {
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
 	if utils.IsFileExists(filepath.Join("cloud", "main.js")) {
-		println("cloudcode!!")
+		log.Println("cloudcode runtime detected.")
 		return nil, nil
 	}
 	if utils.IsFileExists("server.js") && utils.IsFileExists("package.json") {
-		println("node!!")
+		log.Println("node.js runtime detected.")
 		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists("requirements.txt") && utils.IsFileExists("wsgi.py") {
-		println("python!!")
+		log.Println("python runtime detected.")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists("composer.json") && utils.IsFileExists(filepath.Join("public", "index.php")) {
-		println("php!!")
-		return nil, nil
+		log.Println("php runtime detected.")
+		return newPhpRuntime(projectPath)
 	}
-	println("nothing!!")
 	return nil, errors.New("invalid runtime")
 }
 
@@ -136,6 +135,16 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 		Name:       "node.js",
 		Exec:       execName,
 		Args:       []string{script},
+		WatchFiles: []string{"."},
+		Envs:       os.Environ(),
+	}, nil
+}
+
+func newPhpRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		Name:       "php",
+		Exec:       "php",
+		Args:       []string{"-S", "127.0.0.1:3000", "-t", "public"},
 		WatchFiles: []string{"."},
 		Envs:       os.Environ(),
 	}, nil
