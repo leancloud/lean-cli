@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/codegangsta/cli"
@@ -34,7 +35,8 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	rtm, err := apps.DetectRuntime("")
+	rtm, err := console.DetectRuntime("")
+	log.Println(rtm, err)
 	if err != nil {
 		return newCliError(err)
 	}
@@ -44,16 +46,21 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	rtm.Envs["LC_APP_ID"] = appInfo.AppID
-	rtm.Envs["LC_APP_KEY"] = appInfo.AppKey
-	rtm.Envs["LC_APP_MASTER_KEY"] = appInfo.MasterKey
-	rtm.Envs["LC_APP_PORT"] = port
-	rtm.Envs["LC_API_SERVER"] = apiServerURL
-	rtm.Envs["LEANCLOUD_APP_ID"] = appInfo.AppID
-	rtm.Envs["LEANCLOUD_APP_KEY"] = appInfo.AppKey
-	rtm.Envs["LEANCLOUD_APP_MASTER_KEY"] = appInfo.MasterKey
-	rtm.Envs["LEANCLOUD_APP_PORT"] = port
-	rtm.Envs["LEANCLOUD_API_SERVER"] = apiServerURL
+	envs := []string{
+		"LC_APP_ID=" + appInfo.AppID,
+		"LC_APP_KEY" + appInfo.AppKey,
+		"LC_APP_MASTER_KEY" + appInfo.MasterKey,
+		"LC_APP_PORT" + port,
+		"LC_API_SERVER" + apiServerURL,
+		"LEANCLOUD_APP_ID" + appInfo.AppID,
+		"LEANCLOUD_APP_KEY" + appInfo.AppKey,
+		"LEANCLOUD_APP_MASTER_KEY" + appInfo.MasterKey,
+		"LEANCLOUD_APP_PORT" + port,
+		"LEANCLOUD_API_SERVER" + apiServerURL,
+	}
+	for _, env := range envs {
+		rtm.Envs = append(envs, env)
+	}
 
 	go func() {
 		err := rtm.Run()
