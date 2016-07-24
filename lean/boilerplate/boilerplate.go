@@ -13,14 +13,6 @@ import (
 	"github.com/levigross/grequests"
 )
 
-// stands for different language runtime boilerplate
-const (
-	invalid = iota
-	Python
-	NodeJS
-	PHP
-)
-
 // don't know why archive/zip.Reader.File[0].FileInfo().IsDir() always return true,
 // this is a trick hack to void this.
 func isDir(path string) bool {
@@ -54,13 +46,10 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 }
 
 // FetchRepo will download the boilerplate from remote and extract to ${appName}/ folder
-func FetchRepo(t int, appName string, appID string) error {
+func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	utils.CheckError(os.Mkdir(appName, 0700))
 
-	repoURL := map[int]string{
-		Python: "http://lcinternal-cloud-code-update.leanapp.cn/python-getting-started.zip",
-		NodeJS: "http://lcinternal-cloud-code-update.leanapp.cn/node-js-getting-started.zip",
-	}[t]
+	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn/" + boil.URL
 
 	dir, err := ioutil.TempDir("", "leanengine")
 	utils.CheckError(err)
@@ -97,4 +86,29 @@ func FetchRepo(t int, appName string, appID string) error {
 	log.Println("创建项目完成")
 
 	return nil
+}
+
+// Boilerplate is GetBoilerplateList's result type
+type Boilerplate struct {
+	Name string
+	URL  string
+}
+
+// GetBoilerplateList returns all the boilerplate with name and url
+func GetBoilerplateList() ([]*Boilerplate, error) {
+	resp, err := grequests.Get("https://lcinternal-cloud-code-update.leanapp.cn/", nil)
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[string]*Boilerplate)
+	err = resp.JSON(&result)
+	if err != nil {
+		return nil, err
+	}
+	var boils []*Boilerplate
+	for _, boil := range result {
+		boils = append(boils, boil)
+	}
+	log.Println(boils)
+	return boils, nil
 }
