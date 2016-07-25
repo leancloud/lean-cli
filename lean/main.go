@@ -18,10 +18,10 @@ const banner = `
 
 `
 
-const version = "0.0.1"
-
 var (
-	isDeployFromGit = false
+	version          = "0.0.1"
+	commandBuildFrom = "go tool"
+	isDeployFromGit  = false
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {
@@ -48,6 +48,10 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 func main() {
 	// disable the log prefix
 	log.SetFlags(0)
+
+	go func() {
+		_ = checkUpdate()
+	}()
 
 	// add banner text to help text
 	cli.AppHelpTemplate = banner + cli.AppHelpTemplate
