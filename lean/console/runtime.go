@@ -1,6 +1,7 @@
-package apps
+package console
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"log"
@@ -18,7 +19,7 @@ type Runtime struct {
 	Exec       string
 	Args       []string
 	WatchFiles []string
-	Envs       map[string]string
+	Envs       []string
 }
 
 // Run the project, and watch file changes
@@ -27,8 +28,8 @@ func (runtime *Runtime) Run() error {
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 
-	for key, value := range runtime.Envs {
-		command.Env = append(command.Env, key+"="+value)
+	for _, env := range runtime.Envs {
+		command.Env = append(command.Env, env)
 	}
 
 	return command.Run()
@@ -65,22 +66,21 @@ func (runtime *Runtime) Run() error {
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
 	if utils.IsFileExists(filepath.Join("cloud", "main.js")) {
-		println("cloudcode!!")
+		log.Println("cloudcode runtime detected.")
 		return nil, nil
 	}
 	if utils.IsFileExists("server.js") && utils.IsFileExists("package.json") {
-		println("node!!")
-		return nil, nil
+		log.Println("node.js runtime detected.")
+		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists("requirements.txt") && utils.IsFileExists("wsgi.py") {
-		println("python!!")
+		log.Println("python runtime detected.")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists("composer.json") && utils.IsFileExists(filepath.Join("public", "index.php")) {
-		println("php!!")
-		return nil, nil
+		log.Println("php runtime detected.")
+		return newPhpRuntime(projectPath)
 	}
-	println("nothing!!")
 	return nil, errors.New("invalid runtime")
 }
 
@@ -107,6 +107,45 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 		Exec:       execName,
 		Args:       []string{"wsgi.py"},
 		WatchFiles: []string{"."},
-		Envs:       map[string]string{},
+		Envs:       os.Environ(),
+	}, nil
+}
+
+func newNodeRuntime(projectPath string) (*Runtime, error) {
+	execName := "node"
+	script := "server.js"
+	pkgFile := filepath.Join(projectPath, "package.json")
+	if content, err := ioutil.ReadFile(pkgFile); err == nil {
+		pkg := new(struct {
+			Scripts struct {
+				Start string `json:"start"`
+			} `json:"scripts"`
+		})
+		err = json.Unmarshal(content, pkg)
+		if err != nil {
+			return nil, err
+		}
+		if pkg.Scripts.Start != "" {
+			execName = "npm"
+			script = "start"
+		}
+	}
+
+	return &Runtime{
+		Name:       "node.js",
+		Exec:       execName,
+		Args:       []string{script},
+		WatchFiles: []string{"."},
+		Envs:       os.Environ(),
+	}, nil
+}
+
+func newPhpRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		Name:       "php",
+		Exec:       "php",
+		Args:       []string{"-S", "127.0.0.1:3000", "-t", "public"},
+		WatchFiles: []string{"."},
+		Envs:       os.Environ(),
 	}, nil
 }
