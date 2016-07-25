@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -33,7 +31,7 @@ func selectApp(appList []*api.GetAppListResult) *api.GetAppListResult {
 }
 
 func selectBoilerplate() (*boilerplate.Boilerplate, error) {
-	selectBoil := new(boilerplate.Boilerplate)
+	var selectBoil *boilerplate.Boilerplate
 	boils, err := boilerplate.GetBoilerplateList()
 	if err != nil {
 		return nil, err
@@ -46,10 +44,13 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	for _, boil := range boils {
 		answer := wizard.Answer{
 			Content: boil.Name,
-			Handler: func() {
-				selectBoil = boil
-			},
 		}
+		// for scope problem
+		func(boil *boilerplate.Boilerplate) {
+			answer.Handler = func() {
+				selectBoil = boil
+			}
+		}(boil)
 		question.Answers = append(question.Answers, answer)
 	}
 	wizard.Ask([]wizard.Question{question})
@@ -68,7 +69,6 @@ func initAction(*cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
-	fmt.Println(boil)
 
 	appName := app.AppName
 

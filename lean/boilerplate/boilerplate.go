@@ -109,6 +109,5 @@ func GetBoilerplateList() ([]*Boilerplate, error) {
 	for _, boil := range result {
 		boils = append(boils, boil)
 	}
-	log.Println(boils)
 	return boils, nil
 }
