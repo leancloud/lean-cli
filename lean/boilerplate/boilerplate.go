@@ -8,7 +8,9 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strconv"
 
+	"github.com/cheggaaa/pb"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/levigross/grequests"
 )
@@ -45,7 +47,7 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 	return nil
 }
 
-// FetchRepo will download the boilerplate from remote and extract to ${appName}/ folder
+// FetchRepo will download the boilerplate from remote and extract to ${appName}/folder
 func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	utils.CheckError(os.Mkdir(appName, 0700))
 
@@ -55,21 +57,21 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	utils.CheckError(err)
 	defer os.RemoveAll(dir)
 
-	log.Println("正在下载项目模版...")
+	log.Println("正在下载项目模版：")
 
 	resp, err := grequests.Get(repoURL, nil)
 	if err != nil {
 		return err
 	}
 	defer resp.Close()
+
 	if resp.StatusCode != 200 {
 		return errors.New(utils.FormatServerErrorResult(resp.String()))
 	}
+	zipFilePath := filepath.Join(dir, "getting-started.zip")
+	DownloadToFile(resp, zipFilePath)
 
 	log.Println("下载完成")
-
-	zipFilePath := filepath.Join(dir, "getting-started.zip")
-	resp.DownloadToFile(zipFilePath)
 
 	log.Println("正在创建项目...")
 
@@ -110,4 +112,37 @@ func GetBoilerplateList() ([]*Boilerplate, error) {
 		boils = append(boils, boil)
 	}
 	return boils, nil
+}
+
+// DownloadToFile allows you to download the contents of the response to a file
+func DownloadToFile(r *grequests.Response, fileName string) error {
+
+	if r.Error != nil {
+		return r.Error
+	}
+
+	fd, err := os.Create(fileName)
+
+	if err != nil {
+		return err
+	}
+
+	defer r.Close() // This is a noop if we use the internal ByteBuffer
+	defer fd.Close()
+
+	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
+		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+		bar.Start()
+		defer bar.Finish()
+		reader := bar.NewProxyReader(r)
+		if _, err := io.Copy(fd, reader); err != nil && err != io.EOF {
+			return err
+		}
+	} else {
+		if _, err := io.Copy(fd, r); err != nil && err != io.EOF {
+			return err
+		}
+	}
+
+	return nil
 }

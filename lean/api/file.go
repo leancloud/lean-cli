@@ -1,9 +1,12 @@
 package api
 
 import (
-	"encoding/base64"
-	"io/ioutil"
+	"errors"
+	"os"
 	"time"
+
+	"github.com/cheggaaa/pb"
+	"github.com/levigross/grequests"
 )
 
 // UploadFileResult is the UploadFile's return type
@@ -21,31 +24,41 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 
 	fileName := "leanengine" + time.Now().Format("20060102150405") + ".zip"
 
-	content, err := ioutil.ReadFile(filePath)
+	f, err := os.Open(filePath)
 	if err != nil {
 		return nil, err
 	}
 
-	params := map[string]interface{}{
-		"base64":       base64.StdEncoding.EncodeToString(content),
-		"_ContentType": "application/zip, application/octet-stream",
-		"mime_type":    "application/zip",
+	stat, err := f.Stat()
+	if err != nil {
+		return nil, err
 	}
+	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+	bar.Start()
+	reader := bar.NewProxyReader(f)
 
-	client := NewClient()
-	opts, err := client.options()
+	opts := &grequests.RequestOptions{
+		Headers: map[string]string{
+			"X-LC-Id":      appInfo.AppID,
+			"X-LC-Key":     appInfo.MasterKey + ",master",
+			"Content-Type": "application/zip, application/octet-stream",
+		},
+		RequestBody: reader,
+	}
+	resp, err := grequests.Post(NewClient().baseURL()+"/1.1/files/"+fileName, opts)
+	bar.Finish()
 	if err != nil {
 		return nil, err
 	}
-	opts.Headers["X-LC-Id"] = appInfo.AppID
-	opts.Headers["X-LC-Key"] = appInfo.MasterKey + ",master"
-	resp, err := client.postX("/1.1/files/"+fileName, params, opts)
-	if err != nil {
-		return nil, err
+	if !resp.Ok {
+		return nil, NewErrorFromBody(resp.String())
 	}
 
 	result := new(UploadFileResult)
 	err = resp.JSON(result)
+	if result.URL == "" {
+		return nil, errors.New("文件上传失败")
+	}
 	return result, err
 }
 
