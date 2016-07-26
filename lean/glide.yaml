@@ -10,3 +10,7 @@ import:
 - package: github.com/aisk/cookieparser
 - package: github.com/gorilla/mux
   version: ^1.1.0
+- package: github.com/coreos/go-semver
+  version: ^0.2.0
+  subpackages:
+  - semver
