@@ -14,7 +14,7 @@ func infoAction(c *cli.Context) error {
 		return cli.NewExitError("未登录，请先使用 `lean login` 命令登录 LeanCloud。", 1)
 	}
 	if err != nil {
-		return cli.NewExitError(err.Error(), 1)
+		return newCliError(err)
 	}
 	fmt.Printf("当前登录用户: %s (%s)\r\n", userInfo.UserName, userInfo.Email)
 

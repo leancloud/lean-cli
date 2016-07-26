@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/codegangsta/cli"
+	"github.com/leancloud/lean-cli/lean/version"
 )
 
 const banner = `
@@ -19,7 +20,6 @@ const banner = `
 `
 
 var (
-	version          = "0.0.1"
 	commandBuildFrom = "go tool"
 	isDeployFromGit  = false
 )
@@ -59,7 +59,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "lean"
-	app.Version = version
+	app.Version = version.Version
 	app.Usage = "Command line to manage and deploy LeanCloud apps"
 
 	app.CommandNotFound = thirdPartyCommand
