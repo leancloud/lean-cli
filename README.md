@@ -4,6 +4,10 @@ Command line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 
 ## Install
 
+- via `go tool`: `$ go get github.com/leancloud/lean-cli/lean`
+
+## Develop
+
 Instatall the dependences first:
 
 - [go](https://golang.org)
