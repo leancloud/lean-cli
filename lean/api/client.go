@@ -59,7 +59,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 		Headers: map[string]string{
 			"X-XSRF-TOKEN": xsrfTok,
 		},
-		UserAgent: "LeanCloud-CLI/v" + version.Version,
+		UserAgent: "LeanCloud-CLI/" + version.Version,
 	}, nil
 }
 
