@@ -1,6 +1,9 @@
 package api
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/bitly/go-simplejson"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
@@ -90,7 +93,10 @@ func (client *Client) getX(path string, options *grequests.RequestOptions) (*gre
 		return nil, err
 	}
 	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
+		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
+			return nil, NewErrorFromBody(resp.String())
+		}
+		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
 
 	return resp, nil

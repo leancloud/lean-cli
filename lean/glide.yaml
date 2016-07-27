@@ -16,3 +16,5 @@ import:
   - semver
 - package: github.com/cheggaaa/pb
   version: ^1.0.5
+- package: github.com/fatih/color
+  version: ^1.0.0

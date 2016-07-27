@@ -54,15 +54,15 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 
 	filePath := filepath.Join(fileDir, "leanengine.zip")
 
-	log.Println("压缩项目文件 ...")
+	op.Write("压缩项目文件 ...")
 	zip := new(archivex.ZipFile)
 	func() {
 		defer zip.Close()
 		zip.Create(filePath)
 		zip.AddAll(repoPath, false)
 	}()
+	op.Successed()
 
-	log.Println("上传项目文件：")
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
 		return nil, err
@@ -78,11 +78,12 @@ func deployFromLocal(appID string, groupName string) error {
 	}
 
 	defer func() {
+		op.Write("删除临时文件")
 		err := api.DeleteFile(appID, file.ObjectID)
 		if err != nil {
-			log.Println("删除临时文件失败：", err)
+			op.Failed()
 		} else {
-			log.Println("删除临时文件成功")
+			op.Successed()
 		}
 	}()
 
@@ -129,9 +130,9 @@ func deployAction(*cli.Context) error {
 	}
 
 	if groupName == "staging" {
-		log.Println("准备部署应用到预备环境")
+		op.Write("准备部署应用到预备环境")
 	} else {
-		log.Println("准备部署应用到生产环境: " + groupName)
+		op.Write("准备部署应用到生产环境: " + groupName)
 	}
 
 	if isDeployFromGit {

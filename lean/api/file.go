@@ -34,6 +34,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		return nil, err
 	}
 	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+	bar.Prefix("- 上传项目文件")
 	bar.Start()
 	reader := bar.NewProxyReader(f)
 
