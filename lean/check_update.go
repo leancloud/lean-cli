@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/coreos/go-semver/semver"
+	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
 
@@ -37,7 +38,7 @@ func checkUpdate() error {
 		return err
 	}
 
-	current := semver.New(version)
+	current := semver.New(version.Version)
 	latest := semver.New(result.Version)
 
 	if current.LessThan(*latest) {

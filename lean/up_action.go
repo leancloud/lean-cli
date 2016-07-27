@@ -24,7 +24,7 @@ func upAction(c *cli.Context) error {
 	port := "3000"
 	consPort, err := getConsolePort(port)
 	if err != nil {
-		return cli.NewExitError(err.Error(), 1)
+		return newCliError(err)
 	}
 
 	// TODO:

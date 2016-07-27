@@ -14,3 +14,5 @@ import:
   version: ^0.2.0
   subpackages:
   - semver
+- package: github.com/cheggaaa/pb
+  version: ^1.0.5

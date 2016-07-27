@@ -2,6 +2,7 @@ package api
 
 import (
 	"github.com/bitly/go-simplejson"
+	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
 
@@ -55,6 +56,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 		Headers: map[string]string{
 			"X-XSRF-TOKEN": xsrfTok,
 		},
+		UserAgent: "LeanCloud-CLI/v" + version.Version,
 	}, nil
 }
 

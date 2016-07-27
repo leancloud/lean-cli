@@ -53,7 +53,6 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 	}
 
 	filePath := filepath.Join(fileDir, "leanengine.zip")
-	println(filePath)
 
 	log.Println("压缩项目文件 ...")
 	zip := new(archivex.ZipFile)
@@ -63,7 +62,7 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 		zip.AddAll(repoPath, false)
 	}()
 
-	log.Println("上传项目文件 ...")
+	log.Println("上传项目文件：")
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
 		return nil, err
