@@ -1,10 +1,12 @@
 package api
 
 import (
-	"fmt"
 	"io"
+	"os"
 	"strings"
 	"time"
+
+	"github.com/leancloud/lean-cli/lean/output"
 )
 
 type deployEvent struct {
@@ -28,6 +30,7 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 
 	from := ""
 	ok := true
+	op := output.NewOutput(os.Stdout)
 	for {
 		time.Sleep(3 * time.Second)
 		url := "/1.1/functions/_ops/events/poll/" + tok
@@ -45,13 +48,17 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 		}
 		for i := len(event.Events) - 1; i >= 0; i-- {
 			e := event.Events[i]
-			fmt.Fprintf(writer, "%s [%s] %s\r\n", e.Time, e.Level, e.Content)
+
+			// fmt.Fprintf(writer, "%s [%s] %s\r\n", e.Time, e.Level, e.Content)
+			op.Write(e.Content)
+
 			from = e.Time
 			if strings.ToLower(e.Level) == "error" {
 				ok = false
 			}
 		}
 		if !event.MoreEvent {
+			op.Successed()
 			break
 		}
 	}

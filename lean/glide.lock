@@ -1,50 +1,50 @@
-hash: 04134eb5bd862206892dc832f771567d40f9a67ba14607643ec76924c10ce172
-updated: 2016-07-26T14:56:56.224045704+08:00
+hash: d418a09d967ed95415fb319af595017293a685a8f414398d0acd4323591a789f
+updated: 2016-07-26T18:21:30.08418458+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/aisk/cookieparser
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/aisk/wizard
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/bgentry/speakeasy
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/bitly/go-simplejson
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/cheggaaa/pb
-  version: 9453b2db37f4d8bc63751daca63bbe7049eb5e74
+  version: ""
 - name: github.com/codegangsta/cli
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/coreos/go-semver
   version: ""
   subpackages:
   - semver
 - name: github.com/fatih/color
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: ""
 - name: github.com/fsnotify/fsnotify
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/google/go-querystring
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
   subpackages:
   - query
 - name: github.com/gorilla/context
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/gorilla/mux
   version: ""
 - name: github.com/jhoonb/archivex
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/levigross/grequests
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/mattn/go-colorable
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: github.com/mattn/go-isatty
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
 - name: golang.org/x/net
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
-  version: 10ae1bdaac44115c7331856a1f4e7c48c1780ec5
+  version: 5a4f195e871bd5c8365734bf756140a5bed80eff
   subpackages:
   - unix
 testImports: []

@@ -6,6 +6,7 @@ import (
 	"os/exec"
 
 	"github.com/codegangsta/cli"
+	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/version"
 )
 
@@ -22,6 +23,7 @@ const banner = `
 var (
 	commandBuildFrom = "go tool"
 	isDeployFromGit  = false
+	op               = output.NewOutput(os.Stdout)
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {
