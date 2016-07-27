@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"strconv"
 
 	"github.com/codegangsta/cli"
@@ -36,7 +35,6 @@ func upAction(c *cli.Context) error {
 	}
 
 	rtm, err := console.DetectRuntime("")
-	log.Println(rtm, err)
 	if err != nil {
 		return newCliError(err)
 	}
@@ -48,15 +46,15 @@ func upAction(c *cli.Context) error {
 
 	envs := []string{
 		"LC_APP_ID=" + appInfo.AppID,
-		"LC_APP_KEY" + appInfo.AppKey,
-		"LC_APP_MASTER_KEY" + appInfo.MasterKey,
-		"LC_APP_PORT" + port,
-		"LC_API_SERVER" + apiServerURL,
-		"LEANCLOUD_APP_ID" + appInfo.AppID,
-		"LEANCLOUD_APP_KEY" + appInfo.AppKey,
-		"LEANCLOUD_APP_MASTER_KEY" + appInfo.MasterKey,
-		"LEANCLOUD_APP_PORT" + port,
-		"LEANCLOUD_API_SERVER" + apiServerURL,
+		"LC_APP_KEY=" + appInfo.AppKey,
+		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
+		"LC_APP_PORT=" + port,
+		"LC_API_SERVER=" + apiServerURL,
+		"LEANCLOUD_APP_ID=" + appInfo.AppID,
+		"LEANCLOUD_APP_KEY=" + appInfo.AppKey,
+		"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
+		"LEANCLOUD_APP_PORT=" + port,
+		"LEANCLOUD_API_SERVER=" + apiServerURL,
 	}
 	for _, env := range envs {
 		rtm.Envs = append(envs, env)
