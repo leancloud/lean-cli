@@ -114,20 +114,21 @@ func deployFromGit(appID string, groupName string) error {
 }
 
 func deployAction(*cli.Context) error {
-	// TODO: specific app
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
 		log.Fatalln("没有关联任何 app，请使用 lean switch 来关联应用。")
 	}
-
 	if err != nil {
 		return newCliError(err)
 	}
 
+	op.Write("获取部署分组信息")
 	groupName, err := determineGroupName(appID)
 	if err != nil {
+		op.Failed()
 		return newCliError(err)
 	}
+	op.Successed()
 
 	if groupName == "staging" {
 		op.Write("准备部署应用到预备环境")

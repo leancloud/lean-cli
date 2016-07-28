@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 
 	"github.com/coreos/go-semver/semver"
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
@@ -25,6 +25,9 @@ func updateCommand() string {
 }
 
 func checkUpdate() error {
+	if pkgType == "homebrew-head" {
+		return nil
+	}
 	resp, err := grequests.Get(checkUpdateURL, nil)
 	if err != nil {
 		return err
@@ -42,7 +45,7 @@ func checkUpdate() error {
 	latest := semver.New(result.Version)
 
 	if current.LessThan(*latest) {
-		log.Printf("发现新版本 %s，变更如下：\r\n%s\r\n您可以通过以下命令升级：%s", result.Version, result.ChangeLog, updateCommand())
+		color.Green("发现新版本 %s，变更如下：\r\n%s \r\n您可以通过以下命令升级：%s", result.Version, result.ChangeLog, updateCommand())
 	}
 
 	return nil
