@@ -21,9 +21,8 @@ const banner = `
 `
 
 var (
-	commandBuildFrom = "go tool"
-	isDeployFromGit  = false
-	op               = output.NewOutput(os.Stdout)
+	isDeployFromGit = false
+	op              = output.NewOutput(os.Stdout)
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {
