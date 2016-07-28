@@ -27,6 +27,31 @@ func GetAppList() ([]*GetAppListResult, error) {
 	return result, err
 }
 
+// DeployImage will deploy the engine group with specify image tag
+func DeployImage(appID string, groupName string, imageTag string) (string, error) {
+	client := NewClient()
+	opts, err := client.options()
+	if err != nil {
+		return "", err
+	}
+	opts.Headers["X-LC-Id"] = appID
+
+	resp, err := client.putX("/1.1/functions/_ops/groups/"+groupName+"/deploy", map[string]interface{}{
+		"imageTag": imageTag,
+		"async":    true,
+	}, opts)
+
+	if err != nil {
+		return "", err
+	}
+	result := new(struct {
+		EventToken string `json:"eventToken"`
+	})
+
+	err = resp.JSON(result)
+	return result.EventToken, err
+}
+
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
 func DeployAppFromGit(projectPath string, groupName string) (string, error) {
@@ -113,7 +138,14 @@ func GetAppInfo(appID string) (*GetAppInfoResult, error) {
 type GetGroupsResult struct {
 	GroupName string `json:"groupName"`
 	Prod      int    `json:"prod"`
-	Quota     int    `json:"quota"`
+	Instances []struct {
+		Name  string `json:"name"`
+		Quota int    `json:"quota"`
+	} `json:"instances"`
+	CurrentImage struct {
+		Runtime  string `json:"runtime"`
+		ImageTag string `json:"imageTag"`
+	} `json:"currentImage"`
 }
 
 // GetGroups returns the application's engine groups

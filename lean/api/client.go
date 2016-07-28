@@ -138,6 +138,24 @@ func (client *Client) postX(path string, params map[string]interface{}, options 
 	return resp, nil
 }
 
+func (client *Client) putX(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+	var err error
+	if options == nil {
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
+	}
+	options.JSON = params
+	resp, err := grequests.Put(client.baseURL()+path, options)
+	if err != nil {
+		return nil, err
+	}
+	if !resp.Ok {
+		return nil, NewErrorFromBody(resp.String())
+	}
+	return resp, nil
+}
+
 func (client *Client) delete(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
 	var err error
 	if options == nil {
