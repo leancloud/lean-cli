@@ -25,6 +25,9 @@ func updateCommand() string {
 }
 
 func checkUpdate() error {
+	if pkgType == "homebrew-head" {
+		return nil
+	}
 	resp, err := grequests.Get(checkUpdateURL, nil)
 	if err != nil {
 		return err

@@ -104,6 +104,11 @@ func main() {
 				},
 			},
 		},
+		{
+			Name:   "publish",
+			Usage:  "部署当前预备环境的代码至生产环境",
+			Action: publishAction,
+		},
 	}
 
 	app.Run(os.Args)
