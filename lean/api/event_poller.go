@@ -37,7 +37,7 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 		if from != "" {
 			url = url + "?from=" + from
 		}
-		resp, err := client.getX(url, opts)
+		resp, err := client.get(url, opts)
 		if err != nil {
 			return false, err
 		}
