@@ -13,6 +13,11 @@ import (
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
+type filesPattern struct {
+	Includes []string
+	Excludes []string
+}
+
 // Runtime stands for a language runtime
 type Runtime struct {
 	Name       string
@@ -20,6 +25,8 @@ type Runtime struct {
 	Args       []string
 	WatchFiles []string
 	Envs       []string
+	// DeployFiles is the patterns for source code to deploy to the remote server
+	DeployFiles filesPattern
 }
 
 // Run the project, and watch file changes
@@ -108,6 +115,15 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 		Args:       []string{"wsgi.py"},
 		WatchFiles: []string{"."},
 		Envs:       os.Environ(),
+		DeployFiles: filesPattern{
+			Includes: []string{"**"},
+			Excludes: []string{
+				".git/**",
+				".avoscloud/**",
+				".leancloud/**",
+				"*.pyc",
+			},
+		},
 	}, nil
 }
 

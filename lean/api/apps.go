@@ -17,7 +17,7 @@ type GetAppListResult struct {
 func GetAppList() ([]*GetAppListResult, error) {
 	client := NewClient()
 
-	resp, err := client.getX("/1/clients/self/apps", nil)
+	resp, err := client.get("/1/clients/self/apps", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,7 @@ func DeployImage(appID string, groupName string, imageTag string) (string, error
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.putX("/1.1/functions/_ops/groups/"+groupName+"/deploy", map[string]interface{}{
+	resp, err := client.put("/1.1/functions/_ops/groups/"+groupName+"/deploy", map[string]interface{}{
 		"imageTag": imageTag,
 		"async":    true,
 	}, opts)
@@ -78,7 +78,11 @@ func DeployAppFromGit(projectPath string, groupName string) (string, error) {
 		return "", err
 	}
 
-	return resp.Get("eventToken").MustString(), nil
+	result := new(struct {
+		EventToken string `json:"eventToken"`
+	})
+	err = resp.JSON(result)
+	return result.EventToken, err
 }
 
 // DeployAppFromFile will deploy applications with specific file
@@ -108,8 +112,11 @@ func DeployAppFromFile(projectPath string, groupName string, fileURL string) (st
 		return "", err
 	}
 
-	return resp.Get("eventToken").MustString(), nil
-
+	result := new(struct {
+		EventToken string `json:"eventToken"`
+	})
+	err = resp.JSON(result)
+	return result.EventToken, err
 }
 
 // GetAppInfoResult is GetAppInfo function's result type
@@ -125,7 +132,7 @@ type GetAppInfoResult struct {
 // GetAppInfo returns the application's detail info
 func GetAppInfo(appID string) (*GetAppInfoResult, error) {
 	client := NewClient()
-	resp, err := client.getX("/1.1/clients/self/apps/"+appID, nil)
+	resp, err := client.get("/1.1/clients/self/apps/"+appID, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -157,7 +164,10 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.getX("/1.1/functions/_ops/groups", opts)
+	resp, err := client.get("/1.1/functions/_ops/groups", opts)
+	if err != nil {
+		return nil, err
+	}
 
 	var result []*GetGroupsResult
 	err = resp.JSON(&result)

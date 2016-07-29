@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bitly/go-simplejson"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
@@ -63,25 +62,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	}, nil
 }
 
-func (client *Client) get(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
-	resp, err := grequests.Get(client.baseURL()+path, options)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
-	}
-
-	return simplejson.NewFromReader(resp)
-}
-
-func (client *Client) getX(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
+func (client *Client) get(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
@@ -102,25 +83,7 @@ func (client *Client) getX(path string, options *grequests.RequestOptions) (*gre
 	return resp, nil
 }
 
-func (client *Client) post(path string, params map[string]interface{}, options *grequests.RequestOptions) (*simplejson.Json, error) {
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
-	options.JSON = params
-	resp, err := grequests.Post(client.baseURL()+path, options)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
-	}
-	return simplejson.NewFromReader(resp)
-}
-
-func (client *Client) postX(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+func (client *Client) post(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
@@ -138,7 +101,7 @@ func (client *Client) postX(path string, params map[string]interface{}, options 
 	return resp, nil
 }
 
-func (client *Client) putX(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+func (client *Client) put(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
@@ -156,7 +119,7 @@ func (client *Client) putX(path string, params map[string]interface{}, options *
 	return resp, nil
 }
 
-func (client *Client) delete(path string, options *grequests.RequestOptions) (*simplejson.Json, error) {
+func (client *Client) delete(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
@@ -170,5 +133,5 @@ func (client *Client) delete(path string, options *grequests.RequestOptions) (*s
 	if !resp.Ok {
 		return nil, NewErrorFromBody(resp.String())
 	}
-	return simplejson.NewFromReader(resp)
+	return resp, nil
 }

@@ -9,22 +9,32 @@ import (
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
+	"github.com/leancloud/lean-cli/lean/console"
+	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func determineGroupName(appID string) (string, error) {
+	op.Write("获取应用信息")
 	info, err := api.GetAppInfo(appID)
 	if err != nil {
+		op.Failed()
 		return "", err
 	}
+	op.Successed()
+	log.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
 	mode := info.LeanEngineMode
 
+	op.Write("获取应用分组信息")
 	groups, err := api.GetGroups(appID)
 	if err != nil {
+		op.Failed()
 		return "", err
 	}
+	op.Successed()
 
 	groupName, found, err := linq.From(groups).Where(func(group linq.T) (bool, error) {
 		groupName := group.(*api.GetGroupsResult).GroupName
@@ -54,12 +64,24 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 
 	filePath := filepath.Join(fileDir, "leanengine.zip")
 
+	runtime, err := console.DetectRuntime(repoPath)
+	log.Println(repoPath)
+	files, err := utils.MatchFiles(repoPath, runtime.DeployFiles.Includes, runtime.DeployFiles.Excludes)
+	if err != nil {
+		return nil, err
+	}
 	op.Write("压缩项目文件 ...")
 	zip := new(archivex.ZipFile)
 	func() {
 		defer zip.Close()
 		zip.Create(filePath)
 		zip.AddAll(repoPath, false)
+		for _, f := range files {
+			err := zip.AddFile(f)
+			if err != nil {
+				panic(err)
+			}
+		}
 	}()
 	op.Successed()
 
@@ -72,7 +94,7 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 }
 
 func deployFromLocal(appID string, groupName string) error {
-	file, err := uploadProject(appID, "")
+	file, err := uploadProject(appID, ".")
 	if err != nil {
 		return err
 	}
@@ -116,24 +138,22 @@ func deployFromGit(appID string, groupName string) error {
 func deployAction(*cli.Context) error {
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
-		log.Fatalln("没有关联任何 app，请使用 lean switch 来关联应用。")
+		log.Fatalln("没有关联任何 app，请使用 lean checkout 来关联应用。")
 	}
 	if err != nil {
 		return newCliError(err)
 	}
 
-	op.Write("获取部署分组信息")
 	groupName, err := determineGroupName(appID)
 	if err != nil {
 		op.Failed()
 		return newCliError(err)
 	}
-	op.Successed()
 
 	if groupName == "staging" {
-		op.Write("准备部署应用到预备环境")
+		log.Println("> 准备部署应用到预备环境")
 	} else {
-		op.Write("准备部署应用到生产环境: " + groupName)
+		log.Println("> 准备部署应用到生产环境: " + groupName)
 	}
 
 	if isDeployFromGit {

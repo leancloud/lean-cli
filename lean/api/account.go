@@ -40,7 +40,7 @@ type GetUserInfoResult struct {
 func GetUserInfo() (*GetUserInfoResult, error) {
 	client := NewClient()
 
-	resp, err := client.getX("/1.1/clients/self", nil)
+	resp, err := client.get("/1.1/clients/self", nil)
 	if err != nil {
 		return nil, err
 	}

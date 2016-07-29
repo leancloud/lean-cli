@@ -26,13 +26,13 @@ func (op *Output) Write(line string) {
 	if !op.ended {
 		op.Successed()
 	}
-	fmt.Fprintf(op.writer, "- %s ...", line)
+	fmt.Fprintf(op.writer, "> %s ...", line)
 	op.ended = false
 }
 
 // Successed ...
 func (op *Output) Successed() {
-	fmt.Fprintf(op.writer, "\b\b\b%s\n", color.BlueString("[SUCCESSED]"))
+	fmt.Fprintf(op.writer, "\b\b\b%s\n", color.GreenString("[SUCCESSED]"))
 	op.ended = true
 }
 
