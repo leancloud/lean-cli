@@ -9,22 +9,30 @@ import (
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
 
 func determineGroupName(appID string) (string, error) {
+	op.Write("获取应用信息")
 	info, err := api.GetAppInfo(appID)
 	if err != nil {
+		op.Failed()
 		return "", err
 	}
+	op.Successed()
+	log.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
 	mode := info.LeanEngineMode
 
+	op.Write("获取应用分组信息")
 	groups, err := api.GetGroups(appID)
 	if err != nil {
+		op.Failed()
 		return "", err
 	}
+	op.Successed()
 
 	groupName, found, err := linq.From(groups).Where(func(group linq.T) (bool, error) {
 		groupName := group.(*api.GetGroupsResult).GroupName
@@ -122,13 +130,11 @@ func deployAction(*cli.Context) error {
 		return newCliError(err)
 	}
 
-	op.Write("获取部署分组信息")
 	groupName, err := determineGroupName(appID)
 	if err != nil {
 		op.Failed()
 		return newCliError(err)
 	}
-	op.Successed()
 
 	if groupName == "staging" {
 		op.Write("准备部署应用到预备环境")

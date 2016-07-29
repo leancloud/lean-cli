@@ -13,8 +13,9 @@ var (
 
 // Error is the LeanCloud API Server API common error format
 type Error struct {
-	Code    int    `json:"code"`
-	Content string `json:"error"`
+	Code         int    `json:"code"`
+	Content      string `json:"error"`
+	ErrorEventID string `json:"errorEventID"`
 }
 
 func (err Error) Error() string {

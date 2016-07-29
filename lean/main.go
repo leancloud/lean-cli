@@ -87,9 +87,10 @@ func main() {
 			Action: initAction,
 		},
 		{
-			Name:   "checkout",
-			Usage:  "切换当前项目关联的 LeanCloud 应用。",
-			Action: checkOutAction,
+			Name:      "checkout",
+			Usage:     "切换当前项目关联的 LeanCloud 应用。",
+			Action:    checkOutAction,
+			ArgsUsage: "[appID]",
 		},
 		{
 			Name:   "deploy",
