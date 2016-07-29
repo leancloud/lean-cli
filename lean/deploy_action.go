@@ -13,6 +13,8 @@ import (
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
+	"github.com/leancloud/lean-cli/lean/console"
+	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func determineGroupName(appID string) (string, error) {
@@ -62,12 +64,24 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 
 	filePath := filepath.Join(fileDir, "leanengine.zip")
 
+	runtime, err := console.DetectRuntime(repoPath)
+	log.Println(repoPath)
+	files, err := utils.MatchFiles(repoPath, runtime.DeployFiles.Includes, runtime.DeployFiles.Excludes)
+	if err != nil {
+		return nil, err
+	}
 	op.Write("压缩项目文件 ...")
 	zip := new(archivex.ZipFile)
 	func() {
 		defer zip.Close()
 		zip.Create(filePath)
 		zip.AddAll(repoPath, false)
+		for _, f := range files {
+			err := zip.AddFile(f)
+			if err != nil {
+				panic(err)
+			}
+		}
 	}()
 	op.Successed()
 
@@ -80,7 +94,7 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 }
 
 func deployFromLocal(appID string, groupName string) error {
-	file, err := uploadProject(appID, "")
+	file, err := uploadProject(appID, ".")
 	if err != nil {
 		return err
 	}
@@ -137,9 +151,9 @@ func deployAction(*cli.Context) error {
 	}
 
 	if groupName == "staging" {
-		op.Write("准备部署应用到预备环境")
+		log.Println("> 准备部署应用到预备环境")
 	} else {
-		op.Write("准备部署应用到生产环境: " + groupName)
+		log.Println("> 准备部署应用到生产环境: " + groupName)
 	}
 
 	if isDeployFromGit {

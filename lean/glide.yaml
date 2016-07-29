@@ -18,3 +18,7 @@ import:
   version: ^1.0.5
 - package: github.com/fatih/color
   version: ^1.0.0
+- package: github.com/bmatcuk/doublestar
+  version: ^1.0.3
+- package: github.com/tj/go-debug
+  version: ^2.0.0
