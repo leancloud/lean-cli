@@ -73,19 +73,19 @@ func (runtime *Runtime) Run() error {
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
 	if utils.IsFileExists(filepath.Join("cloud", "main.js")) {
-		log.Println(" > 检测到 cloudcode 运行时")
+		log.Println("> 检测到 cloudcode 运行时")
 		return nil, nil
 	}
 	if utils.IsFileExists("server.js") && utils.IsFileExists("package.json") {
-		log.Println(" > 检测到 node.js 运行时")
+		log.Println("> 检测到 node.js 运行时")
 		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists("requirements.txt") && utils.IsFileExists("wsgi.py") {
-		log.Println(" > 检测到 Python 运行时")
+		log.Println("> 检测到 Python 运行时")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists("composer.json") && utils.IsFileExists(filepath.Join("public", "index.php")) {
-		log.Println(" > 检测到 PHP 运行时")
+		log.Println("> 检测到 PHP 运行时")
 		return newPhpRuntime(projectPath)
 	}
 	return nil, errors.New("invalid runtime")
