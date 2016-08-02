@@ -7,6 +7,7 @@ import (
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
@@ -53,6 +54,7 @@ func publishAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	op.Successed()
+	log.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
 
 	if info.LeanEngineMode == "free" {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
