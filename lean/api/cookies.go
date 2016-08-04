@@ -12,14 +12,14 @@ import (
 
 // saveCookies saves the cookies to `${HOME}/.leancloud/cookies`
 func saveCookies(cookies []*http.Cookie) error {
-	os.Mkdir(filepath.Join(utils.HomeDir(), ".leancloud"), 0700)
+	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0700)
 
 	content := []byte(cookieparser.ToString(cookies))
-	return ioutil.WriteFile(filepath.Join(utils.HomeDir(), ".leancloud", "cookies"), content, 0600)
+	return ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "cookies"), content, 0600)
 }
 
 func getCookies() ([]*http.Cookie, error) {
-	content, err := ioutil.ReadFile(filepath.Join(utils.HomeDir(), ".leancloud", "cookies"))
+	content, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "cookies"))
 	if err != nil {
 		return nil, err
 	}
