@@ -32,6 +32,7 @@ type Runtime struct {
 // Run the project, and watch file changes
 func (runtime *Runtime) Run() error {
 	command := exec.Command(runtime.Exec, runtime.Args...)
+	command.Env = os.Environ()
 	command.Stdout = os.Stdout
 	command.Stderr = os.Stderr
 
