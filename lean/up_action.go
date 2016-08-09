@@ -2,11 +2,13 @@ package main
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/console"
+	"github.com/leancloud/lean-cli/lean/runtimes"
 )
 
 // get the console port. now console port is just runtime port plus one.
@@ -34,10 +36,11 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	rtm, err := console.DetectRuntime("")
+	rtm, err := runtimes.DetectRuntime("")
 	if err != nil {
 		return newCliError(err)
 	}
+	rtm.Port = port
 
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
@@ -60,21 +63,25 @@ func upAction(c *cli.Context) error {
 		rtm.Envs = append(envs, env)
 	}
 
-	go func() {
-		err := rtm.Run()
-		if err != nil {
-			panic(err)
-		}
-	}()
-
 	cons := &console.Server{
 		AppID:       appInfo.AppID,
 		AppKey:      appInfo.AppKey,
 		MasterKey:   appInfo.MasterKey,
 		AppPort:     port,
 		ConsolePort: consPort,
+		Errors:      make(chan error),
 	}
 
+	rtm.Run()
+	rtm.Watch(3 * time.Second)
 	cons.Run()
-	return nil
+
+	for {
+		select {
+		case err = <-cons.Errors:
+			panic(err)
+		case err = <-rtm.Errors:
+			panic(err)
+		}
+	}
 }

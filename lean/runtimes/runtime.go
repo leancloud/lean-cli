@@ -1,15 +1,18 @@
-package console
+package runtimes
 
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
@@ -20,54 +23,83 @@ type filesPattern struct {
 
 // Runtime stands for a language runtime
 type Runtime struct {
+	command    *exec.Cmd
 	Name       string
 	Exec       string
 	Args       []string
 	WatchFiles []string
 	Envs       []string
+	Port       string
 	// DeployFiles is the patterns for source code to deploy to the remote server
 	DeployFiles filesPattern
+	// Errors is the channel that receives the command's error result
+	Errors chan error
 }
 
 // Run the project, and watch file changes
-func (runtime *Runtime) Run() error {
-	command := exec.Command(runtime.Exec, runtime.Args...)
-	command.Env = os.Environ()
-	command.Stdout = os.Stdout
-	command.Stderr = os.Stderr
+func (runtime *Runtime) Run() {
+	go func() {
+		for {
+			runtime.command = exec.Command(runtime.Exec, runtime.Args...)
+			runtime.command.Env = os.Environ()
+			runtime.command.Stdout = os.Stdout
+			runtime.command.Stderr = os.Stderr
+			runtime.command.Env = os.Environ()
 
-	for _, env := range runtime.Envs {
-		command.Env = append(command.Env, env)
+			for _, env := range runtime.Envs {
+				runtime.command.Env = append(runtime.command.Env, env)
+			}
+
+			log.Printf("> 项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
+			err := runtime.command.Run()
+			// TODO: this maybe not portable
+			if err.Error() == "signal: killed" {
+				continue
+			} else {
+				runtime.Errors <- err
+				break
+			}
+		}
+	}()
+}
+
+// Watch file changes
+func (runtime *Runtime) Watch(interval time.Duration) error {
+
+	// watch file changes
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
 	}
 
-	return command.Run()
-	// if err != nil {
-	// 	return err
-	// }
+	lastFiredTime := time.Now()
 
-	// // watch file changes
-	// watcher, err := fsnotify.NewWatcher()
-	// if err != nil {
-	// 	return err
-	// }
-	// defer watcher.Close()
-	// go func() {
-	// 	for {
-	// 		select {
-	// 		case event := <-watcher.Events:
-	// 			fmt.Println("event:", event)
-	// 			command.Process.Kill()
-	// 		case err := <-watcher.Errors:
-	// 			fmt.Println("error:", err)
-	// 		}
-	// 	}
-	// }()
-	// for _, file := range runtime.WatchFiles {
-	// 	err = watcher.Add(file)
-	// }
+	go func() {
+		for {
+			select {
+			case event := <-watcher.Events:
+				fmt.Println("event:", event)
+				now := time.Now()
+				if now.Sub(lastFiredTime) > interval {
+					err := runtime.command.Process.Kill()
+					if err != nil {
+						runtime.Errors <- err
+					}
+					lastFiredTime = now
+				}
+			case err := <-watcher.Errors:
+				runtime.Errors <- err
+			}
+		}
+	}()
+	for _, file := range runtime.WatchFiles {
+		err = watcher.Add(file)
+		if err != nil {
+			return err
+		}
+	}
 
-	// // start the command line
-	// return command.Wait()
+	return nil
 }
 
 // DetectRuntime returns the project's runtime
@@ -125,6 +157,7 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 				"*.pyc",
 			},
 		},
+		Errors: make(chan error),
 	}, nil
 }
 
@@ -163,6 +196,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 				"node_modules/**",
 			},
 		},
+		Errors: make(chan error),
 	}, nil
 }
 
@@ -182,5 +216,6 @@ func newPhpRuntime(projectPath string) (*Runtime, error) {
 				"vendor/**",
 			},
 		},
+		Errors: make(chan error),
 	}, nil
 }

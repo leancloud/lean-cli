@@ -30,6 +30,7 @@ type Server struct {
 	MasterKey   string
 	AppPort     string
 	ConsolePort string
+	Errors      chan error
 }
 
 func (server *Server) getFunctions() ([]string, error) {
@@ -174,7 +175,7 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 }
 
 // Run the dev server
-func (server *Server) Run() error {
+func (server *Server) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", server.indexHandler)
@@ -184,7 +185,9 @@ func (server *Server) Run() error {
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
 
 	addr := "localhost:" + server.ConsolePort
-	log.Println("start developement console in " + addr)
+	log.Println("> 云函数调试服务已启动，请使用浏览器访问：http://" + addr)
 
-	return http.ListenAndServe(addr, router)
+	go func() {
+		server.Errors <- http.ListenAndServe(addr, router)
+	}()
 }

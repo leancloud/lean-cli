@@ -13,7 +13,7 @@ import (
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
-	"github.com/leancloud/lean-cli/lean/console"
+	"github.com/leancloud/lean-cli/lean/runtimes"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
@@ -64,7 +64,7 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 
 	filePath := filepath.Join(fileDir, "leanengine.zip")
 
-	runtime, err := console.DetectRuntime(repoPath)
+	runtime, err := runtimes.DetectRuntime(repoPath)
 	files, err := utils.MatchFiles(repoPath, runtime.DeployFiles.Includes, runtime.DeployFiles.Excludes)
 	if err != nil {
 		return nil, err
