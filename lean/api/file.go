@@ -3,7 +3,7 @@ package api
 import (
 	"errors"
 	"os"
-	"time"
+	"path/filepath"
 
 	"github.com/cheggaaa/pb"
 	"github.com/levigross/grequests"
@@ -22,7 +22,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		return nil, err
 	}
 
-	fileName := "leanengine" + time.Now().Format("20060102150405") + ".zip"
+	_, fileName := filepath.Split(filePath)
 
 	f, err := os.Open(filePath)
 	if err != nil {

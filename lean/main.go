@@ -109,6 +109,12 @@ func main() {
 			Usage:  "部署当前预备环境的代码至生产环境",
 			Action: publishAction,
 		},
+		{
+			Name:      "upload",
+			Usage:     "上传文件到当前应用 File 表",
+			Action:    uploadAction,
+			ArgsUsage: "<file-path>",
+		},
 	}
 
 	app.Run(os.Args)
