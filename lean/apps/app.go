@@ -1,10 +1,14 @@
 package apps
 
 import (
+	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/leancloud/lean-cli/lean/output"
 )
 
 var (
@@ -34,10 +38,48 @@ func LinkApp(projectPath string, appID string) error {
 func GetCurrentAppID(projectPath string) (string, error) {
 	content, err := ioutil.ReadFile(currentAppIDFilePath(projectPath))
 	if os.IsNotExist(err) {
-		return "", ErrNoAppLinked
+		return migrateLegencyProjectConfig(projectPath)
 	}
 	if err != nil {
 		return "", err
 	}
 	return string(content), nil
+}
+
+func migrateLegencyProjectConfig(projectPath string) (string, error) {
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".avoscloud", "curr_app"))
+	if err != nil {
+		return "", ErrNoAppLinked
+	}
+	appName := string(content)
+
+	content, err = ioutil.ReadFile(filepath.Join(projectPath, ".avoscloud", "apps.json"))
+	if err != nil {
+		return "", ErrNoAppLinked
+	}
+
+	var apps map[string]string
+	err = json.Unmarshal(content, &apps)
+	if err != nil {
+		return "", ErrNoAppLinked
+	}
+
+	appID, ok := apps[appName]
+	if !ok {
+		return "", ErrNoAppLinked
+	}
+
+	op := output.NewOutput(os.Stdout)
+	op.Write("检测到旧版命令行工具项目配置，正在迁移")
+
+	err = LinkApp(projectPath, appID)
+	if err != nil {
+		op.Failed()
+		return "", err
+	}
+	op.Successed()
+
+	log.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud", "curr_app"))
+
+	return appID, nil
 }
