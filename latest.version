@@ -1,4 +1,4 @@
 {
-  "version": "0.0.1",
-  "changelog": ""
+  "version": "0.0.2",
+  "changelog": "- support `lean upload` command\r\n- suport legency project config\r\n-support restart project on file change"
 }
