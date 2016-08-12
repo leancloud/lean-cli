@@ -2,8 +2,13 @@ package api
 
 import (
 	"fmt"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/juju/persistent-cookiejar"
+	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
@@ -22,11 +27,23 @@ const (
 
 // Client info
 type Client struct {
+	CookieJar *cookiejar.Jar
+	Region    int
 }
 
 // NewClient initilized a new Client
 func NewClient() *Client {
-	return &Client{}
+	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0700)
+	jar, err := cookiejar.New(&cookiejar.Options{
+		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
+	})
+	if err != nil {
+		panic(err)
+	}
+	return &Client{
+		CookieJar: jar,
+		Region:    RegionCN,
+	}
 }
 
 func (client *Client) fetchRouter() error {
@@ -36,29 +53,39 @@ func (client *Client) fetchRouter() error {
 
 func (client *Client) baseURL() string {
 	// TODO: return base URL per region
-	return hostCN
+	switch client.Region {
+	case RegionCN:
+		return hostCN
+	case RegionUS:
+		return hostUS
+	default:
+		panic("invalid region")
+	}
 }
 
 func (client *Client) options() (*grequests.RequestOptions, error) {
-	cookies, err := getCookies()
+	u, err := url.Parse(client.baseURL())
 	if err != nil {
-		return nil, ErrNotLogined
+		panic(err)
 	}
-
-	xsrfTok := ""
+	cookies := client.CookieJar.Cookies(u)
+	xsrf := ""
 	for _, cookie := range cookies {
 		if cookie.Name == "XSRF-TOKEN" {
-			xsrfTok = cookie.Value
+			xsrf = cookie.Value
 			break
 		}
 	}
 
 	return &grequests.RequestOptions{
-		Cookies: cookies,
+		// Cookies: cookies,
 		Headers: map[string]string{
-			"X-XSRF-TOKEN": xsrfTok,
+			"X-XSRF-TOKEN": xsrf,
 		},
-		UserAgent: "LeanCloud-CLI/" + version.Version,
+		CookieJar:    client.CookieJar,
+		UseCookieJar: true,
+		UserAgent:    "LeanCloud-CLI/" + version.Version,
+		// HTTPClient: c,
 	}, nil
 }
 
@@ -80,6 +107,10 @@ func (client *Client) get(path string, options *grequests.RequestOptions) (*greq
 		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
 
+	if err = client.CookieJar.Save(); err != nil {
+		return resp, err
+	}
+
 	return resp, nil
 }
 
@@ -98,6 +129,11 @@ func (client *Client) post(path string, params map[string]interface{}, options *
 	if !resp.Ok {
 		return nil, NewErrorFromBody(resp.String())
 	}
+
+	if err = client.CookieJar.Save(); err != nil {
+		return resp, err
+	}
+
 	return resp, nil
 }
 
@@ -116,6 +152,11 @@ func (client *Client) put(path string, params map[string]interface{}, options *g
 	if !resp.Ok {
 		return nil, NewErrorFromBody(resp.String())
 	}
+
+	if err = client.CookieJar.Save(); err != nil {
+		return resp, err
+	}
+
 	return resp, nil
 }
 
@@ -133,5 +174,10 @@ func (client *Client) delete(path string, options *grequests.RequestOptions) (*g
 	if !resp.Ok {
 		return nil, NewErrorFromBody(resp.String())
 	}
+
+	if err = client.CookieJar.Save(); err != nil {
+		return resp, err
+	}
+
 	return resp, nil
 }

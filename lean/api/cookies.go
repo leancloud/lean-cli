@@ -10,16 +10,27 @@ import (
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
+func cookiesFilePath(region int) string {
+	switch region {
+	case RegionCN:
+		return filepath.Join(utils.ConfigDir(), "leancloud", "cn_region_cookies")
+	case RegionUS:
+		return filepath.Join(utils.ConfigDir(), "leancloud", "us_region_cookies")
+	default:
+		panic("invalid region")
+	}
+}
+
 // saveCookies saves the cookies to `${HOME}/.leancloud/cookies`
-func saveCookies(cookies []*http.Cookie) error {
+func saveCookies(cookies []*http.Cookie, region int) error {
 	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0700)
 
 	content := []byte(cookieparser.ToString(cookies))
-	return ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "cookies"), content, 0600)
+	return ioutil.WriteFile(cookiesFilePath(region), content, 0600)
 }
 
-func getCookies() ([]*http.Cookie, error) {
-	content, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "cookies"))
+func getCookies(region int) ([]*http.Cookie, error) {
+	content, err := ioutil.ReadFile(cookiesFilePath(region))
 	if err != nil {
 		return nil, err
 	}
