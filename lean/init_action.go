@@ -4,6 +4,7 @@ import (
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/boilerplate"
 )
@@ -57,8 +58,35 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	return selectBoil, nil
 }
 
+func selectRegion() int {
+	region := regions.Invalid
+	wizard.Ask([]wizard.Question{
+		{
+			Content: "请选择应用节点",
+			Answers: []wizard.Answer{
+				{
+					Content: "国内",
+					Handler: func() {
+						region = regions.CN
+					},
+				},
+				{
+					Content: "美国",
+					Handler: func() {
+						region = regions.US
+					},
+				},
+			},
+		},
+	})
+
+	return region
+}
+
 func initAction(*cli.Context) error {
-	appList, err := api.GetAppList()
+	region := selectRegion()
+
+	appList, err := api.GetAppList(region)
 	if err != nil {
 		return newCliError(err)
 	}

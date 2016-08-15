@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 
 	"github.com/juju/persistent-cookiejar"
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/levigross/grequests"
 )
@@ -46,8 +47,7 @@ func Login(email string, password string) (*GetUserInfoResult, error) {
 
 // LoginUSRegion will use OAuth2 to login US Region
 func LoginUSRegion() error {
-	client := NewClient()
-	client.Region = RegionUS
+	client := NewClient(regions.US)
 	_, err := client.get("/1/oauth2/goto/avoscloud", nil)
 	if err != nil {
 		return err
@@ -63,7 +63,7 @@ type GetUserInfoResult struct {
 
 // GetUserInfo returns the current logined user info
 func GetUserInfo() (*GetUserInfoResult, error) {
-	client := NewClient()
+	client := NewClient(regions.CN)
 
 	resp, err := client.get("/1.1/clients/self", nil)
 	if err != nil {

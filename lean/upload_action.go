@@ -1,7 +1,7 @@
 package main
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
@@ -16,7 +16,7 @@ func uploadAction(c *cli.Context) error {
 	}
 
 	filePath := c.Args().First()
-	log.Println("> 准备上传文件：" + color.RedString(filePath))
+	fmt.Println("> 准备上传文件：" + color.RedString(filePath))
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -25,10 +25,11 @@ func uploadAction(c *cli.Context) error {
 
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
+		fmt.Println(err)
 		return newCliError(err)
 	}
 
-	log.Println("> 上传成功，文件 URL：" + file.URL)
+	fmt.Println("> 上传成功，文件 URL：" + file.URL)
 
 	return nil
 }

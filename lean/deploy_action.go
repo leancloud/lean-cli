@@ -2,8 +2,8 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -25,7 +25,7 @@ func determineGroupName(appID string) (string, error) {
 		return "", err
 	}
 	op.Successed()
-	log.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
+	fmt.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
 	mode := info.LeanEngineMode
 
 	op.Write("获取应用分组信息")
@@ -136,7 +136,7 @@ func deployFromGit(appID string, groupName string) error {
 func deployAction(*cli.Context) error {
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
-		log.Fatalln("没有关联任何 app，请使用 lean checkout 来关联应用。")
+		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
 	if err != nil {
 		return newCliError(err)
@@ -149,9 +149,9 @@ func deployAction(*cli.Context) error {
 	}
 
 	if groupName == "staging" {
-		log.Println("> 准备部署应用到预备环境")
+		fmt.Println("> 准备部署应用到预备环境")
 	} else {
-		log.Println("> 准备部署应用到生产环境: " + groupName)
+		fmt.Println("> 准备部署应用到生产环境: " + groupName)
 	}
 
 	if isDeployFromGit {
