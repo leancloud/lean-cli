@@ -34,15 +34,16 @@ func loginAction(c *cli.Context) error {
 	email, password := inputAccountInfo()
 	info, err := api.Login(email, password)
 	if err != nil {
-		switch e := err.(type) {
-		case api.Error:
-			return cli.NewExitError(e.Content, 1)
-		default:
-			return cli.NewExitError(e.Error(), 1)
-		}
+		return newCliError(err)
 	}
+
+	err = api.LoginUSRegion()
+	if err != nil {
+		return newCliError(err)
+	}
+
 	fmt.Println("登录成功：")
-	fmt.Printf("用户名: %s\r\n", info.Get("username").MustString())
-	fmt.Printf("邮箱: %s\r\n", info.Get("email").MustString())
+	fmt.Printf("用户名: %s\r\n", info.UserName)
+	fmt.Printf("邮箱: %s\r\n", info.Email)
 	return nil
 }

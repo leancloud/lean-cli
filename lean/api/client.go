@@ -14,8 +14,8 @@ import (
 )
 
 const (
-	hostCN = "https://api.leancloud.cn"
-	hostUS = "https://us-api.leancloud.cn"
+	hostCN = "https://leancloud.cn"
+	hostUS = "https://us.leancloud.cn"
 )
 
 // API server regions
@@ -52,7 +52,6 @@ func (client *Client) fetchRouter() error {
 }
 
 func (client *Client) baseURL() string {
-	// TODO: return base URL per region
 	switch client.Region {
 	case RegionCN:
 		return hostCN
@@ -78,14 +77,12 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	}
 
 	return &grequests.RequestOptions{
-		// Cookies: cookies,
 		Headers: map[string]string{
 			"X-XSRF-TOKEN": xsrf,
 		},
 		CookieJar:    client.CookieJar,
 		UseCookieJar: true,
 		UserAgent:    "LeanCloud-CLI/" + version.Version,
-		// HTTPClient: c,
 	}, nil
 }
 
