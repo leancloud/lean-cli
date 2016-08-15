@@ -22,3 +22,4 @@ import:
   version: ^1.0.3
 - package: github.com/tj/go-debug
   version: ^2.0.0
+- package: github.com/juju/persistent-cookiejar
