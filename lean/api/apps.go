@@ -14,8 +14,8 @@ type GetAppListResult struct {
 }
 
 // GetAppList returns the current user's all LeanCloud application
-func GetAppList() ([]*GetAppListResult, error) {
-	client := NewClient()
+func GetAppList(region int) ([]*GetAppListResult, error) {
+	client := NewClient(region)
 
 	resp, err := client.get("/1/clients/self/apps", nil)
 	if err != nil {
@@ -29,7 +29,12 @@ func GetAppList() ([]*GetAppListResult, error) {
 
 // DeployImage will deploy the engine group with specify image tag
 func DeployImage(appID string, groupName string, imageTag string) (string, error) {
-	client := NewClient()
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return "", err
+	}
+	client := NewClient(region)
+
 	opts, err := client.options()
 	if err != nil {
 		return "", err
@@ -55,12 +60,16 @@ func DeployImage(appID string, groupName string, imageTag string) (string, error
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
 func DeployAppFromGit(projectPath string, groupName string) (string, error) {
-	client := NewClient()
-
 	appID, err := apps.GetCurrentAppID(projectPath)
 	if err != nil {
 		return "", err
 	}
+
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return "", err
+	}
+	client := NewClient(region)
 
 	opts, err := client.options()
 	if err != nil {
@@ -88,12 +97,16 @@ func DeployAppFromGit(projectPath string, groupName string) (string, error) {
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
 func DeployAppFromFile(projectPath string, groupName string, fileURL string) (string, error) {
-	client := NewClient()
-
 	appID, err := apps.GetCurrentAppID(projectPath)
 	if err != nil {
 		return "", err
 	}
+
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return "", err
+	}
+	client := NewClient(region)
 
 	opts, err := client.options()
 	if err != nil {
@@ -131,7 +144,12 @@ type GetAppInfoResult struct {
 
 // GetAppInfo returns the application's detail info
 func GetAppInfo(appID string) (*GetAppInfoResult, error) {
-	client := NewClient()
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return nil, err
+	}
+	client := NewClient(region)
+
 	resp, err := client.get("/1.1/clients/self/apps/"+appID, nil)
 	if err != nil {
 		return nil, err
@@ -157,7 +175,12 @@ type GetGroupsResult struct {
 
 // GetGroups returns the application's engine groups
 func GetGroups(appID string) ([]*GetGroupsResult, error) {
-	client := NewClient()
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return nil, err
+	}
+	client := NewClient(region)
+
 	opts, err := client.options()
 	if err != nil {
 		return nil, err

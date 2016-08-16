@@ -22,6 +22,11 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		return nil, err
 	}
 
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return nil, err
+	}
+
 	_, fileName := filepath.Split(filePath)
 
 	f, err := os.Open(filePath)
@@ -34,7 +39,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		return nil, err
 	}
 	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
-	bar.Prefix("> 上传项目文件")
+	bar.Prefix("> 上传应用文件")
 	bar.Start()
 	reader := bar.NewProxyReader(f)
 
@@ -46,7 +51,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		},
 		RequestBody: reader,
 	}
-	resp, err := grequests.Post(NewClient().baseURL()+"/1.1/files/"+fileName, opts)
+	resp, err := grequests.Post(NewClient(region).baseURL()+"/1.1/files/"+fileName, opts)
 	bar.Finish()
 	if err != nil {
 		return nil, err
@@ -65,11 +70,16 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 
 // DeleteFile will delete the specific file
 func DeleteFile(appID string, objectID string) error {
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return nil
+	}
+
 	appInfo, err := GetAppInfo(appID)
 	if err != nil {
 		return err
 	}
-	client := NewClient()
+	client := NewClient(region)
 	opts, err := client.options()
 	if err != nil {
 		return err

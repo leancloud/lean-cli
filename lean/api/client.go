@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/juju/persistent-cookiejar"
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
@@ -18,13 +19,6 @@ const (
 	hostUS = "https://us.leancloud.cn"
 )
 
-// API server regions
-const (
-	RegionInvalid = iota
-	RegionCN
-	RegionUS
-)
-
 // Client info
 type Client struct {
 	CookieJar *cookiejar.Jar
@@ -32,7 +26,7 @@ type Client struct {
 }
 
 // NewClient initilized a new Client
-func NewClient() *Client {
+func NewClient(region int) *Client {
 	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0700)
 	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
@@ -42,7 +36,7 @@ func NewClient() *Client {
 	}
 	return &Client{
 		CookieJar: jar,
-		Region:    RegionCN,
+		Region:    region,
 	}
 }
 
@@ -53,9 +47,9 @@ func (client *Client) fetchRouter() error {
 
 func (client *Client) baseURL() string {
 	switch client.Region {
-	case RegionCN:
+	case regions.CN:
 		return hostCN
-	case RegionUS:
+	case regions.US:
 		return hostUS
 	default:
 		panic("invalid region")

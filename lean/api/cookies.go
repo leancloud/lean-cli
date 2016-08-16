@@ -7,14 +7,15 @@ import (
 	"path/filepath"
 
 	"github.com/aisk/cookieparser"
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func cookiesFilePath(region int) string {
 	switch region {
-	case RegionCN:
+	case regions.CN:
 		return filepath.Join(utils.ConfigDir(), "leancloud", "cn_region_cookies")
-	case RegionUS:
+	case regions.US:
 		return filepath.Join(utils.ConfigDir(), "leancloud", "us_region_cookies")
 	default:
 		panic("invalid region")

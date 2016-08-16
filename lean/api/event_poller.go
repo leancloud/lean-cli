@@ -21,7 +21,12 @@ type deployEvent struct {
 
 // PollEvents will poll the server's event logs and print the result to the given io.Writer
 func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
-	client := NewClient()
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return false, err
+	}
+	client := NewClient(region)
+
 	opts, err := client.options()
 	if err != nil {
 		return false, err
