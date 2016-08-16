@@ -4,14 +4,13 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bitly/go-simplejson"
 	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/levigross/grequests"
 )
 
 // Login LeanCloud account
-func Login(email string, password string) (*simplejson.Json, error) {
+func Login(email string, password string) (*GetUserInfoResult, error) {
 	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0700)
 	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
@@ -28,19 +27,21 @@ func Login(email string, password string) (*simplejson.Json, error) {
 		CookieJar:    jar,
 		UseCookieJar: true,
 	}
-	response, err := grequests.Post("https://api.leancloud.cn/1/signin", options)
+	resp, err := grequests.Post("https://leancloud.cn/1/signin", options)
 	if err != nil {
 		return nil, err
 	}
-	if !response.Ok {
-		return nil, NewErrorFromBody(response.String())
+	if !resp.Ok {
+		return nil, NewErrorFromBody(resp.String())
 	}
 
 	if err := jar.Save(); err != nil {
 		return nil, err
 	}
 
-	return simplejson.NewFromReader(response)
+	result := new(GetUserInfoResult)
+	err = resp.JSON(result)
+	return result, err
 }
 
 // LoginUSRegion will use OAuth2 to login US Region
