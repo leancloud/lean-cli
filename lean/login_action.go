@@ -31,7 +31,18 @@ func inputAccountInfo() (string, string) {
 }
 
 func loginAction(c *cli.Context) error {
-	email, password := inputAccountInfo()
+	var email, password string
+
+	if c.NArg() == 0 {
+		email, password = inputAccountInfo()
+	} else if c.NArg() == 2 {
+		email = c.Args().Get(0)
+		password = c.Args().Get(1)
+	} else {
+		cli.ShowCommandHelp(c, "login")
+		return cli.NewExitError("", 1)
+	}
+
 	info, err := api.Login(email, password)
 	if err != nil {
 		return newCliError(err)
