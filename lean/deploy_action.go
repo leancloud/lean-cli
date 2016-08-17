@@ -75,7 +75,7 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 		defer zip.Close()
 		zip.Create(filePath)
 		for _, f := range files {
-			err := zip.AddFile(f)
+			err := zip.AddFile(filepath.ToSlash(f))
 			if err != nil {
 				panic(err)
 			}
