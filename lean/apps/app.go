@@ -26,12 +26,12 @@ func currentAppIDFilePath(projectPath string) string {
 
 // LinkApp will write the specific appID to ${projectPath}/.leancloud/current_app_id
 func LinkApp(projectPath string, appID string) error {
-	err := os.Mkdir(appDirPath(projectPath), 0700)
+	err := os.Mkdir(appDirPath(projectPath), 0775)
 	if err != nil && !os.IsExist(err) {
 		return err
 	}
 
-	return ioutil.WriteFile(currentAppIDFilePath(projectPath), []byte(appID), 0700)
+	return ioutil.WriteFile(currentAppIDFilePath(projectPath), []byte(appID), 0644)
 }
 
 // GetCurrentAppID will return the content of ${projectPath}/.leancloud/current_app_id
@@ -97,7 +97,7 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 	}
 	op.Successed()
 
-	log.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud", "curr_app"))
+	log.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
 
 	return appID, nil
 }

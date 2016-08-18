@@ -12,7 +12,7 @@ import (
 
 // Login LeanCloud account
 func Login(email string, password string) (*GetUserInfoResult, error) {
-	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0700)
+	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
 	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
 	})
