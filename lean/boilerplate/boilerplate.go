@@ -5,12 +5,12 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strconv"
 
 	"github.com/cheggaaa/pb"
+	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/levigross/grequests"
 )
@@ -49,6 +49,7 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 
 // FetchRepo will download the boilerplate from remote and extract to ${appName}/folder
 func FetchRepo(boil *Boilerplate, appName string, appID string) error {
+	op := output.NewOutput(os.Stdout)
 	utils.CheckError(os.Mkdir(appName, 0775))
 
 	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn/" + boil.URL
@@ -56,8 +57,6 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	dir, err := ioutil.TempDir("", "leanengine")
 	utils.CheckError(err)
 	defer os.RemoveAll(dir)
-
-	log.Println("正在下载项目模版：")
 
 	resp, err := grequests.Get(repoURL, nil)
 	if err != nil {
@@ -71,9 +70,7 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	zipFilePath := filepath.Join(dir, "getting-started.zip")
 	DownloadToFile(resp, zipFilePath)
 
-	log.Println("下载完成")
-
-	log.Println("正在创建项目...")
+	op.Write("正在创建项目...")
 
 	zipFile, err := zip.OpenReader(zipFilePath)
 	utils.CheckError(err)
@@ -81,11 +78,12 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	for _, f := range zipFile.File {
 		err := extractAndWriteFile(f, appName)
 		if err != nil {
+			op.Failed()
 			return err
 		}
 	}
 
-	log.Println("创建项目完成")
+	op.Successed()
 
 	return nil
 }
@@ -132,6 +130,7 @@ func DownloadToFile(r *grequests.Response, fileName string) error {
 
 	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
 		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+		bar.Prefix("> 下载模版文件")
 		bar.Start()
 		defer bar.Finish()
 		reader := bar.NewProxyReader(r)
