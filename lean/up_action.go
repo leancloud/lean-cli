@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os/exec"
 	"strconv"
 	"time"
 
@@ -81,6 +82,9 @@ func upAction(c *cli.Context) error {
 		case err = <-cons.Errors:
 			panic(err)
 		case err = <-rtm.Errors:
+			if _, ok := err.(*exec.ExitError); ok {
+				return cli.NewExitError("", 1)
+			}
 			panic(err)
 		}
 	}

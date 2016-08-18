@@ -46,14 +46,8 @@ func GetCurrentAppID(projectPath string) (string, error) {
 	return string(content), nil
 }
 
-func migrateLegencyProjectConfig(projectPath string) (string, error) {
-	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".avoscloud", "curr_app"))
-	if err != nil {
-		return "", ErrNoAppLinked
-	}
-	appName := string(content)
-
-	content, err = ioutil.ReadFile(filepath.Join(projectPath, ".avoscloud", "apps.json"))
+func getLegencyAppID(projectPath string) (string, error) {
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".avoscloud", "apps.json"))
 	if err != nil {
 		return "", ErrNoAppLinked
 	}
@@ -64,9 +58,33 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 		return "", ErrNoAppLinked
 	}
 
+	if len(apps) == 0 {
+		return "", ErrNoAppLinked
+	}
+
+	if len(apps) == 1 {
+		for _, v := range apps {
+			return v, nil
+		}
+	}
+
+	content, err = ioutil.ReadFile(filepath.Join(projectPath, ".avoscloud", "curr_app"))
+	if err != nil {
+		return "", ErrNoAppLinked
+	}
+	appName := string(content)
+
 	appID, ok := apps[appName]
 	if !ok {
 		return "", ErrNoAppLinked
+	}
+	return appID, nil
+}
+
+func migrateLegencyProjectConfig(projectPath string) (string, error) {
+	appID, err := getLegencyAppID(projectPath)
+	if err != nil {
+		return "", err
 	}
 
 	op := output.NewOutput(os.Stdout)
