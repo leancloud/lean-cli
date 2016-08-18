@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -50,7 +49,7 @@ func (runtime *Runtime) Run() {
 				runtime.command.Env = append(runtime.command.Env, env)
 			}
 
-			log.Printf("> 项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
+			fmt.Printf("> 项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
 			err := runtime.command.Run()
 			// TODO: this maybe not portable
 			if err.Error() == "signal: killed" {
@@ -106,19 +105,19 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
 	if utils.IsFileExists(filepath.Join("cloud", "main.js")) {
-		log.Println("> 检测到 cloudcode 运行时")
+		fmt.Println("> 检测到 cloudcode 运行时")
 		return nil, nil
 	}
 	if utils.IsFileExists("server.js") && utils.IsFileExists("package.json") {
-		log.Println("> 检测到 node.js 运行时")
+		fmt.Println("> 检测到 node.js 运行时")
 		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists("requirements.txt") && utils.IsFileExists("wsgi.py") {
-		log.Println("> 检测到 Python 运行时")
+		fmt.Println("> 检测到 Python 运行时")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists("composer.json") && utils.IsFileExists(filepath.Join("public", "index.php")) {
-		log.Println("> 检测到 PHP 运行时")
+		fmt.Println("> 检测到 PHP 运行时")
 		return newPhpRuntime(projectPath)
 	}
 	return nil, errors.New("invalid runtime")
@@ -139,7 +138,7 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 
 	// for windows don't have a pythonx.x symbol link
 	if _, err := exec.LookPath(execName); err != nil {
-		log.Printf("`%s` command not found, fallback to `python`", execName)
+		fmt.Printf("`%s` command not found, fallback to `python`", execName)
 	}
 
 	return &Runtime{

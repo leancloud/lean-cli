@@ -3,7 +3,6 @@ package console
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -80,7 +79,7 @@ func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
 func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request) {
 	functions, err := server.getFunctions()
 	if err != nil {
-		log.Println("get functions error: ", err)
+		fmt.Println("get functions error: ", err)
 		return
 	}
 
@@ -107,7 +106,7 @@ func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request)
 func (server *Server) classesHandler(w http.ResponseWriter, req *http.Request) {
 	functions, err := server.getFunctions()
 	if err != nil {
-		log.Println("get functions error: ", err)
+		fmt.Println("get functions error: ", err)
 		return
 	}
 
@@ -143,7 +142,7 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 
 	functions, err := server.getFunctions()
 	if err != nil {
-		log.Println("get functions error: ", err)
+		fmt.Println("get functions error: ", err)
 		return
 	}
 
@@ -185,7 +184,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
 
 	addr := "localhost:" + server.ConsolePort
-	log.Println("> 云函数调试服务已启动，请使用浏览器访问：http://" + addr)
+	fmt.Println("> 云函数调试服务已启动，请使用浏览器访问：http://" + addr)
 
 	go func() {
 		server.Errors <- http.ListenAndServe(addr, router)
