@@ -49,7 +49,7 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 
 // FetchRepo will download the boilerplate from remote and extract to ${appName}/folder
 func FetchRepo(boil *Boilerplate, appName string, appID string) error {
-	utils.CheckError(os.Mkdir(appName, 0700))
+	utils.CheckError(os.Mkdir(appName, 0775))
 
 	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn/" + boil.URL
 
