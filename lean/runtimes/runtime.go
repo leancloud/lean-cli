@@ -104,21 +104,25 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 // DetectRuntime returns the project's runtime
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
-	if utils.IsFileExists(filepath.Join("cloud", "main.js")) {
+	if utils.IsFileExists(filepath.Join(projectPath, "cloud", "main.js")) {
 		fmt.Println("> 检测到 cloudcode 运行时")
 		return nil, nil
 	}
-	if utils.IsFileExists("server.js") && utils.IsFileExists("package.json") {
+	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
 		fmt.Println("> 检测到 node.js 运行时")
 		return newNodeRuntime(projectPath)
 	}
-	if utils.IsFileExists("requirements.txt") && utils.IsFileExists("wsgi.py") {
+	if utils.IsFileExists(filepath.Join(projectPath, "requirements.txt")) && utils.IsFileExists(filepath.Join(projectPath, "wsgi.py")) {
 		fmt.Println("> 检测到 Python 运行时")
 		return newPythonRuntime(projectPath)
 	}
-	if utils.IsFileExists("composer.json") && utils.IsFileExists(filepath.Join("public", "index.php")) {
+	if utils.IsFileExists(filepath.Join(projectPath, "composer.json")) && utils.IsFileExists(filepath.Join("public", "index.php")) {
 		fmt.Println("> 检测到 PHP 运行时")
 		return newPhpRuntime(projectPath)
+	}
+	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
+		fmt.Println("> 检测到 Java 运行时")
+		return newJavaRuntime(projectPath)
 	}
 	return nil, errors.New("invalid runtime")
 }
@@ -196,6 +200,24 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 			},
 		},
 		Errors: make(chan error),
+	}, nil
+}
+
+func newJavaRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		Name:       "java",
+		Exec:       "mvn",
+		Args:       []string{"jetty:run"},
+		WatchFiles: []string{"."},
+		DeployFiles: filesPattern{
+			Includes: []string{"**"},
+			Excludes: []string{
+				".git/**",
+				".avoscloud/**",
+				".leancloud/**",
+				"target/**",
+			},
+		},
 	}, nil
 }
 
