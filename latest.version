@@ -1,4 +1,4 @@
 {
-  "version": "0.1.0",
-  "changelog": "- support US region apps\r\n- support windows platform"
+  "version": "0.1.1",
+  "changelog": "- some bugfix"
 }
