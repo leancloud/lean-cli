@@ -59,6 +59,7 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
 		"LEANCLOUD_APP_PORT=" + port,
 		"LEANCLOUD_API_SERVER=" + apiServerURL,
+		"LEANCLOUD_APP_ENV=" + "development",
 	}
 	for _, env := range envs {
 		rtm.Envs = append(envs, env)
