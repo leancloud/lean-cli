@@ -1,6 +1,7 @@
 package api
 
 import (
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
 
@@ -14,7 +15,7 @@ type GetAppListResult struct {
 }
 
 // GetAppList returns the current user's all LeanCloud application
-func GetAppList(region int) ([]*GetAppListResult, error) {
+func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	client := NewClient(region)
 
 	resp, err := client.get("/1/clients/self/apps", nil)

@@ -22,11 +22,11 @@ const (
 // Client info
 type Client struct {
 	CookieJar *cookiejar.Jar
-	Region    int
+	Region    regions.Region
 }
 
 // NewClient initilized a new Client
-func NewClient(region int) *Client {
+func NewClient(region regions.Region) *Client {
 	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
 	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
