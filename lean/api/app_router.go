@@ -7,11 +7,11 @@ import (
 	"github.com/levigross/grequests"
 )
 
-var routerCache = make(map[string]int)
+var routerCache = make(map[string]regions.Region)
 
 // GetAppRegion will query the app router, and return the app's region.
 // The result is cached in process memory.
-func GetAppRegion(appID string) (int, error) {
+func GetAppRegion(appID string) (regions.Region, error) {
 	if r, ok := routerCache[appID]; ok {
 		return r, nil
 	}

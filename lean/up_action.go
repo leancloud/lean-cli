@@ -37,6 +37,11 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
+	region, err := api.GetAppRegion(appID)
+	if err != nil {
+		return newCliError(err)
+	}
+
 	rtm, err := runtimes.DetectRuntime("")
 	if err != nil {
 		return newCliError(err)
@@ -60,6 +65,7 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_APP_PORT=" + port,
 		"LEANCLOUD_API_SERVER=" + apiServerURL,
 		"LEANCLOUD_APP_ENV=" + "development",
+		"LEANCLOUD_REGION=" + region.String(),
 	}
 	for _, env := range envs {
 		rtm.Envs = append(envs, env)

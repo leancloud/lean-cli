@@ -58,7 +58,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	return selectBoil, nil
 }
 
-func selectRegion() int {
+func selectRegion() regions.Region {
 	region := regions.Invalid
 	wizard.Ask([]wizard.Question{
 		{
