@@ -1,40 +1,40 @@
 hash: 9d6db366bb99726fd0d99345bce1b18caf58700cabd9dc9b22afba8bc3fd60e7
-updated: 2016-08-11T18:31:54.941959509+08:00
+updated: 2016-08-19T17:07:26.794400282+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
 - name: github.com/aisk/cookieparser
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 5d8d2027d549910a7eba9b76e088f9f8c705022e
 - name: github.com/bgentry/speakeasy
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: a1ccbf2c40dfc8ce514b5c5c6e6d1429ea6880da
 - name: github.com/bitly/go-simplejson
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/bmatcuk/doublestar
-  version: ""
+  version: ec3b4af762f792cb93bf2518ff9ac408dbdc2b4e
 - name: github.com/cheggaaa/pb
-  version: ""
+  version: 9453b2db37f4d8bc63751daca63bbe7049eb5e74
 - name: github.com/codegangsta/cli
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 168c95418e66e019fe17b8f4f5c45aa62ff80e23
 - name: github.com/coreos/go-semver
-  version: ""
+  version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
   subpackages:
   - semver
 - name: github.com/fatih/color
-  version: ""
+  version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
 - name: github.com/fsnotify/fsnotify
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: f12c6236fe7b5cf6bcf30e5935d08cb079d78334
 - name: github.com/google/go-querystring
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
   - query
 - name: github.com/gorilla/context
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: ""
+  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
 - name: github.com/jhoonb/archivex
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: b669bdadd30ace382d6e082dfcc8e33b926db1a1
 - name: github.com/juju/go4
   version: 40d72ab9641a2a8c36a9c46a51e28367115c8e59
   subpackages:
@@ -42,19 +42,19 @@ imports:
 - name: github.com/juju/persistent-cookiejar
   version: e710b897c13ca52828ca2fc9769465186fd6d15c
 - name: github.com/levigross/grequests
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: e9e437f63e6aa3c30238175a7f498f8283ee94fa
 - name: github.com/mattn/go-colorable
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: ed8eb9e318d7a84ce5915b495b7d35e0cfe7b5a8
 - name: github.com/mattn/go-isatty
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
 - name: github.com/tj/go-debug
-  version: ""
+  version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: 07b51741c1d6423d4a6abab1c49940ec09cb1aaf
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
-  version: b48fa1a953504217d6b9aae55c95001c1f6fb6e8
+  version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
   subpackages:
   - unix
 - name: gopkg.in/errgo.v1

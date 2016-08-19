@@ -27,7 +27,7 @@ func Ask(questions []Question) {
 	for _, question := range questions {
 		printQuestion(question)
 		if question.Input != nil {
-			print(">> ")
+			print(" => ")
 			if question.Input.Hidden {
 				password, _ := speakeasy.Ask("(input will be hidden)")
 				*question.Input.Result = password
@@ -50,17 +50,17 @@ func printQuestion(qustion Question) {
 func printAnswers(question Question) {
 	blue := color.New(color.FgBlue).SprintFunc()
 	for i, answer := range question.Answers {
-		fmt.Printf(" %s) %s\n", blue(i), answer.Content)
+		fmt.Printf(" %s) %s\n", blue(i+1), answer.Content)
 	}
 }
 
 func scanAnswerNumber(question Question) func() {
 	for true {
-		fmt.Print(" >> ")
+		fmt.Print(" => ")
 		var input string
 		fmt.Scanln(&input)
 		for i, answer := range question.Answers {
-			if strconv.Itoa(i) == input {
+			if strconv.Itoa(i+1) == input {
 				return answer.Handler
 			}
 		}
