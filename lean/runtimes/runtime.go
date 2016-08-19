@@ -142,7 +142,8 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 
 	// for windows don't have a pythonx.x symbol link
 	if _, err := exec.LookPath(execName); err != nil {
-		fmt.Printf("`%s` command not found, fallback to `python`", execName)
+		fmt.Printf("> `%s` command not found, fallback to `python`\r\n", execName)
+		execName = "python"
 	}
 
 	return &Runtime{
