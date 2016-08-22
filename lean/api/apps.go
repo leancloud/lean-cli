@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/leancloud/lean-cli/lean/api/regions"
-	"github.com/leancloud/lean-cli/lean/apps"
 )
 
 // GetAppListResult is GetAppList function's result type
@@ -60,12 +59,7 @@ func DeployImage(appID string, groupName string, imageTag string) (string, error
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(projectPath string, groupName string) (string, error) {
-	appID, err := apps.GetCurrentAppID(projectPath)
-	if err != nil {
-		return "", err
-	}
-
+func DeployAppFromGit(appID string, projectPath string, groupName string) (string, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return "", err
@@ -97,12 +91,7 @@ func DeployAppFromGit(projectPath string, groupName string) (string, error) {
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(projectPath string, groupName string, fileURL string) (string, error) {
-	appID, err := apps.GetCurrentAppID(projectPath)
-	if err != nil {
-		return "", err
-	}
-
+func DeployAppFromFile(appID string, projectPath string, groupName string, fileURL string) (string, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return "", err

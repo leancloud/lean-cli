@@ -107,7 +107,7 @@ func deployFromLocal(appID string, groupName string) error {
 		}
 	}()
 
-	eventTok, err := api.DeployAppFromFile("", groupName, file.URL)
+	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL)
 	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
@@ -119,7 +119,7 @@ func deployFromLocal(appID string, groupName string) error {
 }
 
 func deployFromGit(appID string, groupName string) error {
-	eventTok, err := api.DeployAppFromGit("", groupName)
+	eventTok, err := api.DeployAppFromGit(appID, ".", groupName)
 	if err != nil {
 		return err
 	}
