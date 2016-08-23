@@ -6,19 +6,10 @@ import (
 	"os/exec"
 
 	"github.com/codegangsta/cli"
+	"github.com/leancloud/lean-cli/lean/logo"
 	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/version"
 )
-
-const banner = `
- _                        ______ _                 _
-| |                      / _____) |               | |
-| |      ____ ____ ____ | /     | | ___  _   _  _ | |
-| |     / _  ) _  |  _ \| |     | |/ _ \| | | |/ || |
-| |____( (/ ( ( | | | | | \_____| | |_| | |_| ( (_| |
-|_______)____)_||_|_| |_|\______)_|\___/ \____|\____|
-
-`
 
 var (
 	isDeployFromGit = false
@@ -55,8 +46,8 @@ func main() {
 	}()
 
 	// add banner text to help text
-	cli.AppHelpTemplate = banner + cli.AppHelpTemplate
-	cli.SubcommandHelpTemplate = banner + cli.SubcommandHelpTemplate
+	cli.AppHelpTemplate = logo.Logo() + cli.AppHelpTemplate
+	cli.SubcommandHelpTemplate = logo.Logo() + cli.SubcommandHelpTemplate
 
 	app := cli.NewApp()
 	app.Name = "lean"
