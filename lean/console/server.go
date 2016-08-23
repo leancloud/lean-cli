@@ -59,7 +59,7 @@ func (server *Server) indexHandler(w http.ResponseWriter, req *http.Request) {
 }
 
 func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
-	port, err := strconv.Atoi(server.ConsolePort)
+	port, err := strconv.Atoi(server.AppPort)
 	if err != nil {
 		panic(err)
 	}
