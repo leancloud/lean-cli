@@ -77,7 +77,7 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 		for {
 			select {
 			case event := <-watcher.Events:
-				fmt.Println("event:", event)
+				_ = event
 				now := time.Now()
 				if now.Sub(lastFiredTime) > interval {
 					err := runtime.command.Process.Kill()
