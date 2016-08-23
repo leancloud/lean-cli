@@ -29,6 +29,22 @@ func checkOutAction(c *cli.Context) error {
 	}
 	op.Successed()
 
+	appList, err = apps.MergeWithRecentApps(".", appList)
+	if err != nil {
+		return newCliError(err)
+	}
+
+	// remove current linked app from app list
+	curentAppID, err := apps.GetCurrentAppID(".")
+	if err != nil {
+		return newCliError(err)
+	}
+	for i, app := range appList {
+		if app.AppID == curentAppID {
+			appList = append(appList[:i], appList[i+1:]...)
+		}
+	}
+
 	app := selectApp(appList)
 	fmt.Println("切换应用至 " + app.AppName)
 

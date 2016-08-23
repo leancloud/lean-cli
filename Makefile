@@ -15,6 +15,7 @@ install:
 test:
 	go test -v github.com/leancloud/lean-cli/lean/boilerplate
 	go test -v github.com/leancloud/lean-cli/lean/console
+	go test -v github.com/leancloud/lean-cli/lean/apps
 
 clean:
 	rm -rf $(OUTPUT)
