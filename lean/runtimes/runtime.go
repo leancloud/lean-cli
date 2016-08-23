@@ -127,23 +127,39 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 	return nil, errors.New("invalid runtime")
 }
 
+func lookupBin(fallbacks []string) (string, error) {
+	for i, bin := range fallbacks {
+		binPath, err := exec.LookPath(bin)
+		if err == nil { // found
+			if i == 0 {
+				fmt.Printf("> 找到运行文件 `%s`\r\n", binPath)
+			} else {
+				fmt.Printf("> 没有找到命令 `%s`，使用 `%s` 代替 \r\n", fallbacks[i-1], fallbacks[i])
+			}
+			return bin, nil
+		}
+	}
+
+	return "", fmt.Errorf("`%s` not found", fallbacks[0])
+}
+
 func newPythonRuntime(projectPath string) (*Runtime, error) {
 	execName := "python2.7"
 
 	if content, err := ioutil.ReadFile(filepath.Join(projectPath, "runtime.txt")); err == nil {
 		if strings.HasPrefix(string(content), "python-2.7") {
-			execName = "python2.7"
+			execName, err = lookupBin([]string{"python2.7", "python2", "python"})
+			if err != nil {
+				return nil, err
+			}
 		} else if strings.HasPrefix(string(content), "python-3.5") {
-			execName = "python3.5"
+			execName, err = lookupBin([]string{"python3.5", "python3", "python"})
+			if err != nil {
+				return nil, err
+			}
 		} else {
 			return nil, errors.New("invalid python runtime.txt format, only `python-2.7` and `python-3.5` were allowed")
 		}
-	}
-
-	// for windows don't have a pythonx.x symbol link
-	if _, err := exec.LookPath(execName); err != nil {
-		fmt.Printf("> `%s` command not found, fallback to `python`\r\n", execName)
-		execName = "python"
 	}
 
 	return &Runtime{
