@@ -11,7 +11,7 @@ Command line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 
 ## Develop
 
-Instatall the dependences first:
+Install the dependences first:
 
 - [go](https://golang.org)
 - [glide](https://glide.sh)
