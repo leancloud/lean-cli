@@ -28,7 +28,9 @@ func checkUpdate() error {
 	if pkgType == "homebrew-head" {
 		return nil
 	}
-	resp, err := grequests.Get(checkUpdateURL, nil)
+	resp, err := grequests.Get(checkUpdateURL, &grequests.RequestOptions{
+		UserAgent: "LeanCloud-CLI/" + version.Version,
+	})
 	if err != nil {
 		return err
 	}

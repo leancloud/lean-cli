@@ -12,6 +12,7 @@ import (
 	"github.com/cheggaaa/pb"
 	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/utils"
+	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
 
@@ -58,7 +59,9 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	utils.CheckError(err)
 	defer os.RemoveAll(dir)
 
-	resp, err := grequests.Get(repoURL, nil)
+	resp, err := grequests.Get(repoURL, &grequests.RequestOptions{
+		UserAgent: "LeanCloud-CLI/" + version.Version,
+	})
 	if err != nil {
 		return err
 	}
@@ -96,7 +99,9 @@ type Boilerplate struct {
 
 // GetBoilerplateList returns all the boilerplate with name and url
 func GetBoilerplateList() ([]*Boilerplate, error) {
-	resp, err := grequests.Get("https://lcinternal-cloud-code-update.leanapp.cn/", nil)
+	resp, err := grequests.Get("https://lcinternal-cloud-code-update.leanapp.cn/", &grequests.RequestOptions{
+		UserAgent: "LeanCloud-CLI/" + version.Version,
+	})
 	if err != nil {
 		return nil, err
 	}
