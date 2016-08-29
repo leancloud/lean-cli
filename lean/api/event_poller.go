@@ -38,7 +38,7 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 	op := output.NewOutput(os.Stdout)
 	for {
 		time.Sleep(3 * time.Second)
-		url := "/1.1/functions/_ops/events/poll/" + tok
+		url := "/1.1/engine/events/poll/" + tok
 		if from != "" {
 			url = url + "?from=" + from
 		}

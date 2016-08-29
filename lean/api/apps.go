@@ -41,7 +41,7 @@ func DeployImage(appID string, groupName string, imageTag string) (string, error
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.put("/1.1/functions/_ops/groups/"+groupName+"/deploy", map[string]interface{}{
+	resp, err := client.put("/1.1/engine/groups/"+groupName+"/deploy", map[string]interface{}{
 		"imageTag": imageTag,
 		"async":    true,
 	}, opts)
@@ -72,7 +72,7 @@ func DeployAppFromGit(appID string, projectPath string, groupName string) (strin
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.post("/1.1/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
+	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"comment":             "",
 		"noDependenciesCache": false,
 		"async":               true,
@@ -104,7 +104,7 @@ func DeployAppFromFile(appID string, projectPath string, groupName string, fileU
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.post("/1.1/functions/_ops/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
+	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"zipUrl":              fileURL,
 		"comment":             "",
 		"noDependenciesCache": false,
@@ -177,7 +177,7 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.get("/1.1/functions/_ops/groups", opts)
+	resp, err := client.get("/1.1/engine/groups", opts)
 	if err != nil {
 		return nil, err
 	}
