@@ -59,28 +59,28 @@ func main() {
 	app.Commands = []cli.Command{
 		{
 			Name:      "login",
-			Usage:     "登录 LeanCloud 账户。",
+			Usage:     "登录 LeanCloud 账户",
 			Action:    loginAction,
 			ArgsUsage: "[account] [password]",
 		},
 		{
 			Name:   "info",
-			Usage:  "查看当前登录用户以及应用信息。",
+			Usage:  "查看当前登录用户以及应用信息",
 			Action: infoAction,
 		},
 		{
 			Name:   "up",
-			Usage:  "本地启动云引擎应用。",
+			Usage:  "本地启动云引擎应用",
 			Action: upAction,
 		},
 		{
 			Name:   "init",
-			Usage:  "初始化云引擎项目。",
+			Usage:  "初始化云引擎项目",
 			Action: initAction,
 		},
 		{
 			Name:      "checkout",
-			Usage:     "切换当前项目关联的 LeanCloud 应用。",
+			Usage:     "切换当前项目关联的 LeanCloud 应用",
 			Action:    checkOutAction,
 			ArgsUsage: "[appID]",
 		},
@@ -106,6 +106,21 @@ func main() {
 			Usage:     "上传文件到当前应用 File 表",
 			Action:    uploadAction,
 			ArgsUsage: "<file-path>",
+		},
+		{
+			Name:      "help",
+			Aliases:   []string{"h"},
+			Usage:     "显示全部命令或者某个子命令的帮助",
+			ArgsUsage: "[command]",
+			Action: func(c *cli.Context) error {
+				args := c.Args()
+				if args.Present() {
+					return cli.ShowCommandHelp(c, args.First())
+				}
+
+				cli.ShowAppHelp(c)
+				return nil
+			},
 		},
 	}
 
