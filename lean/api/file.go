@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/cheggaaa/pb"
+	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
 
@@ -49,6 +50,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 			"X-LC-Key":     appInfo.MasterKey + ",master",
 			"Content-Type": "application/zip, application/octet-stream",
 		},
+		UserAgent:   "LeanCloud-CLI/" + version.Version,
 		RequestBody: reader,
 	}
 	resp, err := grequests.Post(NewClient(region).baseURL()+"/1.1/files/"+fileName, opts)

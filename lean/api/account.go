@@ -7,6 +7,7 @@ import (
 	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/utils"
+	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
 
@@ -27,6 +28,7 @@ func Login(email string, password string) (*GetUserInfoResult, error) {
 		},
 		CookieJar:    jar,
 		UseCookieJar: true,
+		UserAgent:    "LeanCloud-CLI/" + version.Version,
 	}
 	resp, err := grequests.Post("https://leancloud.cn/1/signin", options)
 	if err != nil {

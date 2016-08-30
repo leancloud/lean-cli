@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/leancloud/lean-cli/lean/api/regions"
+	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
 
@@ -15,7 +16,9 @@ func GetAppRegion(appID string) (regions.Region, error) {
 	if r, ok := routerCache[appID]; ok {
 		return r, nil
 	}
-	resp, err := grequests.Get("https://app-router.leancloud.cn/1/route?appId="+appID, nil)
+	resp, err := grequests.Get("https://app-router.leancloud.cn/1/route?appId="+appID, &grequests.RequestOptions{
+		UserAgent: "LeanCloud-CLI/" + version.Version,
+	})
 	if err != nil {
 		return regions.Invalid, err
 	}
