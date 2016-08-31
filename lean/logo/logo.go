@@ -23,7 +23,7 @@ iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAYAAAB5fY51AAAAAXNSR0IArs4c6QAAAAlwSFlzAAALEwAA
 // Logo will return the LeanCloud logo string
 func Logo() string {
 	if os.Getenv("TERM_PROGRAM") == "iTerm.app" && strings.HasPrefix(os.Getenv("TERM_PROGRAM_VERSION"), "3.") {
-		return fmt.Sprintf("\033]1337;File=name=%s;inline=1:%s\a\n", "LeanCloud", b64)
+		return fmt.Sprintf("\033]1337;File=name=%s;width=20;inline=1:%s\a\n", "LeanCloud", b64)
 	}
 	return ascii
 }
