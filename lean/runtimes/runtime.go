@@ -15,6 +15,9 @@ import (
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
+// ErrInvalidRuntime means the project's structure is not a valid LeanEngine project
+var ErrInvalidRuntime = errors.New("invalid runtime")
+
 type filesPattern struct {
 	Includes []string
 	Excludes []string
@@ -124,7 +127,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		fmt.Println("> 检测到 Java 运行时")
 		return newJavaRuntime(projectPath)
 	}
-	return nil, errors.New("invalid runtime")
+	return nil, ErrInvalidRuntime
 }
 
 func lookupBin(fallbacks []string) (string, error) {

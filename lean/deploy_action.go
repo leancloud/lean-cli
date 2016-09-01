@@ -65,6 +65,9 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 	filePath := filepath.Join(fileDir, "leanengine.zip")
 
 	runtime, err := runtimes.DetectRuntime(repoPath)
+	if err != nil {
+		return nil, err
+	}
 	files, err := utils.MatchFiles(repoPath, runtime.DeployFiles.Includes, runtime.DeployFiles.Excludes)
 	if err != nil {
 		return nil, err
