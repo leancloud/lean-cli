@@ -12,6 +12,18 @@ $(OUTPUT)/lean-$(GOOS)-$(GOARCH): $(SRC)
 install:
 	GOOS=$(GOOS) go install -x -v github.com/leancloud/lean-cli/lean
 
+lint:
+	gometalinter --deadline=59s lean \
+	lean/api \
+	lean/apps \
+	lean/boilerplate \
+	lean/console \
+	lean/logo \
+	lean/output \
+	lean/runtimes \
+	lean/utils \
+	lean/version
+
 test:
 	go test -v github.com/leancloud/lean-cli/lean/boilerplate
 	go test -v github.com/leancloud/lean-cli/lean/console
@@ -20,4 +32,4 @@ test:
 clean:
 	rm -rf $(OUTPUT)
 
-.PHONY: test
+.PHONY: test lint
