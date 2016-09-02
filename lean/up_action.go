@@ -49,6 +49,11 @@ func upAction(c *cli.Context) error {
 	}
 	rtm.Port = port
 
+	if rtm.Name == "cloudcode" {
+		return cli.NewExitError(`> 命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
+> https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
+	}
+
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		return newCliError(err)
