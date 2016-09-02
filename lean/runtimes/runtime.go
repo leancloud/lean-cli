@@ -109,7 +109,9 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
 	if utils.IsFileExists(filepath.Join(projectPath, "cloud", "main.js")) {
 		fmt.Println("> 检测到 cloudcode 运行时")
-		return nil, nil
+		return &Runtime{
+			Name: "cloudcode",
+		}, nil
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
 		fmt.Println("> 检测到 node.js 运行时")
