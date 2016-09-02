@@ -603,6 +603,39 @@ func CapturePanic(f func(), tags map[string]string, interfaces ...Interface) (in
 	return DefaultClient.CapturePanic(f, tags, interfaces...)
 }
 
+// CapturePanicAndWait is identical to CaptureError, except it blocks and assures that the event was sent
+func (client *Client) CapturePanicAndWait(f func(), tags map[string]string, interfaces ...Interface) (err interface{}, errorID string) {
+	// Note: This doesn't need to check for client, because we still want to go through the defer/recover path
+	// Down the line, Capture will be noop'd, so while this does a _tiny_ bit of overhead constructing the
+	// *Packet just to be thrown away, this should not be the normal case. Could be refactored to
+	// be completely noop though if we cared.
+	defer func() {
+		var packet *Packet
+		err = recover()
+		switch rval := err.(type) {
+		case nil:
+			return
+		case error:
+			packet = NewPacket(rval.Error(), append(append(interfaces, client.context.interfaces()...), NewException(rval, NewStacktrace(2, 3, client.includePaths)))...)
+		default:
+			rvalStr := fmt.Sprint(rval)
+			packet = NewPacket(rvalStr, append(append(interfaces, client.context.interfaces()...), NewException(errors.New(rvalStr), NewStacktrace(2, 3, client.includePaths)))...)
+		}
+
+		var ch chan error
+		errorID, ch = client.Capture(packet, tags)
+		<-ch
+	}()
+
+	f()
+	return
+}
+
+// CapturePanicAndWait is identical to CaptureError, except it blocks and assures that the event was sent
+func CapturePanicAndWait(f func(), tags map[string]string, interfaces ...Interface) (interface{}, string) {
+	return DefaultClient.CapturePanicAndWait(f, tags, interfaces...)
+}
+
 func (client *Client) Close() {
 	close(client.queue)
 }
@@ -688,6 +721,7 @@ func (t *HTTPTransport) Send(url, authHeader string, packet *Packet) error {
 	req.Header.Set("X-Sentry-Auth", authHeader)
 	req.Header.Set("User-Agent", userAgent)
 	req.Header.Set("Content-Type", contentType)
+	req.Header.Set("Origin", "")
 	res, err := t.Http.Do(req)
 	if err != nil {
 		return err

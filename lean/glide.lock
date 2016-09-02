@@ -1,5 +1,5 @@
 hash: 34a341f8a6f22e1242d5e8bbc00ee9f3fa6b4a0f8a15532e3c95f962616d8495
-updated: 2016-08-31T17:32:48.014311968+08:00
+updated: 2016-09-02T18:43:54.919211831+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
@@ -26,7 +26,7 @@ imports:
 - name: github.com/fsnotify/fsnotify
   version: f12c6236fe7b5cf6bcf30e5935d08cb079d78334
 - name: github.com/getsentry/raven-go
-  version: c9d3cc542ad199f62c0264286be537f9bce6063c
+  version: c630fd2e8badfb3b9522c3d3a8d645506517d384
 - name: github.com/google/go-querystring
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
@@ -52,7 +52,7 @@ imports:
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
-  version: 9bc2a3340c92c17a20edcd0080e93851ed58f5d5
+  version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
