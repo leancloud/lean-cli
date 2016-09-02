@@ -22,6 +22,7 @@ func getConsolePort(runtimePort string) (string, error) {
 }
 
 func upAction(c *cli.Context) error {
+	watchChanges := c.Bool("watch")
 	// TODO: get port from args
 	port := "3000"
 	consPort, err := getConsolePort(port)
@@ -81,7 +82,9 @@ func upAction(c *cli.Context) error {
 	}
 
 	rtm.Run()
-	rtm.Watch(3 * time.Second)
+	if watchChanges {
+		rtm.Watch(3 * time.Second)
+	}
 	cons.Run()
 
 	for {

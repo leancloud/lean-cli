@@ -72,6 +72,12 @@ func main() {
 			Name:   "up",
 			Usage:  "本地启动云引擎应用",
 			Action: upAction,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "watch",
+					Usage: "监听项目文件变更，以自动重启项目",
+				},
+			},
 		},
 		{
 			Name:   "init",
