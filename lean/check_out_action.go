@@ -19,7 +19,10 @@ func checkOutAction(c *cli.Context) error {
 		return nil
 	}
 
-	region := selectRegion()
+	region, err := selectRegion()
+	if err != nil {
+		return newCliError(err)
+	}
 
 	op.Write("获取应用列表")
 	appList, err := api.GetAppList(region)
@@ -45,7 +48,10 @@ func checkOutAction(c *cli.Context) error {
 		}
 	}
 
-	app := selectApp(appList)
+	app, err := selectApp(appList)
+	if err != nil {
+		return newCliError(err)
+	}
 	fmt.Println("切换应用至 " + app.AppName)
 
 	err = apps.LinkApp(".", app.AppID)

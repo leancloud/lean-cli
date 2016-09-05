@@ -2,37 +2,69 @@ package wizard
 
 import (
 	"fmt"
-	"github.com/bgentry/speakeasy"
+	"github.com/chzyer/readline"
 	"github.com/fatih/color"
 	"strconv"
+	"strings"
 )
 
+// Input ...
 type Input struct {
 	Hidden bool
 	Result *string
 }
 
+// Answer ...
 type Answer struct {
 	Content string
 	Handler func()
 }
 
+// Question ...
 type Question struct {
 	Content string
 	Answers []Answer
 	Input   *Input
 }
 
-func Ask(questions []Question) {
+// Ask ...
+func Ask(questions []Question) error {
+	rl, err := readline.New(" => ")
+	if err != nil {
+		return err
+	}
 	for _, question := range questions {
 		printQuestion(question)
 		if question.Input != nil {
-			print(" => ")
 			if question.Input.Hidden {
-				password, _ := speakeasy.Ask("(input will be hidden)")
-				*question.Input.Result = password
+				// backup prompt for reset
+				prompt := rl.Config.Prompt
+
+				setPasswordCfg := rl.GenPasswordConfig()
+				setPasswordCfg.SetListener(func(line []rune, pos int, key rune) (newLine []rune, newPos int, ok bool) {
+					display := []byte(" => ")
+					for i := 0; i < len(line); i++ {
+						display = append(display, '*')
+					}
+					rl.SetPrompt(string(display))
+					rl.Refresh()
+					return nil, 0, false
+				})
+
+				// restore the origin prompt
+				rl.SetPrompt(prompt)
+
+				pswd, err := rl.ReadPasswordWithConfig(setPasswordCfg)
+				if err != nil {
+					return err
+				}
+				*question.Input.Result = string(pswd)
 			} else {
-				fmt.Scanln(question.Input.Result)
+				line, err := rl.Readline()
+				if err != nil {
+					return err
+				}
+				*question.Input.Result = line
 			}
 			continue
 		}
@@ -40,6 +72,7 @@ func Ask(questions []Question) {
 		handler := scanAnswerNumber(question)
 		handler()
 	}
+	return rl.Close()
 }
 
 func printQuestion(qustion Question) {
@@ -59,6 +92,7 @@ func scanAnswerNumber(question Question) func() {
 		fmt.Print(" => ")
 		var input string
 		fmt.Scanln(&input)
+		strings.TrimSpace(input)
 		for i, answer := range question.Answers {
 			if strconv.Itoa(i+1) == input {
 				return answer.Handler
