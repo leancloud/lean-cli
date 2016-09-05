@@ -9,7 +9,7 @@ import (
 	"github.com/leancloud/lean-cli/lean/boilerplate"
 )
 
-func selectApp(appList []*api.GetAppListResult) *api.GetAppListResult {
+func selectApp(appList []*api.GetAppListResult) (*api.GetAppListResult, error) {
 	var selectedApp *api.GetAppListResult
 	question := wizard.Question{
 		Content: "请选择 APP",
@@ -27,8 +27,8 @@ func selectApp(appList []*api.GetAppListResult) *api.GetAppListResult {
 		}(app)
 		question.Answers = append(question.Answers, answer)
 	}
-	wizard.Ask([]wizard.Question{question})
-	return selectedApp
+	err := wizard.Ask([]wizard.Question{question})
+	return selectedApp, err
 }
 
 func selectBoilerplate() (*boilerplate.Boilerplate, error) {
@@ -54,13 +54,13 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 		}(boil)
 		question.Answers = append(question.Answers, answer)
 	}
-	wizard.Ask([]wizard.Question{question})
-	return selectBoil, nil
+	err = wizard.Ask([]wizard.Question{question})
+	return selectBoil, err
 }
 
-func selectRegion() regions.Region {
+func selectRegion() (regions.Region, error) {
 	region := regions.Invalid
-	wizard.Ask([]wizard.Question{
+	err := wizard.Ask([]wizard.Question{
 		{
 			Content: "请选择应用节点",
 			Answers: []wizard.Answer{
@@ -80,17 +80,23 @@ func selectRegion() regions.Region {
 		},
 	})
 
-	return region
+	return region, err
 }
 
 func initAction(*cli.Context) error {
-	region := selectRegion()
+	region, err := selectRegion()
+	if err != nil {
+		return newCliError(err)
+	}
 
 	appList, err := api.GetAppList(region)
 	if err != nil {
 		return newCliError(err)
 	}
-	app := selectApp(appList)
+	app, err := selectApp(appList)
+	if err != nil {
+		return newCliError(err)
+	}
 	appID := app.AppID
 
 	boil, err := selectBoilerplate()

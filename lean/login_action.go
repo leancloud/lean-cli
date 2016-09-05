@@ -8,10 +8,10 @@ import (
 	"github.com/leancloud/lean-cli/lean/api"
 )
 
-func inputAccountInfo() (string, string) {
+func inputAccountInfo() (string, string, error) {
 	var email = new(string)
 	var password = new(string)
-	wizard.Ask([]wizard.Question{
+	err := wizard.Ask([]wizard.Question{
 		{
 			Content: "请输入您的邮箱：",
 			Input: &wizard.Input{
@@ -27,14 +27,19 @@ func inputAccountInfo() (string, string) {
 			},
 		},
 	})
-	return *email, *password
+
+	return *email, *password, err
 }
 
 func loginAction(c *cli.Context) error {
 	var email, password string
 
 	if c.NArg() == 0 {
-		email, password = inputAccountInfo()
+		var err error
+		email, password, err = inputAccountInfo()
+		if err != nil {
+			return newCliError(err)
+		}
 	} else if c.NArg() == 2 {
 		email = c.Args().Get(0)
 		password = c.Args().Get(1)

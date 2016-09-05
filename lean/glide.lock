@@ -1,22 +1,22 @@
 hash: 34a341f8a6f22e1242d5e8bbc00ee9f3fa6b4a0f8a15532e3c95f962616d8495
-updated: 2016-09-02T18:43:54.919211831+08:00
+updated: 2016-09-05T16:54:44.671794874+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
-  version: 5d8d2027d549910a7eba9b76e088f9f8c705022e
-- name: github.com/bgentry/speakeasy
-  version: a1ccbf2c40dfc8ce514b5c5c6e6d1429ea6880da
+  version: 657c0fceb6a45ef82502c41d9ad2e468bc8930f7
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/bmatcuk/doublestar
-  version: 03a2cae1b930a6e230570b2fe2c572a361f7f83f
+  version: 044df0a5e3fa8790b268e6ff26458cb0e0676020
 - name: github.com/cheggaaa/pb
   version: 9453b2db37f4d8bc63751daca63bbe7049eb5e74
+- name: github.com/chzyer/readline
+  version: 31ab3eee0c7232dcb9abeb3876ca2739df53872d
 - name: github.com/codegangsta/cli
-  version: 33bb4c121333cd8eb7d8cc8d74474f4ec156f371
+  version: df95e0708f6416a3f148c984464cfd417e9eccfe
 - name: github.com/coreos/go-semver
   version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
   subpackages:
