@@ -54,7 +54,6 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 		for i := len(event.Events) - 1; i >= 0; i-- {
 			e := event.Events[i]
 
-			// fmt.Fprintf(writer, "%s [%s] %s\r\n", e.Time, e.Level, e.Content)
 			op.Write(e.Content)
 
 			from = e.Time

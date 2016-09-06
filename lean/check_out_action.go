@@ -40,11 +40,14 @@ func checkOutAction(c *cli.Context) error {
 	// remove current linked app from app list
 	curentAppID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
-	}
-	for i, app := range appList {
-		if app.AppID == curentAppID {
-			appList = append(appList[:i], appList[i+1:]...)
+		if err != apps.ErrNoAppLinked {
+			return newCliError(err)
+		}
+	} else {
+		for i, app := range appList {
+			if app.AppID == curentAppID {
+				appList = append(appList[:i], appList[i+1:]...)
+			}
 		}
 	}
 

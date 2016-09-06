@@ -53,6 +53,7 @@ func main() {
 	app.Name = "lean"
 	app.Version = version.Version
 	app.Usage = "Command line to manage and deploy LeanCloud apps"
+	app.EnableBashCompletion = true
 
 	app.CommandNotFound = thirdPartyCommand
 
