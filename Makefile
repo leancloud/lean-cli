@@ -1,12 +1,14 @@
 OUTPUT=./build
 SRC=$(shell find lean/ -iname "*.go")
 
-all:
-	GOOS=darwin GOARCH=amd64 make $(OUTPUT)/lean-darwin-amd64
-	GOOS=windows GOARCH=386 make $(OUTPUT)/lean-windows-386
-	GOOS=windows GOARCH=amd64 make $(OUTPUT)/lean-windows-amd64
+binaries:
+	GOOS=darwin GOARCH=amd64 POSTFIX= make $(OUTPUT)/lean-darwin-amd64
+	GOOS=windows GOARCH=386 POSTFIX=.exe make $(OUTPUT)/lean-windows-386.exe
+	GOOS=windows GOARCH=amd64 POSTFIX=.exe make $(OUTPUT)/lean-windows-amd64.exe
+	GOOS=linux GOARCH=amd64 POSTFIX= make $(OUTPUT)/lean-linux-amd64
+	GOOS=linux GOARCH=386 POSTFIX= make $(OUTPUT)/lean-linux-386
 
-$(OUTPUT)/lean-$(GOOS)-$(GOARCH): $(SRC)
+$(OUTPUT)/lean-$(GOOS)-$(GOARCH)$(POSTFIX): $(SRC)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -x -v -o $@ github.com/leancloud/lean-cli/lean
 
 install:
