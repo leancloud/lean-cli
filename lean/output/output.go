@@ -32,12 +32,12 @@ func (op *Output) Write(line string) {
 
 // Successed ...
 func (op *Output) Successed() {
-	fmt.Fprintf(op.writer, "\b\b\b%s\n", color.GreenString("[SUCCESS]"))
+	fmt.Fprintf(op.writer, "\b\b\b%s\r\n", color.GreenString("[SUCCESS]"))
 	op.ended = true
 }
 
 // Failed ...
 func (op *Output) Failed() {
-	fmt.Fprintf(op.writer, "\b\b\b%s\n", color.RedString("[FAIL]"))
+	fmt.Fprintf(op.writer, "\b\b\b%s\r\n", color.RedString("[FAIL]"))
 	op.ended = true
 }
