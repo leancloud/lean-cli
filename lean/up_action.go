@@ -33,7 +33,7 @@ func upAction(c *cli.Context) error {
 	// TODO:
 	apiServerURL := "https://api.leancloud.cn"
 
-	appID, err := apps.GetCurrentAppID("")
+	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		return newCliError(err)
 	}
