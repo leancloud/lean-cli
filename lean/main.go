@@ -78,6 +78,11 @@ func main() {
 					Name:  "watch",
 					Usage: "监听项目文件变更，以自动重启项目",
 				},
+				cli.IntFlag{
+					Name:        "port",
+					Usage:       "指定本地调试的端口",
+					Value:       3000,
+				},
 			},
 		},
 		{

@@ -23,8 +23,7 @@ func getConsolePort(runtimePort string) (string, error) {
 
 func upAction(c *cli.Context) error {
 	watchChanges := c.Bool("watch")
-	// TODO: get port from args
-	port := "3000"
+	port := strconv.Itoa(c.Int("port"))
 	consPort, err := getConsolePort(port)
 	if err != nil {
 		return newCliError(err)
