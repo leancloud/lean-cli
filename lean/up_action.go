@@ -72,9 +72,8 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
 	}
-	for _, env := range envs {
-		rtm.Envs = append(envs, env)
-	}
+
+	rtm.Envs = envs[:]
 
 	cons := &console.Server{
 		AppID:       appInfo.AppID,
