@@ -120,6 +120,11 @@ func main() {
 			ArgsUsage: "<file-path>",
 		},
 		{
+			Name:   "env",
+			Usage:  "输出运行当前云引擎应用所需要的环境变量",
+			Action: envAction,
+		},
+		{
 			Name:      "help",
 			Aliases:   []string{"h"},
 			Usage:     "显示全部命令或者某个子命令的帮助",
