@@ -58,7 +58,7 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	envs := []string{
+	rtm.Envs = []string{
 		"LC_APP_ID=" + appInfo.AppID,
 		"LC_APP_KEY=" + appInfo.AppKey,
 		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
@@ -71,9 +71,6 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_API_SERVER=" + apiServerURL,
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
-	}
-	for _, env := range envs {
-		rtm.Envs = append(envs, env)
 	}
 
 	cons := &console.Server{
