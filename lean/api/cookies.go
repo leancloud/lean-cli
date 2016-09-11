@@ -27,7 +27,7 @@ func saveCookies(cookies []*http.Cookie, region regions.Region) error {
 	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
 
 	content := []byte(cookieparser.ToString(cookies))
-	return ioutil.WriteFile(cookiesFilePath(region), content, 0664)
+	return ioutil.WriteFile(cookiesFilePath(region), content, 0644)
 }
 
 func getCookies(region regions.Region) ([]*http.Cookie, error) {
