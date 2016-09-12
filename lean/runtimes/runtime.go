@@ -179,6 +179,7 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 				".git/**",
 				".avoscloud/**",
 				".leancloud/**",
+				"venv",
 				"*.pyc",
 			},
 		},
