@@ -139,6 +139,17 @@ func main() {
 			ArgsUsage: "<file-path>",
 		},
 		{
+			Name:   "logs",
+			Usage:  "查看 LeanEngine 产生的日志",
+			Action: logsAction,
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "f",
+					Usage: "持续查看最新日志",
+				},
+			},
+		},
+		{
 			Name:   "env",
 			Usage:  "输出运行当前云引擎应用所需要的环境变量",
 			Action: envAction,
