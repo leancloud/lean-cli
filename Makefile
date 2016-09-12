@@ -18,6 +18,7 @@ test:
 	go test -v github.com/leancloud/lean-cli/lean/boilerplate
 	go test -v github.com/leancloud/lean-cli/lean/console
 	go test -v github.com/leancloud/lean-cli/lean/apps
+	go test -v github.com/leancloud/lean-cli/lean/stats
 
 clean:
 	rm -rf $(OUTPUT)

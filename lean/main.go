@@ -8,6 +8,7 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/logo"
 	"github.com/leancloud/lean-cli/lean/output"
+	"github.com/leancloud/lean-cli/lean/stats"
 	"github.com/leancloud/lean-cli/lean/version"
 )
 
@@ -38,6 +39,24 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 }
 
 func main() {
+	if len(os.Args) >= 2 && os.Args[1] == "--_collect-stats" {
+		stats.Init("Rp8mUcQBVObk8EuyVMDPv39U-gzGzoHsz", "9g3bs563vEsOGdycO2E9ly0y")
+		stats.Client.AppVersion = version.Version
+		stats.Client.AppChannel = pkgType
+
+		var event string
+		if len(os.Args) >= 3 {
+			event = os.Args[2]
+		}
+
+		stats.Collect([]stats.Event{
+			{
+				Event: event,
+			},
+		})
+		return
+	}
+
 	// disable the log prefix
 	log.SetFlags(0)
 
@@ -79,9 +98,9 @@ func main() {
 					Usage: "监听项目文件变更，以自动重启项目",
 				},
 				cli.IntFlag{
-					Name:        "port",
-					Usage:       "指定本地调试的端口",
-					Value:       3000,
+					Name:  "port",
+					Usage: "指定本地调试的端口",
+					Value: 3000,
 				},
 			},
 		},
@@ -139,6 +158,14 @@ func main() {
 				return nil
 			},
 		},
+	}
+
+	app.Before = func(c *cli.Context) error {
+		args := []string{"--_collect-stats"}
+		args = append(args, c.Args()...)
+		err := exec.Command(os.Args[0], args...).Start()
+		_ = err
+		return nil
 	}
 
 	app.Run(os.Args)
