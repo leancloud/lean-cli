@@ -98,7 +98,7 @@ func main() {
 					Usage: "监听项目文件变更，以自动重启项目",
 				},
 				cli.IntFlag{
-					Name:  "port",
+					Name:  "port,p",
 					Usage: "指定本地调试的端口",
 					Value: 3000,
 				},
@@ -142,6 +142,13 @@ func main() {
 			Name:   "env",
 			Usage:  "输出运行当前云引擎应用所需要的环境变量",
 			Action: envAction,
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name:  "port,p",
+					Usage: "指定本地调试的端口",
+					Value: 3000,
+				},
+			},
 		},
 		{
 			Name:      "help",

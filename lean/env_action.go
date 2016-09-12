@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -9,8 +10,7 @@ import (
 )
 
 func envAction(c *cli.Context) error {
-	// TODO: get port from args
-	port := "3000"
+	port := strconv.Itoa(c.Int("port"))
 
 	// TODO:
 	apiServerURL := "https://api.leancloud.cn"
