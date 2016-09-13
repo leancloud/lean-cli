@@ -19,6 +19,8 @@ func updateCommand() string {
 		return "go get -u github.com/leancloud/lean-cli/lean"
 	case "homebrew":
 		return "brew update && brew upgrade lean-cli"
+	case "binary":
+		return "访问 https://github.com/leancloud/lean-cli/releases"
 	default:
 		panic("invalid pkgType: " + pkgType)
 	}
@@ -47,7 +49,7 @@ func checkUpdate() error {
 	latest := semver.New(result.Version)
 
 	if current.LessThan(*latest) {
-		color.Green("发现新版本 %s，变更如下：\r\n%s \r\n您可以通过以下命令升级：%s", result.Version, result.ChangeLog, updateCommand())
+		color.Green("发现新版本 %s，变更如下：\r\n%s \r\n您可以通过以下方式升级：%s", result.Version, result.ChangeLog, updateCommand())
 	}
 
 	return nil
