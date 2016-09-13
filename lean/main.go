@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/exec"
+	"runtime"
 
 	"github.com/codegangsta/cli"
+	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/lean/logo"
 	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/stats"
@@ -38,7 +41,7 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 	}
 }
 
-func main() {
+func run() {
 	if len(os.Args) >= 2 && os.Args[1] == "--_collect-stats" {
 		stats.Init("Rp8mUcQBVObk8EuyVMDPv39U-gzGzoHsz", "9g3bs563vEsOGdycO2E9ly0y")
 		stats.Client.AppVersion = version.Version
@@ -187,4 +190,24 @@ func main() {
 	}
 
 	app.Run(os.Args)
+}
+
+func init() {
+	err := raven.SetDSN("https://9cb0f83042044458b2798635c6d9f895:0ff60f888a584fa9918cebc42b09e20d@sentry.avoscloud.com/2")
+	if err != nil {
+		panic(err)
+	}
+}
+
+func main() {
+	raven.SetTagsContext(map[string]string{
+		"version": version.Version,
+		"OS":      runtime.GOOS,
+		"arch":    runtime.GOARCH,
+	})
+	err, id := raven.CapturePanicAndWait(run, nil)
+	if err != nil {
+		fmt.Printf("panic: %s, 错误 ID: %s\r\n", err, id)
+		os.Exit(1)
+	}
 }
