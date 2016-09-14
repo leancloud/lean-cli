@@ -165,6 +165,25 @@ func run() {
 			},
 		},
 		{
+			Name:   "cache",
+			Usage:  "LeanCache 管理相关功能",
+			Action: cacheAction,
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name:  "db",
+					Usage: "指定连接到的 LeanCache db",
+					Value: 0,
+				},
+			},
+			Subcommands: []cli.Command{
+				{
+					Name:   "list",
+					Usage:  "列出当前应用关联的所有 LeanCache",
+					Action: cacheListAction,
+				},
+			},
+		},
+		{
 			Name:      "help",
 			Aliases:   []string{"h"},
 			Usage:     "显示全部命令或者某个子命令的帮助",
