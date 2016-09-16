@@ -16,8 +16,7 @@ import (
 )
 
 var (
-	isDeployFromGit = false
-	op              = output.NewOutput(os.Stdout)
+	op = output.NewOutput(os.Stdout)
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {
@@ -124,9 +123,8 @@ func run() {
 			Action: deployAction,
 			Flags: []cli.Flag{
 				cli.BoolFlag{
-					Name:        "g",
-					Usage:       "从 git 部署项目",
-					Destination: &isDeployFromGit,
+					Name:  "g",
+					Usage: "从 git 部署项目",
 				},
 			},
 		},
