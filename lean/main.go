@@ -148,6 +148,10 @@ func run() {
 					Name:  "f",
 					Usage: "持续查看最新日志",
 				},
+				cli.StringFlag{
+					Name:  "env,e",
+					Usage: "日志环境，可选项为 staging / production",
+				},
 			},
 		},
 		{

@@ -10,7 +10,16 @@ import (
 
 func logsAction(c *cli.Context) error {
 	follow := c.Bool("f")
-	_ = follow
+	env := c.String("e")
+	isProd := false
+
+	if env == "staging" || env == "stag" {
+		isProd = false
+	} else if env == "production" || env == "" || env == "prod" {
+		isProd = true
+	} else {
+		return cli.NewExitError("environment 参数必须为 staging 或者 production", 1)
+	}
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
@@ -24,7 +33,7 @@ func logsAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	api.PrintLogs(os.Stdout, info.AppID, info.MasterKey, follow)
+	api.PrintLogs(os.Stdout, info.AppID, info.MasterKey, follow, isProd)
 
 	return nil
 }
