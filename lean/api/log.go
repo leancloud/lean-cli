@@ -23,14 +23,21 @@ type Log struct {
 }
 
 // PrintLogs will poll the leanengine's log and print it to the giver io.Writer
-func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool) error {
+func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, isProd bool) error {
 	var url string
+	var prod int
 
 	limit := 100 // TODO
 	params := map[string]string{}
 
 	if !follow {
 		params["limit"] = strconv.Itoa(limit)
+	}
+
+	if isProd {
+		prod = 1
+	} else {
+		prod = 0
 	}
 
 	region, err := GetAppRegion(appID)
@@ -40,9 +47,9 @@ func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool) er
 
 	switch region {
 	case regions.CN:
-		url = "https://api.leancloud.cn/1.1/tables/EngineLogs"
+		url = fmt.Sprintf("https://api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
 	case regions.US:
-		url = "https://us-api.leancloud.cn/1.1/tables/EngineLogs"
+		url = fmt.Sprintf("https://us-api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
 	}
 
 	for {
