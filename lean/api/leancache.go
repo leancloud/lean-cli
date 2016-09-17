@@ -76,6 +76,10 @@ func ExecuteCacheCommand(appID string, instance string, db int, command string) 
 		"command": command,
 	}, opts)
 
+	if err != nil {
+		return nil, err
+	}
+
 	result := new(ExecuteCacheCommandResult)
 	err = resp.JSON(result)
 
