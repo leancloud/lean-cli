@@ -35,7 +35,7 @@ func Login(email string, password string) (*GetUserInfoResult, error) {
 		return nil, err
 	}
 	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
+		return nil, NewErrorFromResponse(resp)
 	}
 
 	if err := jar.Save(); err != nil {
