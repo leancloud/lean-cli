@@ -59,7 +59,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		return nil, err
 	}
 	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
+		return nil, NewErrorFromResponse(resp)
 	}
 
 	result := new(UploadFileResult)

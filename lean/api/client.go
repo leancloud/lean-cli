@@ -91,9 +91,10 @@ func (client *Client) get(path string, options *grequests.RequestOptions) (*greq
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(resp.Header.Get("Content-Type"))
 	if !resp.Ok {
 		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
-			return nil, NewErrorFromBody(resp.String())
+			return nil, NewErrorFromResponse(resp)
 		}
 		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
 	}
@@ -118,7 +119,7 @@ func (client *Client) post(path string, params map[string]interface{}, options *
 		return nil, err
 	}
 	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
+		return nil, NewErrorFromResponse(resp)
 	}
 
 	if err = client.CookieJar.Save(); err != nil {
@@ -141,7 +142,7 @@ func (client *Client) put(path string, params map[string]interface{}, options *g
 		return nil, err
 	}
 	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
+		return nil, NewErrorFromResponse(resp)
 	}
 
 	if err = client.CookieJar.Save(); err != nil {
@@ -163,7 +164,7 @@ func (client *Client) delete(path string, options *grequests.RequestOptions) (*g
 		return nil, err
 	}
 	if !resp.Ok {
-		return nil, NewErrorFromBody(resp.String())
+		return nil, NewErrorFromResponse(resp)
 	}
 
 	if err = client.CookieJar.Save(); err != nil {

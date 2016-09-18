@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+
+	"github.com/levigross/grequests"
 )
 
 var (
@@ -22,7 +24,7 @@ func (err Error) Error() string {
 	return fmt.Sprintf("LeanCloud API error %d: %s", err.Code, err.Content)
 }
 
-// NewErrorFromBody format LeanCloud Server
+// NewErrorFromBody build an error value from JSON string
 func NewErrorFromBody(body string) error {
 	var err Error
 	err2 := json.Unmarshal([]byte(body), &err)
@@ -30,4 +32,17 @@ func NewErrorFromBody(body string) error {
 		panic(err2)
 	}
 	return err
+}
+
+// NewErrorFromResponse build an error value from *grequest.Response
+func NewErrorFromResponse(resp *grequests.Response) error {
+	contentType := resp.Header.Get("Content-Type")
+	if contentType == "application/json" || contentType == "application/json;charset=utf-8" {
+		return NewErrorFromBody(resp.String())
+	}
+
+	return &Error{
+		Code:    resp.StatusCode,
+		Content: fmt.Sprintf("Got invalid HTML response, status code: %d", resp.StatusCode),
+	}
 }
