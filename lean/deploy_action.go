@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/codegangsta/cli"
+	"github.com/facebookgo/parseignore"
 	"github.com/fatih/color"
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -54,9 +56,21 @@ func determineGroupName(appID string) (string, error) {
 	return groupName.(string), nil
 }
 
-func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error) {
-	// TODO: ignore files
+func readIgnore(projectPath string) (parseignore.Matcher, error) {
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".leanignore"))
+	if err != nil {
+		return nil, err
+	}
 
+	matcher, errs := parseignore.CompilePatterns(content)
+	if len(errs) != 0 {
+		return nil, errs[0]
+	}
+
+	return matcher, nil
+}
+
+func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
@@ -68,7 +82,40 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 	if err != nil {
 		return nil, err
 	}
-	files, err := utils.MatchFiles(repoPath, runtime.DeployFiles.Includes, runtime.DeployFiles.Excludes)
+
+	if !utils.IsFileExists(filepath.Join(repoPath, ".leanignore")) {
+		fmt.Println("> 没有找到 .leanignore 文件，根据项目文件自动创建 .leanignore")
+		content := strings.Join(runtime.DefaultIgnorePatterns(), "\r\n")
+		err := ioutil.WriteFile(filepath.Join(repoPath, ".leanignore"), []byte(content), 0644)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	matcher, err := readIgnore(repoPath)
+	if os.IsNotExist(err) {
+	} else if err != nil {
+		return nil, err
+	}
+
+	files := []string{}
+	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		decision, err := matcher.Match(path, info)
+		if err != nil {
+			return err
+		}
+		if decision != parseignore.Exclude {
+			files = append(files, path)
+		}
+		return nil
+	})
+
 	if err != nil {
 		return nil, err
 	}

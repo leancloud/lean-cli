@@ -91,7 +91,6 @@ func (client *Client) get(path string, options *grequests.RequestOptions) (*greq
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println(resp.Header.Get("Content-Type"))
 	if !resp.Ok {
 		if strings.HasPrefix(resp.Header.Get("Content-Type"), "application/json") {
 			return nil, NewErrorFromResponse(resp)
