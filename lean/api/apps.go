@@ -91,7 +91,7 @@ func DeployAppFromGit(appID string, projectPath string, groupName string) (strin
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(appID string, projectPath string, groupName string, fileURL string) (string, error) {
+func DeployAppFromFile(appID string, projectPath string, groupName string, fileURL string, message string) (string, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return "", err
@@ -106,7 +106,7 @@ func DeployAppFromFile(appID string, projectPath string, groupName string, fileU
 
 	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"zipUrl":              fileURL,
-		"comment":             "",
+		"comment":             message,
 		"noDependenciesCache": false,
 		"async":               true,
 	}, opts)
