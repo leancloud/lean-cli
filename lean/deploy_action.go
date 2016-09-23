@@ -56,8 +56,8 @@ func determineGroupName(appID string) (string, error) {
 	return groupName.(string), nil
 }
 
-func readIgnore(projectPath string) (parseignore.Matcher, error) {
-	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".leanignore"))
+func readIgnore(ignoreFilePath string) (parseignore.Matcher, error) {
+	content, err := ioutil.ReadFile(ignoreFilePath)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func readIgnore(projectPath string) (parseignore.Matcher, error) {
 	return matcher, nil
 }
 
-func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error) {
+func uploadProject(appID string, repoPath string, ignoreFilePath string) (*api.UploadFileResult, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
@@ -83,8 +83,8 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 		return nil, err
 	}
 
-	if !utils.IsFileExists(filepath.Join(repoPath, ".leanignore")) {
-		fmt.Println("> 没有找到 .leanignore 文件，根据项目文件自动创建 .leanignore")
+	if ignoreFilePath == ".leanignore" && !utils.IsFileExists(filepath.Join(repoPath, ".leanignore")) {
+		fmt.Println("> 没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件")
 		content := strings.Join(runtime.DefaultIgnorePatterns(), "\r\n")
 		err := ioutil.WriteFile(filepath.Join(repoPath, ".leanignore"), []byte(content), 0644)
 		if err != nil {
@@ -92,8 +92,9 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 		}
 	}
 
-	matcher, err := readIgnore(repoPath)
+	matcher, err := readIgnore(ignoreFilePath)
 	if os.IsNotExist(err) {
+		return nil, fmt.Errorf("指定的 ignore 文件 '%s' 不存在", ignoreFilePath)
 	} else if err != nil {
 		return nil, err
 	}
@@ -141,8 +142,8 @@ func uploadProject(appID string, repoPath string) (*api.UploadFileResult, error)
 	return file, nil
 }
 
-func deployFromLocal(appID string, groupName string) error {
-	file, err := uploadProject(appID, ".")
+func deployFromLocal(appID string, groupName string, ignoreFilePath string) error {
+	file, err := uploadProject(appID, ".", ignoreFilePath)
 	if err != nil {
 		return err
 	}
@@ -185,6 +186,7 @@ func deployFromGit(appID string, groupName string) error {
 
 func deployAction(c *cli.Context) error {
 	isDeployFromGit := c.Bool("g")
+	ignoreFilePath := c.String("leanignore")
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
@@ -212,7 +214,7 @@ func deployAction(c *cli.Context) error {
 			return newCliError(err)
 		}
 	} else {
-		err = deployFromLocal(appID, groupName)
+		err = deployFromLocal(appID, groupName, ignoreFilePath)
 		if err != nil {
 			return newCliError(err)
 		}

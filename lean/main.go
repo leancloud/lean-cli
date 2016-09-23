@@ -126,6 +126,11 @@ func run() {
 					Name:  "g",
 					Usage: "从 git 部署项目",
 				},
+				cli.StringFlag{
+					Name:  "leanignore",
+					Usage: "部署过程中需要忽略的文件的规则",
+					Value: ".leanignore",
+				},
 			},
 		},
 		{
