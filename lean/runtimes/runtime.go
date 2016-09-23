@@ -173,17 +173,7 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 		Args:       []string{"wsgi.py"},
 		WatchFiles: []string{"."},
 		Envs:       os.Environ(),
-		DeployFiles: filesPattern{
-			Includes: []string{"**"},
-			Excludes: []string{
-				".git/**",
-				".avoscloud/**",
-				".leancloud/**",
-				"venv",
-				"*.pyc",
-			},
-		},
-		Errors: make(chan error),
+		Errors:     make(chan error),
 	}, nil
 }
 
@@ -213,16 +203,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 		Args:       []string{script},
 		WatchFiles: []string{"."},
 		Envs:       os.Environ(),
-		DeployFiles: filesPattern{
-			Includes: []string{"**"},
-			Excludes: []string{
-				".git/**",
-				".avoscloud/**",
-				".leancloud/**",
-				"node_modules/**",
-			},
-		},
-		Errors: make(chan error),
+		Errors:     make(chan error),
 	}, nil
 }
 
@@ -232,15 +213,8 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 		Exec:       "mvn",
 		Args:       []string{"jetty:run"},
 		WatchFiles: []string{"."},
-		DeployFiles: filesPattern{
-			Includes: []string{"**"},
-			Excludes: []string{
-				".git/**",
-				".avoscloud/**",
-				".leancloud/**",
-				"target/**",
-			},
-		},
+		Envs:       os.Environ(),
+		Errors:     make(chan error),
 	}, nil
 }
 
@@ -251,15 +225,6 @@ func newPhpRuntime(projectPath string) (*Runtime, error) {
 		Args:       []string{"-S", "127.0.0.1:3000", "-t", "public"},
 		WatchFiles: []string{"."},
 		Envs:       os.Environ(),
-		DeployFiles: filesPattern{
-			Includes: []string{"**"},
-			Excludes: []string{
-				".git/**",
-				".avoscloud/**",
-				".leancloud/**",
-				"vendor/**",
-			},
-		},
-		Errors: make(chan error),
+		Errors:     make(chan error),
 	}, nil
 }
