@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/levigross/grequests"
 )
@@ -20,18 +21,17 @@ type Log struct {
 	GroupName    string `json:"groupName"`
 	Production   int    `json:"production"`
 	OID          string `json:"oid"`
+	Level        string `json:"level"`
+	Instance     string `json:"instance"`
 }
 
 // PrintLogs will poll the leanengine's log and print it to the giver io.Writer
-func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, isProd bool) error {
+func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, isProd bool, limit int) error {
 	var url string
 	var prod int
 
-	limit := 100 // TODO
-	params := map[string]string{}
-
-	if !follow {
-		params["limit"] = strconv.Itoa(limit)
+	params := map[string]string{
+		"limit": strconv.Itoa(limit),
 	}
 
 	if isProd {
@@ -78,12 +78,35 @@ func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, is
 				return err
 			}
 			content := strings.TrimSuffix(log.Content, "\n")
-			fmt.Fprintf(writer, "%s - %s\r\n", t.Local().Format("15:04:05"), content)
+			// fmt.Println(log)
+			level := log.Level
+			var levelSprintf func(string, ...interface{}) string
+			if level == "info" {
+				levelSprintf = color.New(color.BgGreen, color.FgWhite).SprintfFunc()
+			} else {
+				levelSprintf = color.New(color.BgRed, color.FgWhite).SprintfFunc()
+			}
+			var instance string
+			if log.Instance == "" {
+				instance = "    "
+			} else {
+				instance = log.Instance
+			}
+
+			if isProd {
+				fmt.Fprintf(writer, "%s %s %s\r\n", instance, levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			} else {
+				// no instance column
+				fmt.Fprintf(writer, "%s %s\r\n", levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			}
 		}
 
 		if !follow {
 			break
 		}
+
+		// limit is not necessary in second fetch
+		delete(params, "limit")
 
 		if len(logs) > 0 {
 			params["since"] = logs[0].Time

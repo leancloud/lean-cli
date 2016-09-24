@@ -11,6 +11,7 @@ import (
 func logsAction(c *cli.Context) error {
 	follow := c.Bool("f")
 	env := c.String("e")
+	limit := c.Int("limit")
 	isProd := false
 
 	if env == "staging" || env == "stag" {
@@ -33,7 +34,7 @@ func logsAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	api.PrintLogs(os.Stdout, info.AppID, info.MasterKey, follow, isProd)
+	api.PrintLogs(os.Stdout, info.AppID, info.MasterKey, follow, isProd, limit)
 
 	return nil
 }
