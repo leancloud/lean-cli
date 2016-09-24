@@ -36,6 +36,7 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 	from := ""
 	ok := true
 	op := output.NewOutput(os.Stdout)
+	retryCount := 0
 	for {
 		time.Sleep(3 * time.Second)
 		url := "/1.1/engine/events/poll/" + tok
@@ -44,7 +45,11 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 		}
 		resp, err := client.get(url, opts)
 		if err != nil {
-			return false, err
+			retryCount++
+			if retryCount > 3 {
+				return false, err
+			}
+			continue
 		}
 		event := new(deployEvent)
 		err = resp.JSON(&event)
