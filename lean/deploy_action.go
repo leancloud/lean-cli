@@ -142,7 +142,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*api.U
 	return file, nil
 }
 
-func deployFromLocal(appID string, groupName string, ignoreFilePath string) error {
+func deployFromLocal(appID string, groupName string, ignoreFilePath string, message string) error {
 	file, err := uploadProject(appID, ".", ignoreFilePath)
 	if err != nil {
 		return err
@@ -158,7 +158,7 @@ func deployFromLocal(appID string, groupName string, ignoreFilePath string) erro
 		}
 	}()
 
-	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL)
+	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL, message)
 	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
@@ -187,6 +187,7 @@ func deployFromGit(appID string, groupName string) error {
 func deployAction(c *cli.Context) error {
 	isDeployFromGit := c.Bool("g")
 	ignoreFilePath := c.String("leanignore")
+	message := c.String("message")
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
@@ -214,7 +215,7 @@ func deployAction(c *cli.Context) error {
 			return newCliError(err)
 		}
 	} else {
-		err = deployFromLocal(appID, groupName, ignoreFilePath)
+		err = deployFromLocal(appID, groupName, ignoreFilePath, message)
 		if err != nil {
 			return newCliError(err)
 		}

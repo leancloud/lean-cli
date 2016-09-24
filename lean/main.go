@@ -131,6 +131,11 @@ func run() {
 					Usage: "部署过程中需要忽略的文件的规则",
 					Value: ".leanignore",
 				},
+				cli.StringFlag{
+					Name:  "message,m",
+					Usage: "本次部署备注，仅对从本地文件部署项目有效",
+					Value: "从命令行工具构建",
+				},
 			},
 		},
 		{
