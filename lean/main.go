@@ -161,6 +161,12 @@ func run() {
 				cli.StringFlag{
 					Name:  "env,e",
 					Usage: "日志环境，可选项为 staging / production",
+					Value: "production",
+				},
+				cli.IntFlag{
+					Name:  "limit,l",
+					Usage: "获取日志条目数",
+					Value: 30,
 				},
 			},
 		},
