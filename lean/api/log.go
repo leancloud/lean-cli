@@ -52,6 +52,8 @@ func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, is
 		url = fmt.Sprintf("https://us-api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
 	}
 
+	retryCount := 0
+
 	for {
 		resp, err := grequests.Get(url, &grequests.RequestOptions{
 			Headers: map[string]string{
@@ -62,7 +64,12 @@ func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, is
 			Params: params,
 		})
 		if err != nil {
-			return err
+			retryCount++
+			if retryCount > 3 {
+				return err
+			}
+			time.Sleep(5 * time.Second)
+			continue
 		}
 
 		var logs []Log
