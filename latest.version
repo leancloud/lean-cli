@@ -1,4 +1,4 @@
 {
-  "version": "0.2.1",
-  "changelog": "- some bugfixes\r\n"
+  "version": "0.3.0",
+  "changelog": "- add env / logs command\r\n- support .leanignore\r\n"
 }
