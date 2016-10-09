@@ -34,7 +34,8 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 	if isDir(f.Name) {
 		os.MkdirAll(path, f.Mode())
 	} else {
-		f, err := os.OpenFile(path, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, f.Mode())
+		// Use os.Create() since Zip don't store file permissions.
+		f, err := os.Create(path)
 		if err != nil {
 			return err
 		}
