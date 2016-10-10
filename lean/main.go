@@ -195,6 +195,17 @@ func run() {
 			},
 		},
 		{
+			Name:   "cql",
+			Usage:  "进入 CQL 交互查询",
+			Action: cqlAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{Name: "format,f",
+					Usage: "指定 CQL 结果展示格式",
+					Value: "table",
+				},
+			},
+		},
+		{
 			Name:      "help",
 			Aliases:   []string{"h"},
 			Usage:     "显示全部命令或者某个子命令的帮助",
