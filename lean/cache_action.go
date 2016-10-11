@@ -76,7 +76,7 @@ func getRedisCommandCompleter() *readline.PrefixCompleter {
 
 func enterLeanCacheREPL(appID string, instance string, db int) error {
 	l, err := readline.NewEx(&readline.Config{
-		Prompt:          "LeanCache >> ",
+		Prompt:          "LeanCache > ",
 		HistoryFile:     filepath.Join(utils.ConfigDir(), "leancloud", "leancache_history"),
 		AutoComplete:    getRedisCommandCompleter(),
 		InterruptPrompt: "^C",
