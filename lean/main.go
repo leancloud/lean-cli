@@ -10,13 +10,8 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/lean/logo"
-	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/stats"
 	"github.com/leancloud/lean-cli/lean/version"
-)
-
-var (
-	op = output.NewOutput(os.Stdout)
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {

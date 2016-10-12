@@ -1,16 +1,16 @@
-hash: 29d6cc8156e9762a84ae09808c26d7f229a00aad5414e7d12a7ce42411907e81
-updated: 2016-09-22T11:50:38.089179341+08:00
+hash: 6358f45a9d41d7174c43fb3004bcb8df618c6babf7be51ee79d0cb77f34c32a5
+updated: 2016-10-12T15:22:12.010831657+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
+- name: github.com/aisk/chrysanthemum
+  version: d66a23b27216e3b964da2b9a091a74ad8c2a3b40
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
   version: 657c0fceb6a45ef82502c41d9ad2e468bc8930f7
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
-- name: github.com/bmatcuk/doublestar
-  version: c49c7731922eca1cd637d2c583f7f03d94d837f7
 - name: github.com/cheggaaa/pb
   version: 9453b2db37f4d8bc63751daca63bbe7049eb5e74
 - name: github.com/chzyer/readline

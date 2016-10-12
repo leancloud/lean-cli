@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
@@ -24,13 +25,13 @@ func checkOutAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	op.Write("获取应用列表")
+	spinner := chrysanthemum.New("获取应用列表").Start()
 	appList, err := api.GetAppList(region)
 	if err != nil {
-		op.Failed()
+		spinner.Failed()
 		return newCliError(err)
 	}
-	op.Successed()
+	spinner.Successed()
 
 	appList, err = apps.MergeWithRecentApps(".", appList)
 	if err != nil {

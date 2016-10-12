@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
+	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/facebookgo/parseignore"
 	"github.com/fatih/color"
@@ -20,23 +21,24 @@ import (
 )
 
 func determineGroupName(appID string) (string, error) {
-	op.Write("获取应用信息")
+	spinner := chrysanthemum.New("获取应用信息").Start()
+
 	info, err := api.GetAppInfo(appID)
 	if err != nil {
-		op.Failed()
+		spinner.Failed()
 		return "", err
 	}
-	op.Successed()
-	fmt.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
+	spinner.Successed()
+	chrysanthemum.Printf("准备部署至目标应用：%s (%s)\r\n", color.RedString(info.AppName), appID)
 	mode := info.LeanEngineMode
 
-	op.Write("获取应用分组信息")
+	spinner = chrysanthemum.New("获取应用分组信息").Start()
 	groups, err := api.GetGroups(appID)
 	if err != nil {
-		op.Failed()
+		spinner.Failed()
 		return "", err
 	}
-	op.Successed()
+	spinner.Successed()
 
 	groupName, found, err := linq.From(groups).Where(func(group linq.T) (bool, error) {
 		groupName := group.(*api.GetGroupsResult).GroupName
@@ -120,7 +122,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*api.U
 	if err != nil {
 		return nil, err
 	}
-	op.Write("压缩项目文件 ...")
+	spinner := chrysanthemum.New("压缩项目文件").Start()
 	zip := new(archivex.ZipFile)
 	func() {
 		defer zip.Close()
@@ -132,7 +134,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*api.U
 			}
 		}
 	}()
-	op.Successed()
+	spinner.Successed()
 
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
@@ -149,12 +151,12 @@ func deployFromLocal(appID string, groupName string, ignoreFilePath string, mess
 	}
 
 	defer func() {
-		op.Write("删除临时文件")
+		spinner := chrysanthemum.New("删除临时文件").Start()
 		err := api.DeleteFile(appID, file.ObjectID)
 		if err != nil {
-			op.Failed()
+			spinner.Failed()
 		} else {
-			op.Successed()
+			spinner.Successed()
 		}
 	}()
 
@@ -199,14 +201,13 @@ func deployAction(c *cli.Context) error {
 
 	groupName, err := determineGroupName(appID)
 	if err != nil {
-		op.Failed()
 		return newCliError(err)
 	}
 
 	if groupName == "staging" {
-		fmt.Println("> 准备部署应用到预备环境")
+		chrysanthemum.Printf("准备部署应用到预备环境\r\n")
 	} else {
-		fmt.Println("> 准备部署应用到生产环境: " + groupName)
+		chrysanthemum.Printf("准备部署应用到生产环境: %s\r\n", groupName)
 	}
 
 	if isDeployFromGit {

@@ -9,8 +9,8 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/cheggaaa/pb"
-	"github.com/leancloud/lean-cli/lean/output"
 	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
@@ -51,7 +51,6 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 
 // FetchRepo will download the boilerplate from remote and extract to ${appName}/folder
 func FetchRepo(boil *Boilerplate, appName string, appID string) error {
-	op := output.NewOutput(os.Stdout)
 	utils.CheckError(os.Mkdir(appName, 0775))
 
 	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn/" + boil.URL
@@ -74,7 +73,7 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	zipFilePath := filepath.Join(dir, "getting-started.zip")
 	DownloadToFile(resp, zipFilePath)
 
-	op.Write("正在创建项目...")
+	spinner := chrysanthemum.New("正在创建项目...").Start()
 
 	zipFile, err := zip.OpenReader(zipFilePath)
 	utils.CheckError(err)
@@ -82,12 +81,12 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	for _, f := range zipFile.File {
 		err := extractAndWriteFile(f, appName)
 		if err != nil {
-			op.Failed()
+			spinner.Failed()
 			return err
 		}
 	}
 
-	op.Successed()
+	spinner.Successed()
 
 	return nil
 }
@@ -136,7 +135,7 @@ func DownloadToFile(r *grequests.Response, fileName string) error {
 
 	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
 		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
-		bar.Prefix("> 下载模版文件")
+		bar.Prefix(" " + chrysanthemum.Success + " 下载模版文件")
 		bar.Start()
 		defer bar.Finish()
 		reader := bar.NewProxyReader(r)

@@ -8,7 +8,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/leancloud/lean-cli/lean/output"
+	"github.com/aisk/chrysanthemum"
 )
 
 var (
@@ -91,15 +91,14 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 		return "", err
 	}
 
-	op := output.NewOutput(os.Stdout)
-	op.Write("检测到旧版命令行工具项目配置，正在迁移")
+	spinner := chrysanthemum.New("检测到旧版命令行工具项目配置，正在迁移").Start()
 
 	err = LinkApp(projectPath, appID)
 	if err != nil {
-		op.Failed()
+		spinner.Failed()
 		return "", err
 	}
-	op.Successed()
+	spinner.Successed()
 
 	log.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
 
