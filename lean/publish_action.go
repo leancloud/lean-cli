@@ -2,10 +2,10 @@ package main
 
 import (
 	"errors"
-	"fmt"
 	"os"
 
 	"github.com/ahmetalpbalkan/go-linq"
+	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -47,14 +47,14 @@ func publishAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	op.Write("获取应用信息")
+	spinner := chrysanthemum.New("获取应用信息").Start()
 	info, err := api.GetAppInfo(appID)
 	if err != nil {
-		op.Failed()
+		spinner.Failed()
 		return newCliError(err)
 	}
-	op.Successed()
-	fmt.Println("> 准备部署至目标应用：" + color.RedString(info.AppName) + " (" + appID + ")")
+	spinner.Successed()
+	chrysanthemum.Printf("准备部署至目标应用：%s (%s)\r\n", color.RedString(info.AppName), appID)
 
 	if info.LeanEngineMode == "free" {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)

@@ -1,12 +1,10 @@
 package api
 
 import (
+	"github.com/aisk/chrysanthemum"
 	"io"
-	"os"
 	"strings"
 	"time"
-
-	"github.com/leancloud/lean-cli/lean/output"
 )
 
 type deployEvent struct {
@@ -35,10 +33,10 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 
 	from := ""
 	ok := true
-	op := output.NewOutput(os.Stdout)
 	retryCount := 0
+	var spinner *chrysanthemum.Chrysanthemum
 	for {
-		time.Sleep(3 * time.Second)
+		time.Sleep(1 * time.Second)
 		url := "/1.1/engine/events/poll/" + tok
 		if from != "" {
 			url = url + "?from=" + from
@@ -57,9 +55,13 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 			return false, err
 		}
 		for i := len(event.Events) - 1; i >= 0; i-- {
+			if spinner != nil {
+				spinner.End()
+			}
+
 			e := event.Events[i]
 
-			op.Write(e.Content)
+			spinner = chrysanthemum.New(e.Content).Start()
 
 			from = e.Time
 			if strings.ToLower(e.Level) == "error" {
@@ -67,9 +69,11 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 			}
 		}
 		if !event.MoreEvent {
-			op.Successed()
 			break
 		}
+	}
+	if spinner != nil {
+		spinner.End()
 	}
 	return ok, nil
 }

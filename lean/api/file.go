@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/cheggaaa/pb"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
@@ -40,7 +41,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 		return nil, err
 	}
 	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
-	bar.Prefix("> 上传应用文件")
+	bar.Prefix(" " + chrysanthemum.Success + " " + "上传应用文件")
 	bar.Start()
 	reader := bar.NewProxyReader(f)
 

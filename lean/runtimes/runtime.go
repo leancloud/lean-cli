@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/fsnotify/fsnotify"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
@@ -52,7 +53,7 @@ func (runtime *Runtime) Run() {
 				runtime.command.Env = append(runtime.command.Env, env)
 			}
 
-			fmt.Printf("> 项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
+			fmt.Printf(" %s 项目已启动，请使用浏览器访问：http://localhost:%s\r\n", chrysanthemum.Success, runtime.Port)
 			err := runtime.command.Run()
 			// TODO: this maybe not portable
 			if err.Error() == "signal: killed" {
@@ -108,25 +109,25 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is importand
 	if utils.IsFileExists(filepath.Join(projectPath, "cloud", "main.js")) {
-		fmt.Println("> 检测到 cloudcode 运行时")
+		chrysanthemum.Printf("检测到 cloudcode 运行时\r\n")
 		return &Runtime{
 			Name: "cloudcode",
 		}, nil
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
-		fmt.Println("> 检测到 node.js 运行时")
+		chrysanthemum.Printf("检测到 node.js 运行时\r\n")
 		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "requirements.txt")) && utils.IsFileExists(filepath.Join(projectPath, "wsgi.py")) {
-		fmt.Println("> 检测到 Python 运行时")
+		chrysanthemum.Printf("检测到 Python 运行时\r\n")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "composer.json")) && utils.IsFileExists(filepath.Join("public", "index.php")) {
-		fmt.Println("> 检测到 PHP 运行时")
+		chrysanthemum.Printf("检测到 PHP 运行时\r\n")
 		return newPhpRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
-		fmt.Println("> 检测到 Java 运行时")
+		chrysanthemum.Printf("检测到 Java 运行时\r\n")
 		return newJavaRuntime(projectPath)
 	}
 	return nil, ErrInvalidRuntime
@@ -137,9 +138,9 @@ func lookupBin(fallbacks []string) (string, error) {
 		binPath, err := exec.LookPath(bin)
 		if err == nil { // found
 			if i == 0 {
-				fmt.Printf("> 找到运行文件 `%s`\r\n", binPath)
+				chrysanthemum.Printf("找到运行文件 `%s`\r\n", binPath)
 			} else {
-				fmt.Printf("> 没有找到命令 `%s`，使用 `%s` 代替 \r\n", fallbacks[i-1], fallbacks[i])
+				chrysanthemum.Printf("没有找到命令 `%s`，使用 `%s` 代替 \r\n", fallbacks[i-1], fallbacks[i])
 			}
 			return bin, nil
 		}

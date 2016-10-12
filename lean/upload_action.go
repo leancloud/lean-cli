@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -16,7 +17,7 @@ func uploadAction(c *cli.Context) error {
 	}
 
 	filePath := c.Args().First()
-	fmt.Println("> 准备上传文件：" + color.RedString(filePath))
+	fmt.Printf(" %s 准备上传文件：%s\r\n", chrysanthemum.Success, color.RedString(filePath))
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -29,7 +30,7 @@ func uploadAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	fmt.Println("> 上传成功，文件 URL：" + file.URL)
+	fmt.Printf(" %s 上传成功，文件 URL：%s\r\n", chrysanthemum.Success, file.URL)
 
 	return nil
 }
