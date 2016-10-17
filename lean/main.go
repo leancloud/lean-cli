@@ -78,7 +78,22 @@ func run() {
 			Name:      "login",
 			Usage:     "登录 LeanCloud 账户",
 			Action:    loginAction,
-			ArgsUsage: "[account] [password]",
+			ArgsUsage: "[-u username -p password (--region <CN> | <US> | <TAB>)]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "username,u",
+					Usage: "用户名",
+				},
+				cli.StringFlag{
+					Name:  "password,p",
+					Usage: "密码",
+				},
+				cli.StringFlag{
+					Name:  "region,r",
+					Usage: "需要登录的节点",
+					Value: "CN",
+				},
+			},
 		},
 		{
 			Name:   "info",

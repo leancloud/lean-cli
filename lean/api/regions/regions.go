@@ -9,6 +9,8 @@ func (r Region) String() string {
 		return "cn"
 	case US:
 		return "us"
+	case TAB:
+		return "tab"
 	default:
 		return "invalid"
 	}
@@ -19,4 +21,5 @@ const (
 	Invalid Region = iota
 	CN
 	US
+	TAB
 )

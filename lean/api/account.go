@@ -57,6 +57,15 @@ func LoginUSRegion() error {
 	return nil
 }
 
+// LoginTABRegion will use qrcode to login TAB Region
+func LoginTABRegion(token string) (*GetUserInfoResult, error) {
+	client := NewClient(regions.TAB)
+	resp, err := client.post("/1.1/signinByToken?token="+token, nil, nil)
+	result := new(GetUserInfoResult)
+	err = resp.JSON(result)
+	return result, err
+}
+
 // GetUserInfoResult is the return type of GetUserInfo
 type GetUserInfoResult struct {
 	Email    string `json:"email"`
