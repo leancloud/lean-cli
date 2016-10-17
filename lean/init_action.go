@@ -76,6 +76,12 @@ func selectRegion() (regions.Region, error) {
 						region = regions.US
 					},
 				},
+				{
+					Content: "TAB",
+					Handler: func() {
+						region = regions.TAB
+					},
+				},
 			},
 		},
 	})
