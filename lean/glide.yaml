@@ -24,3 +24,4 @@ import:
 - package: github.com/facebookgo/parseignore
 - package: github.com/juju/persistent-cookiejar
 - package: github.com/aisk/chrysanthemum
+- package: github.com/pkg/browser
