@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	hostCN = "https://leancloud.cn"
-	hostUS = "https://us.leancloud.cn"
+	hostCN  = "https://leancloud.cn"
+	hostUS  = "https://us.leancloud.cn"
+	hostTAB = "https://tab.leancloud.cn"
 )
 
 // Client info
@@ -51,6 +52,8 @@ func (client *Client) baseURL() string {
 		return hostCN
 	case regions.US:
 		return hostUS
+	case regions.TAB:
+		return hostTAB
 	default:
 		panic("invalid region")
 	}

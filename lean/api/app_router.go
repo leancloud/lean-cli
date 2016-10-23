@@ -40,6 +40,9 @@ func GetAppRegion(appID string) (regions.Region, error) {
 	case "api.leancloud.cn":
 		routerCache[appID] = regions.CN
 		return regions.CN, nil
+	case "e1-api.leancloud.cn":
+		routerCache[appID] = regions.TAB
+		return regions.TAB, nil
 	default:
 		return regions.Invalid, fmt.Errorf("invalid region server: %s", result.APIServer)
 	}
