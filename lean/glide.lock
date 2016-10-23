@@ -1,5 +1,5 @@
-hash: 6358f45a9d41d7174c43fb3004bcb8df618c6babf7be51ee79d0cb77f34c32a5
-updated: 2016-10-12T15:22:12.010831657+08:00
+hash: 84690199d654efd54996a77f795d2c848c98c85b6d8e97bf39221c7b52033d30
+updated: 2016-10-23T13:46:05.46978236+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
@@ -24,7 +24,7 @@ imports:
 - name: github.com/facebookgo/parseignore
   version: 41ebb753c47c8cce5b5d5c1d65289df4ce0183cc
 - name: github.com/fatih/color
-  version: 87d4004f2ab62d0d255e0a38f1680aa534549fe3
+  version: dea9d3a26a087187530244679c1cfb3a42937794
 - name: github.com/fsnotify/fsnotify
   version: f12c6236fe7b5cf6bcf30e5935d08cb079d78334
 - name: github.com/getsentry/raven-go
@@ -51,6 +51,8 @@ imports:
   version: ed8eb9e318d7a84ce5915b495b7d35e0cfe7b5a8
 - name: github.com/mattn/go-isatty
   version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
+- name: github.com/pkg/browser
+  version: 9302be274faad99162b9d48ec97b24306872ebb0
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
