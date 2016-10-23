@@ -2,13 +2,25 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
-	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
+
+func uploadFile(appID string, filePath string) error {
+	chrysanthemum.Println("上传文件:", filePath)
+	file, err := api.UploadFile(appID, filePath)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	fmt.Printf(" %s 上传成功，文件 URL：%s\r\n", chrysanthemum.Success, file.URL)
+	return nil
+}
 
 func uploadAction(c *cli.Context) error {
 	if c.NArg() < 1 {
@@ -16,21 +28,41 @@ func uploadAction(c *cli.Context) error {
 		return cli.NewExitError("", 1)
 	}
 
-	filePath := c.Args().First()
-	fmt.Printf(" %s 准备上传文件：%s\r\n", chrysanthemum.Success, color.RedString(filePath))
-
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		return newCliError(err)
 	}
 
-	file, err := api.UploadFile(appID, filePath)
-	if err != nil {
-		fmt.Println(err)
-		return newCliError(err)
+	for _, filePath := range c.Args() {
+		f, err := os.Open(filePath)
+		if err != nil {
+			return newCliError(err)
+		}
+		defer f.Close()
+		stat, err := f.Stat()
+		if err != nil {
+			return newCliError(err)
+		}
+		if stat.IsDir() {
+			err := filepath.Walk(filePath, func(path string, info os.FileInfo, err error) error {
+				if err != nil {
+					return err
+				}
+				if info.IsDir() {
+					return nil
+				}
+				return uploadFile(appID, path)
+			})
+			if err != nil {
+				return newCliError(err)
+			}
+		} else {
+			err := uploadFile(appID, filePath)
+			if err != nil {
+				return newCliError(err)
+			}
+		}
 	}
-
-	fmt.Printf(" %s 上传成功，文件 URL：%s\r\n", chrysanthemum.Success, file.URL)
 
 	return nil
 }

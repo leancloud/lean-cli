@@ -142,7 +142,7 @@ func run() {
 			Name:      "upload",
 			Usage:     "上传文件到当前应用 File 表",
 			Action:    uploadAction,
-			ArgsUsage: "<file-path>",
+			ArgsUsage: "<file-path> <file-path> ...",
 		},
 		{
 			Name:   "logs",
