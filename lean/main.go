@@ -3,15 +3,18 @@ package main
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 
 	"github.com/codegangsta/cli"
 	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/lean/logo"
 	"github.com/leancloud/lean-cli/lean/stats"
 	"github.com/leancloud/lean-cli/lean/version"
+	"github.com/pkg/browser"
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {
@@ -213,6 +216,20 @@ func run() {
 					Usage: "指定 CQL 结果展示格式",
 					Value: "table",
 				},
+			},
+		},
+		{
+			Name:      "search",
+			Usage:     "根据关键词查询开发文档",
+			ArgsUsage: "<kwywords>",
+			Action: func(c *cli.Context) error {
+				if c.NArg() == 0 {
+					cli.ShowCommandHelp(c, "search")
+				}
+				keyword := strings.Join(c.Args(), " ")
+				browser.OpenURL("https://leancloud.cn/search.html?q=" + url.QueryEscape(keyword))
+
+				return nil
 			},
 		},
 		{
