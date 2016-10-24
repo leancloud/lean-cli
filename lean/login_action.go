@@ -61,7 +61,7 @@ func loginWithSessionToken() (*api.GetUserInfoResult, error) {
 	sessionToken := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "请在浏览器中打开 https://console.qcloud.com/tab ，登录您的腾讯云账户，在任意应用设置 - 应用 Key 页面获取您的 session key，并输入：",
+			Content: "请输入登录 token：",
 			Input: &wizard.Input{
 				Result: sessionToken,
 				Hidden: false,
