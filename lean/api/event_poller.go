@@ -55,18 +55,19 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 			return false, err
 		}
 		for i := len(event.Events) - 1; i >= 0; i-- {
-			if spinner != nil {
-				spinner.End()
-			}
-
 			e := event.Events[i]
 
-			spinner = chrysanthemum.New(e.Content).Start()
-
-			from = e.Time
-			if strings.ToLower(e.Level) == "error" {
-				ok = false
+			if spinner != nil {
+				if ok {
+					spinner.Successed()
+				} else {
+					spinner.Failed()
+				}
 			}
+
+			spinner = chrysanthemum.New(e.Content).Start()
+			from = e.Time
+			ok = strings.ToLower(e.Level) != "error"
 		}
 		if !event.MoreEvent {
 			break
