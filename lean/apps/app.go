@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 
@@ -100,7 +99,7 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 	}
 	spinner.Successed()
 
-	log.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
+	chrysanthemum.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
 
 	return appID, nil
 }
