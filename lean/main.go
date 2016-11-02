@@ -268,6 +268,11 @@ func init() {
 }
 
 func main() {
+	if os.Getenv("LEAN_CLI_DEBUG") == "1" {
+		run()
+		return
+	}
+
 	raven.SetTagsContext(map[string]string{
 		"version": version.Version,
 		"OS":      runtime.GOOS,
