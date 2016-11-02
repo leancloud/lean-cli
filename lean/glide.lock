@@ -1,5 +1,5 @@
 hash: 7516dd07f320073644ef8e26fbd31ba6492b22ab9dd47c876e6db2a608a5898d
-updated: 2016-11-02T16:11:12.114160578+08:00
+updated: 2016-11-02T17:19:11.456872366+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
@@ -46,7 +46,7 @@ imports:
 - name: github.com/juju/persistent-cookiejar
   version: e710b897c13ca52828ca2fc9769465186fd6d15c
 - name: github.com/leancloud/go-upload
-  version: d1a306eb5547ba1837e3b4eb91174ba0aa4c1ce9
+  version: 22a5a534e18731e6ee547667e3fc587776148561
 - name: github.com/levigross/grequests
   version: e9e437f63e6aa3c30238175a7f498f8283ee94fa
 - name: github.com/mattn/go-colorable

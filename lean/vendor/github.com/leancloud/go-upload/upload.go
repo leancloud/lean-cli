@@ -13,7 +13,7 @@ import (
 
 // Upload upload specific file to LeanCloud
 func Upload(name string, mimeType string, reader io.Reader, opts *Options) (*File, error) {
-	if opts.serverURL() == "https://api.leancloud.cn" {
+	if opts.serverURL() == "https://api.leancloud.cn" || opts.serverURL() == "https://leancloud.cn" {
 		tokens, err := getFileTokens(name, mimeType, opts)
 		if err != nil {
 			return nil, err

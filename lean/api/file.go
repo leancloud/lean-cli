@@ -7,18 +7,25 @@ import (
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/cheggaaa/pb"
-	"github.com/leancloud/lean-cli/lean/version"
-	"github.com/levigross/grequests"
+	"github.com/leancloud/go-upload"
+	"mime"
 )
 
-// UploadFileResult is the UploadFile's return type
-type UploadFileResult struct {
-	ObjectID string `json:"objectID"`
-	URL      string `json:"url"`
+type fileBarReaderSeeker struct {
+	file   *os.File
+	reader *pb.Reader
+}
+
+func (f *fileBarReaderSeeker) Seek(offset int64, whence int) (ret int64, err error) {
+	return f.file.Seek(offset, whence)
+}
+
+func (f *fileBarReaderSeeker) Read(b []byte) (n int, err error) {
+	return f.reader.Read(b)
 }
 
 // UploadFile upload specific file to LeanCloud
-func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
+func UploadFile(appID string, filePath string) (*upload.File, error) {
 	appInfo, err := GetAppInfo(appID)
 	if err != nil {
 		return nil, err
@@ -30,6 +37,7 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 	}
 
 	_, fileName := filepath.Split(filePath)
+	mimeType := mime.TypeByExtension(filepath.Ext(filePath))
 
 	f, err := os.Open(filePath)
 	if err != nil {
@@ -43,32 +51,31 @@ func UploadFile(appID string, filePath string) (*UploadFileResult, error) {
 	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
 	bar.Prefix(" " + chrysanthemum.Success + " " + "上传应用文件")
 	bar.Start()
-	reader := bar.NewProxyReader(f)
 
-	opts := &grequests.RequestOptions{
-		Headers: map[string]string{
-			"X-LC-Id":      appInfo.AppID,
-			"X-LC-Key":     appInfo.MasterKey + ",master",
-			"Content-Type": "application/zip, application/octet-stream",
-		},
-		UserAgent:   "LeanCloud-CLI/" + version.Version,
-		RequestBody: reader,
+	// qiniu want a io.ReadSeeker to get file's size
+	readSeeker := &fileBarReaderSeeker{
+		file:   f,
+		reader: bar.NewProxyReader(f),
 	}
-	resp, err := grequests.Post(NewClient(region).baseURL()+"/1.1/files/"+fileName, opts)
+
+	file, err := upload.Upload(fileName, mimeType, readSeeker, &upload.Options{
+		AppID:     appInfo.AppID,
+		AppKey:    appInfo.MasterKey + ",master",
+		ServerURL: NewClient(region).baseURL(),
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	bar.Finish()
 	if err != nil {
 		return nil, err
 	}
-	if !resp.Ok {
-		return nil, NewErrorFromResponse(resp)
-	}
 
-	result := new(UploadFileResult)
-	err = resp.JSON(result)
-	if result.URL == "" {
+	if file.URL == "" {
 		return nil, errors.New("文件上传失败")
 	}
-	return result, err
+	return file, err
 }
 
 // DeleteFile will delete the specific file
