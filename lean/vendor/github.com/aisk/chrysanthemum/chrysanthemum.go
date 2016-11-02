@@ -61,7 +61,7 @@ func (c *Chrysanthemum) Start() *Chrysanthemum {
 		return c
 	}
 
-	fmt.Print("\033[?25l") // hide cursor
+	// fmt.Print("\033[?25l") // hide cursor
 
 	i := 0
 	go func() {
@@ -94,7 +94,7 @@ func (c *Chrysanthemum) end(flag string) {
 	}
 	c.stop <- true
 	c.stopped = true
-	fmt.Printf("\033[?25h") // show cursor
+	// fmt.Printf("\033[?25h") // show cursor
 	fmt.Printf("\r %s \n", flag)
 }
 
