@@ -107,26 +107,49 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 
 // DetectRuntime returns the project's runtime
 func DetectRuntime(projectPath string) (*Runtime, error) {
-	// order is importand
+	bar := chrysanthemum.New("正在检测运行时").Start()
+	// order is important
 	if utils.IsFileExists(filepath.Join(projectPath, "cloud", "main.js")) {
 		chrysanthemum.Printf("检测到 cloudcode 运行时\r\n")
+		bar.Successed()
 		return &Runtime{
 			Name: "cloudcode",
 		}, nil
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
+		bar.Successed()
 		chrysanthemum.Printf("检测到 node.js 运行时\r\n")
 		return newNodeRuntime(projectPath)
 	}
+	if utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
+		data, err := ioutil.ReadFile(filepath.Join(projectPath, "package.json"))
+		if err == nil {
+			var result struct {
+				Scripts struct {
+					Start string `json:"start"`
+				} `json:"scripts"`
+			}
+			if err = json.Unmarshal(data, &result); err == nil {
+				if result.Scripts.Start != "" {
+					bar.Successed()
+					chrysanthemum.Printf("检测到 node.js 运行时\r\n")
+					return newNodeRuntime(projectPath)
+				}
+			}
+		}
+	}
 	if utils.IsFileExists(filepath.Join(projectPath, "requirements.txt")) && utils.IsFileExists(filepath.Join(projectPath, "wsgi.py")) {
+		bar.Successed()
 		chrysanthemum.Printf("检测到 Python 运行时\r\n")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "composer.json")) && utils.IsFileExists(filepath.Join("public", "index.php")) {
+		bar.Successed()
 		chrysanthemum.Printf("检测到 PHP 运行时\r\n")
 		return newPhpRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
+		bar.Successed()
 		chrysanthemum.Printf("检测到 Java 运行时\r\n")
 		return newJavaRuntime(projectPath)
 	}
