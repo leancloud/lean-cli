@@ -25,3 +25,4 @@ import:
 - package: github.com/juju/persistent-cookiejar
 - package: github.com/aisk/chrysanthemum
 - package: github.com/pkg/browser
+- package: github.com/leancloud/go-upload

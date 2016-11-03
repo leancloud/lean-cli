@@ -14,6 +14,7 @@ import (
 	"github.com/facebookgo/parseignore"
 	"github.com/fatih/color"
 	"github.com/jhoonb/archivex"
+	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/runtimes"
@@ -72,7 +73,7 @@ func readIgnore(ignoreFilePath string) (parseignore.Matcher, error) {
 	return matcher, nil
 }
 
-func uploadProject(appID string, repoPath string, ignoreFilePath string) (*api.UploadFileResult, error) {
+func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
