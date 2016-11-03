@@ -1,5 +1,5 @@
 hash: 7516dd07f320073644ef8e26fbd31ba6492b22ab9dd47c876e6db2a608a5898d
-updated: 2016-11-02T17:19:11.456872366+08:00
+updated: 2016-11-03T11:09:49.594317369+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
@@ -55,6 +55,13 @@ imports:
   version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
 - name: github.com/pkg/browser
   version: 9302be274faad99162b9d48ec97b24306872ebb0
+- name: github.com/qiniu/api.v6
+  version: 705d485512bab38d44f792b1d401b70b4e15a092
+  subpackages:
+  - conf
+  - io
+- name: github.com/qiniu/rpc
+  version: 30c22466d920a7dc0e1f79d048f44af85ac04ee6
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
