@@ -1,4 +1,4 @@
 {
-  "version": "0.4.0",
-  "changelog": "- add cql / search command\r\n- support upload directory\r\n- support TAB region login\r\n"
+  "version": "0.4.1",
+  "changelog": "- upload to CDN directly in CN region\r\n- some bugfix\r\n"
 }
