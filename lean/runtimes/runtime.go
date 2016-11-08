@@ -53,7 +53,7 @@ func (runtime *Runtime) Run() {
 				runtime.command.Env = append(runtime.command.Env, env)
 			}
 
-			fmt.Printf(" %s 项目已启动，请使用浏览器访问：http://localhost:%s\r\n", chrysanthemum.Success, runtime.Port)
+			chrysanthemum.Printf("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
 			err := runtime.command.Run()
 			// TODO: this maybe not portable
 			if err.Error() == "signal: killed" {
@@ -203,28 +203,33 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 
 func newNodeRuntime(projectPath string) (*Runtime, error) {
 	execName := "node"
-	script := "server.js"
+	args := []string{"server.js"}
 	pkgFile := filepath.Join(projectPath, "package.json")
 	if content, err := ioutil.ReadFile(pkgFile); err == nil {
 		pkg := new(struct {
 			Scripts struct {
 				Start string `json:"start"`
+				Dev   string `json:"dev"`
 			} `json:"scripts"`
 		})
 		err = json.Unmarshal(content, pkg)
 		if err != nil {
 			return nil, err
 		}
-		if pkg.Scripts.Start != "" {
+
+		if pkg.Scripts.Dev != "" {
 			execName = "npm"
-			script = "start"
+			args = []string{"run", "dev"}
+		} else if pkg.Scripts.Start != "" {
+			execName = "npm"
+			args = []string{"start"}
 		}
 	}
 
 	return &Runtime{
 		Name:       "node.js",
 		Exec:       execName,
-		Args:       []string{script},
+		Args:       args,
 		WatchFiles: []string{"."},
 		Envs:       os.Environ(),
 		Errors:     make(chan error),
