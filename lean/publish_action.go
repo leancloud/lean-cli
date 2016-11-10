@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"os"
 
 	"github.com/ahmetalpbalkan/go-linq"
@@ -26,14 +25,11 @@ func getDefaultGroup(appID string, env int) (*api.GetGroupsResult, error) {
 		return nil, err
 	}
 
-	group, found, err := linq.From(groups).Where(func(group linq.T) (bool, error) {
-		return group.(*api.GetGroupsResult).Prod == env, nil
+	group := linq.From(groups).Where(func(group interface{}) bool {
+		return group.(*api.GetGroupsResult).Prod == env
 	}).First()
 	if err != nil {
 		return nil, err
-	}
-	if !found {
-		return nil, errors.New("group not found")
 	}
 	return group.(*api.GetGroupsResult), nil
 }

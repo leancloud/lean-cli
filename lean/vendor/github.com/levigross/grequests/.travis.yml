@@ -1,14 +1,23 @@
 language: go
 
-go:
-#  - 1.0 This won't work with coveralls
-#  - 1.1 This won't work with coveralls
-#  - 1.2 This won't work with our XML wonderfulness
-#   - 1.3 This won't work with golint
-#   - 1.4 This won't work with golint
-  - 1.5
-  - 1.6
-  - tip
+matrix:
+  fast_finish: true
+  include:
+  - go: 1.6
+  - go: 1.7
+  - go: master
+  allow_failures:
+  - go: master
+# go:
+# #  - 1.0 This won't work with coveralls
+# #  - 1.1 This won't work with coveralls
+# #  - 1.2 This won't work with our XML wonderfulness
+# #   - 1.3 This won't work with golint
+# #   - 1.4 This won't work with golint
+# #   - 1.5 This won't work with golint
+#   - 1.6
+#   - 1.7
+#   # - tip
 
 before_install:
   - go get -u -v github.com/axw/gocov/gocov
@@ -19,7 +28,7 @@ script:
   - diff -u <(echo -n) <(gofmt -s -d ./)
   - diff -u <(echo -n) <(go vet ./...)
   - diff -u <(echo -n) <(golint ./...)
-  - go test -v -race -covermode=atomic -coverprofile=coverage.out
+  - go test -short -v -race -covermode=atomic -coverprofile=coverage.out
 
 after_success:
   - goveralls -coverprofile=coverage.out -service=travis-ci -repotoken $COVERALLS_TOKEN

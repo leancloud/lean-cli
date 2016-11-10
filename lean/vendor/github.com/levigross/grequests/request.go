@@ -62,6 +62,9 @@ type RequestOptions struct {
 	// UserAgent allows you to set an arbitrary custom user agent
 	UserAgent string
 
+	// Host allows you to set an arbitrary custom host
+	Host string
+
 	// Auth allows you to specify a user name and password that you wish to
 	// use when requesting the URL. It will use basic HTTP authentication
 	// formatting the username and password in base64 the format is:
@@ -263,13 +266,17 @@ func createMultiPartPostRequest(httpMethod, userURL string, ro *RequestOptions) 
 			return nil, errors.New("grequests: Pointer FileContents cannot be nil")
 		}
 
-		fileName := "file"
+		fieldName := f.FieldName
 
-		if len(ro.Files) > 1 {
-			fileName = strings.Join([]string{"file", strconv.Itoa(i + 1)}, "")
+		if fieldName == "" {
+			if len(ro.Files) > 1 {
+				fieldName = strings.Join([]string{"file", strconv.Itoa(i + 1)}, "")
+			} else {
+				fieldName = "file"
+			}
 		}
 
-		writer, err := multipartWriter.CreateFormFile(fileName, f.FileName)
+		writer, err := multipartWriter.CreateFormFile(fieldName, f.FileName)
 
 		if err != nil {
 			return nil, err
@@ -502,6 +509,10 @@ func addHTTPHeaders(ro *RequestOptions, req *http.Request) {
 		req.Header.Set("User-Agent", ro.UserAgent)
 	} else {
 		req.Header.Set("User-Agent", localUserAgent)
+	}
+
+	if ro.Host != "" {
+		req.Host = ro.Host
 	}
 
 	if ro.Auth != nil {

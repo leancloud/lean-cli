@@ -84,19 +84,18 @@ func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request)
 		return
 	}
 
-	result, _ := linq.From(functions).Where(func(in linq.T) (bool, error) {
+	result := linq.From(functions).Where(func(in interface{}) bool {
 		function := in.(string)
-		return !strings.HasPrefix(function, "__"), nil
-	}).OrderBy(func(_lhs, _rhs linq.T) bool {
-		lhs := _lhs.(string)
-		rhs := _rhs.(string)
-		return lhs[0] < rhs[0]
-	}).Select(func(in linq.T) (linq.T, error) {
+		return !strings.HasPrefix(function, "__")
+	}).OrderBy(func(in interface{}) interface{} {
+		function := in.(string)
+		return function[0]
+	}).Select(func(in interface{}) interface{} {
 		function := in.(string)
 		return map[string]string{
 			"name": function,
 			"sign": signCloudFunc(server.MasterKey, function, timeStamp()),
-		}, nil
+		}
 	}).Results()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -111,26 +110,25 @@ func (server *Server) classesHandler(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	result, _ := linq.From(functions).Where(func(in linq.T) (bool, error) {
+	result := linq.From(functions).Where(func(in interface{}) bool {
 		funcName := in.(string)
 		for key := range hookNames {
 			if strings.HasPrefix(funcName, key) {
-				return true, nil
+				return true
 			}
 		}
-		return false, nil
-	}).Select(func(in linq.T) (linq.T, error) {
+		return false
+	}).Select(func(in interface{}) interface{} {
 		funcName := in.(string)
 		for key := range hookNames {
 			if strings.HasPrefix(funcName, key) {
-				return strings.TrimPrefix(funcName, key), nil
+				return strings.TrimPrefix(funcName, key)
 			}
 		}
 		panic("impossible")
-	}).OrderBy(func(_lhs, _rhs linq.T) bool {
-		lhs := _lhs.(string)
-		rhs := _rhs.(string)
-		return lhs[0] < rhs[0]
+	}).OrderBy(func(in interface{}) interface{} {
+		function := in.(string)
+		return function[0]
 	}).Results()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -147,13 +145,13 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 		return
 	}
 
-	result, _ := linq.From(functions).Where(func(in linq.T) (bool, error) {
+	result := linq.From(functions).Where(func(in interface{}) bool {
 		funcName := in.(string)
 		if strings.HasPrefix(funcName, "__") && strings.HasSuffix(funcName, className) {
-			return true, nil
+			return true
 		}
-		return false, nil
-	}).Select(func(in linq.T) (linq.T, error) {
+		return false
+	}).Select(func(in interface{}) interface{} {
 		funcName := in.(string)
 		action := ""
 		for key, value := range hookNames {
@@ -165,7 +163,7 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 			"className": className,
 			"action":    action,
 			"sign":      signCloudFunc(server.MasterKey, funcName, timeStamp()),
-		}, nil
+		}
 	}).Results()
 
 	w.Header().Set("Content-Type", "application/json")
@@ -185,7 +183,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
 
 	addr := "localhost:" + server.ConsolePort
-	chrysanthemum.Println("> 云函数调试服务已启动，请使用浏览器访问：http://" + addr)
+	chrysanthemum.Println("云函数调试服务已启动，请使用浏览器访问：http://" + addr)
 
 	go func() {
 		server.Errors <- http.ListenAndServe(addr, router)
