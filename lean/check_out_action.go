@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -32,6 +33,10 @@ func checkOutAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	spinner.Successed()
+
+	linq.From(appList).OrderBy(func(in interface{}) interface{} {
+		return in.(*api.GetAppListResult).AppName[0]
+	}).ToSlice(&appList)
 
 	appList, err = apps.MergeWithRecentApps(".", appList)
 	if err != nil {

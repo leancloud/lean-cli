@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
@@ -37,6 +38,10 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	linq.From(boils).OrderBy(func(in interface{}) interface{} {
+		return in.(*boilerplate.Boilerplate).Name[0]
+	}).ToSlice(&boils)
 
 	question := wizard.Question{
 		Content: "请选择需要创建的应用模版：",
@@ -99,6 +104,11 @@ func initAction(*cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
+
+	linq.From(appList).OrderBy(func(in interface{}) interface{} {
+		return in.(*api.GetAppListResult).AppName[0]
+	}).ToSlice(&appList)
+
 	app, err := selectApp(appList)
 	if err != nil {
 		return newCliError(err)
