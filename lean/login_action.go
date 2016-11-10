@@ -61,7 +61,7 @@ func loginWithSessionToken() (*api.GetUserInfoResult, error) {
 	sessionToken := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "请输入登录 token：",
+			Content: "请在浏览器打开：https://console.qcloud.com/tab?goto=cli-login-token，并输入页面给出的 token：",
 			Input: &wizard.Input{
 				Result: sessionToken,
 				Hidden: false,
