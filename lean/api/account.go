@@ -61,6 +61,9 @@ func LoginUSRegion() error {
 func LoginTABRegion(token string) (*GetUserInfoResult, error) {
 	client := NewClient(regions.TAB)
 	resp, err := client.post("/1.1/signinByToken?token="+token, nil, nil)
+	if err != nil {
+		return nil, err
+	}
 	result := new(GetUserInfoResult)
 	err = resp.JSON(result)
 	return result, err
