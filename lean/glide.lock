@@ -1,22 +1,24 @@
 hash: 7516dd07f320073644ef8e26fbd31ba6492b22ab9dd47c876e6db2a608a5898d
-updated: 2016-11-03T11:09:49.594317369+08:00
+updated: 2016-11-10T17:19:24.527504441+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
-  version: 0cb9dbba80d7b5a7366a7d9d2214961d1de6cc09
+  version: 8985ec99e11a8bff7eb19dd0a0b2187770dab23a
 - name: github.com/aisk/chrysanthemum
   version: 6c2dd42dc3a0d06f6f7728a05c946fe0b3caea60
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
-  version: 657c0fceb6a45ef82502c41d9ad2e468bc8930f7
+  version: 91d82286c9dc4c04e0de4092b688fe8c7da4fb2c
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
+- name: github.com/certifi/gocertifi
+  version: a61bf5eafa3aee233ec8043e9da052447e5463dd
 - name: github.com/cheggaaa/pb
   version: dd61faab99a777c652bb680e37715fe0cb549856
 - name: github.com/chzyer/readline
-  version: 31ab3eee0c7232dcb9abeb3876ca2739df53872d
+  version: c914be64f07d9998f52bf0d598ec26d457168c0f
 - name: github.com/codegangsta/cli
-  version: df95e0708f6416a3f148c984464cfd417e9eccfe
+  version: d86a009f5e13f83df65d0d6cee9a2e3f1445f0da
 - name: github.com/coreos/go-semver
   version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
   subpackages:
@@ -26,9 +28,9 @@ imports:
 - name: github.com/fatih/color
   version: dea9d3a26a087187530244679c1cfb3a42937794
 - name: github.com/fsnotify/fsnotify
-  version: f12c6236fe7b5cf6bcf30e5935d08cb079d78334
+  version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/getsentry/raven-go
-  version: c630fd2e8badfb3b9522c3d3a8d645506517d384
+  version: b8684db99b339af19aa6f067df3be9de6e995f89
 - name: github.com/google/go-querystring
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
@@ -44,13 +46,13 @@ imports:
   subpackages:
   - lock
 - name: github.com/juju/persistent-cookiejar
-  version: e710b897c13ca52828ca2fc9769465186fd6d15c
+  version: b48f5b9290d63455d10de0c0e4c26e06e6e74842
 - name: github.com/leancloud/go-upload
   version: 22a5a534e18731e6ee547667e3fc587776148561
 - name: github.com/levigross/grequests
-  version: e9e437f63e6aa3c30238175a7f498f8283ee94fa
+  version: 42058d72e0aeb2ed1ac5795f93776e0d69ca44bf
 - name: github.com/mattn/go-colorable
-  version: ed8eb9e318d7a84ce5915b495b7d35e0cfe7b5a8
+  version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
   version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
 - name: github.com/pkg/browser
@@ -65,11 +67,11 @@ imports:
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
-  version: 1358eff22f0dd0c54fc521042cc607f6ff4b531a
+  version: 9ef22118a4b25863aa94546daffbc0a18feaafb3
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
-  version: a646d33e2ee3172a661fc09bca23bb4889a41bc8
+  version: 9a2e24c3733eddc63871eda99f253e2db29bd3b9
   subpackages:
   - unix
 - name: gopkg.in/errgo.v1

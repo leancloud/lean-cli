@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -41,21 +40,15 @@ func determineGroupName(appID string) (string, error) {
 	}
 	spinner.Successed()
 
-	groupName, found, err := linq.From(groups).Where(func(group linq.T) (bool, error) {
+	groupName := linq.From(groups).Where(func(group interface{}) bool {
 		groupName := group.(*api.GetGroupsResult).GroupName
 		if mode == "free" {
-			return groupName != "staging", nil
+			return groupName != "staging"
 		}
-		return groupName == "staging", nil
-	}).Select(func(group linq.T) (linq.T, error) {
-		return group.(*api.GetGroupsResult).GroupName, nil
+		return groupName == "staging"
+	}).Select(func(group interface{}) interface{} {
+		return group.(*api.GetGroupsResult).GroupName
 	}).First()
-	if err != nil {
-		return "", err
-	}
-	if !found {
-		return "", errors.New("group not found")
-	}
 	return groupName.(string), nil
 }
 

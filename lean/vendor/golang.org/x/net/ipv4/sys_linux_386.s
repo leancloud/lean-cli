@@ -2,10 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
-// +build nacl plan9
+#include "textflag.h"
 
-package nettest
-
-func protocolNotSupported(err error) bool {
-	return false
-}
+TEXT	·socketcall(SB),NOSPLIT,$0-36
+	JMP	syscall·socketcall(SB)

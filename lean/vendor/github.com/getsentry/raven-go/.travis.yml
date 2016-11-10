@@ -6,11 +6,13 @@ go:
   - "1.4"
   - "1.5"
   - "1.6"
+  - "1.7"
   - tip
 
 before_install:
   - go install -race std
   - go get golang.org/x/tools/cmd/cover
+  - go get -v ./...
 
 script:
   - go test -v -race ./...

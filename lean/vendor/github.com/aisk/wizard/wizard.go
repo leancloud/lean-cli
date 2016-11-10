@@ -77,13 +77,13 @@ func Ask(questions []Question) error {
 
 func printQuestion(qustion Question) {
 	green := color.New(color.FgGreen).SprintFunc()
-	fmt.Printf("[%s] %s\n", green("?"), qustion.Content)
+	fmt.Fprintf(color.Output, "[%s] %s\n", green("?"), qustion.Content)
 }
 
 func printAnswers(question Question) {
 	blue := color.New(color.FgBlue).SprintFunc()
 	for i, answer := range question.Answers {
-		fmt.Printf(" %s) %s\n", blue(i+1), answer.Content)
+		fmt.Fprintf(color.Output, " %s) %s\n", blue(i+1), answer.Content)
 	}
 }
 
