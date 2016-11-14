@@ -1,6 +1,8 @@
 package runtimes
 
 import (
+	"archive/zip"
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -12,7 +14,9 @@ import (
 	"time"
 
 	"github.com/aisk/chrysanthemum"
+	"github.com/facebookgo/parseignore"
 	"github.com/fsnotify/fsnotify"
+	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
@@ -26,13 +30,14 @@ type filesPattern struct {
 
 // Runtime stands for a language runtime
 type Runtime struct {
-	command    *exec.Cmd
-	Name       string
-	Exec       string
-	Args       []string
-	WatchFiles []string
-	Envs       []string
-	Port       string
+	command     *exec.Cmd
+	ProjectPath string
+	Name        string
+	Exec        string
+	Args        []string
+	WatchFiles  []string
+	Envs        []string
+	Port        string
 	// DeployFiles is the patterns for source code to deploy to the remote server
 	DeployFiles filesPattern
 	// Errors is the channel that receives the command's error result
@@ -102,6 +107,116 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 		}
 	}
 
+	return nil
+}
+
+func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, isDeployFromJavaWar bool, ignoreFilePath string) error {
+	if runtime.Name == "java" && isDeployFromJavaWar {
+		warFile, err := getDefaultWarFile(runtime.ProjectPath)
+		if err != nil {
+			return err
+		}
+		spinner := chrysanthemum.New("压缩 war 文件:" + warFile).Start()
+		archive(archiveFile, warFile, "ROOT.war")
+		spinner.Successed()
+	} else {
+		runtime.defaultArchive(archiveFile, ignoreFilePath)
+	}
+	return nil
+}
+
+func getDefaultWarFile(projectPath string) (string, error) {
+	files, err := ioutil.ReadDir(filepath.Join(projectPath, "./target"))
+	if err != nil {
+		return "", err
+	}
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".war") && !file.IsDir() {
+			return filepath.Join(projectPath, "./target", file.Name()), nil
+		}
+	}
+	return "", errors.New("在 ./target 目录没有找到 war 文件。")
+}
+
+func archive(archiveFile string, file string, name string) error {
+	targetFile, err := os.Create(archiveFile)
+	if err != nil {
+		return err
+	}
+	writer := zip.NewWriter(targetFile)
+	defer writer.Close()
+	zippedFile, err := writer.Create(name)
+	if err != nil {
+		return err
+	}
+	fromFile, err := os.Open(file)
+	if err != nil {
+		return err
+	}
+	fileReader := bufio.NewReader(fromFile)
+	blockSize := 512 * 1024 // 512kb
+	bytes := make([]byte, blockSize)
+	for {
+		readedBytes, err := fileReader.Read(bytes)
+		if err != nil {
+			if err.Error() == "EOF" {
+				break
+			}
+			if err.Error() != "EOF" {
+				return err
+			}
+		}
+		if readedBytes >= blockSize {
+			zippedFile.Write(bytes)
+			continue
+		}
+		zippedFile.Write(bytes[:readedBytes])
+	}
+	return nil
+}
+
+func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string) error {
+	matcher, err := runtime.readIgnore(ignoreFilePath)
+	if os.IsNotExist(err) {
+		return fmt.Errorf("指定的 ignore 文件 '%s' 不存在", ignoreFilePath)
+	} else if err != nil {
+		return err
+	}
+
+	files := []string{}
+	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		decision, err := matcher.Match(path, info)
+		if err != nil {
+			return err
+		}
+		if decision != parseignore.Exclude {
+			files = append(files, path)
+		}
+		return nil
+	})
+
+	if err != nil {
+		return err
+	}
+	spinner := chrysanthemum.New("压缩项目文件").Start()
+	zip := new(archivex.ZipFile)
+	func() {
+		defer zip.Close()
+		zip.Create(archiveFile)
+		for _, f := range files {
+			err := zip.AddFile(filepath.ToSlash(f))
+			if err != nil {
+				panic(err)
+			}
+		}
+	}()
+	spinner.Successed()
 	return nil
 }
 
@@ -192,12 +307,13 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 	}
 
 	return &Runtime{
-		Name:       "python",
-		Exec:       execName,
-		Args:       []string{"wsgi.py"},
-		WatchFiles: []string{"."},
-		Envs:       os.Environ(),
-		Errors:     make(chan error),
+		ProjectPath: projectPath,
+		Name:        "python",
+		Exec:        execName,
+		Args:        []string{"wsgi.py"},
+		WatchFiles:  []string{"."},
+		Envs:        os.Environ(),
+		Errors:      make(chan error),
 	}, nil
 }
 
@@ -227,33 +343,36 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 	}
 
 	return &Runtime{
-		Name:       "node.js",
-		Exec:       execName,
-		Args:       args,
-		WatchFiles: []string{"."},
-		Envs:       os.Environ(),
-		Errors:     make(chan error),
+		ProjectPath: projectPath,
+		Name:        "node.js",
+		Exec:        execName,
+		Args:        args,
+		WatchFiles:  []string{"."},
+		Envs:        os.Environ(),
+		Errors:      make(chan error),
 	}, nil
 }
 
 func newJavaRuntime(projectPath string) (*Runtime, error) {
 	return &Runtime{
-		Name:       "java",
-		Exec:       "mvn",
-		Args:       []string{"jetty:run"},
-		WatchFiles: []string{"."},
-		Envs:       os.Environ(),
-		Errors:     make(chan error),
+		ProjectPath: projectPath,
+		Name:        "java",
+		Exec:        "mvn",
+		Args:        []string{"jetty:run"},
+		WatchFiles:  []string{"."},
+		Envs:        os.Environ(),
+		Errors:      make(chan error),
 	}, nil
 }
 
 func newPhpRuntime(projectPath string) (*Runtime, error) {
 	return &Runtime{
-		Name:       "php",
-		Exec:       "php",
-		Args:       []string{"-S", "127.0.0.1:3000", "-t", "public"},
-		WatchFiles: []string{"."},
-		Envs:       os.Environ(),
-		Errors:     make(chan error),
+		ProjectPath: projectPath,
+		Name:        "php",
+		Exec:        "php",
+		Args:        []string{"-S", "127.0.0.1:3000", "-t", "public"},
+		WatchFiles:  []string{"."},
+		Envs:        os.Environ(),
+		Errors:      make(chan error),
 	}, nil
 }

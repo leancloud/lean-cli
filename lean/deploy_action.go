@@ -1,23 +1,18 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
-	"github.com/facebookgo/parseignore"
 	"github.com/fatih/color"
-	"github.com/jhoonb/archivex"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/runtimes"
-	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func determineGroupName(appID string) (string, error) {
@@ -52,85 +47,22 @@ func determineGroupName(appID string) (string, error) {
 	return groupName.(string), nil
 }
 
-func readIgnore(ignoreFilePath string) (parseignore.Matcher, error) {
-	content, err := ioutil.ReadFile(ignoreFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	matcher, errs := parseignore.CompilePatterns(content)
-	if len(errs) != 0 {
-		return nil, errs[0]
-	}
-
-	return matcher, nil
-}
-
-func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
+func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
 	}
 
-	filePath := filepath.Join(fileDir, "leanengine.zip")
+	archiveFile := filepath.Join(fileDir, "leanengine.zip")
 
 	runtime, err := runtimes.DetectRuntime(repoPath)
 	if err != nil {
 		return nil, err
 	}
 
-	if ignoreFilePath == ".leanignore" && !utils.IsFileExists(filepath.Join(repoPath, ".leanignore")) {
-		fmt.Println("> 没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件")
-		content := strings.Join(runtime.DefaultIgnorePatterns(), "\r\n")
-		err := ioutil.WriteFile(filepath.Join(repoPath, ".leanignore"), []byte(content), 0644)
-		if err != nil {
-			return nil, err
-		}
-	}
+	runtime.ArchiveUploadFiles(archiveFile, isDeployFromJavaWar, ignoreFilePath)
 
-	matcher, err := readIgnore(ignoreFilePath)
-	if os.IsNotExist(err) {
-		return nil, fmt.Errorf("指定的 ignore 文件 '%s' 不存在", ignoreFilePath)
-	} else if err != nil {
-		return nil, err
-	}
-
-	files := []string{}
-	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		decision, err := matcher.Match(path, info)
-		if err != nil {
-			return err
-		}
-		if decision != parseignore.Exclude {
-			files = append(files, path)
-		}
-		return nil
-	})
-
-	if err != nil {
-		return nil, err
-	}
-	spinner := chrysanthemum.New("压缩项目文件").Start()
-	zip := new(archivex.ZipFile)
-	func() {
-		defer zip.Close()
-		zip.Create(filePath)
-		for _, f := range files {
-			err := zip.AddFile(filepath.ToSlash(f))
-			if err != nil {
-				panic(err)
-			}
-		}
-	}()
-	spinner.Successed()
-
-	file, err := api.UploadFile(appID, filePath)
+	file, err := api.UploadFile(appID, archiveFile)
 	if err != nil {
 		return nil, err
 	}
@@ -138,8 +70,8 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 	return file, nil
 }
 
-func deployFromLocal(appID string, groupName string, ignoreFilePath string, message string) error {
-	file, err := uploadProject(appID, ".", ignoreFilePath)
+func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, ignoreFilePath string, message string) error {
+	file, err := uploadProject(appID, ".", isDeployFromJavaWar, ignoreFilePath)
 	if err != nil {
 		return err
 	}
@@ -182,6 +114,7 @@ func deployFromGit(appID string, groupName string) error {
 
 func deployAction(c *cli.Context) error {
 	isDeployFromGit := c.Bool("g")
+	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
 	message := c.String("message")
 
@@ -210,7 +143,7 @@ func deployAction(c *cli.Context) error {
 			return newCliError(err)
 		}
 	} else {
-		err = deployFromLocal(appID, groupName, ignoreFilePath, message)
+		err = deployFromLocal(appID, groupName, isDeployFromJavaWar, ignoreFilePath, message)
 		if err != nil {
 			return newCliError(err)
 		}
