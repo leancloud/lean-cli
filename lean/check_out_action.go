@@ -38,10 +38,11 @@ func checkOutAction(c *cli.Context) error {
 		return in.(*api.GetAppListResult).AppName[0]
 	}).ToSlice(&appList)
 
-	appList, err = apps.MergeWithRecentApps(".", appList)
-	if err != nil {
-		return newCliError(err)
-	}
+	// disable it because it's buggy
+	// appList, err = apps.MergeWithRecentApps(".", appList)
+	// if err != nil {
+	// 	return newCliError(err)
+	// }
 
 	// remove current linked app from app list
 	curentAppID, err := apps.GetCurrentAppID(".")
