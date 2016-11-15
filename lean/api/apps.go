@@ -14,6 +14,7 @@ type GetAppListResult struct {
 }
 
 // GetAppList returns the current user's all LeanCloud application
+// this will also update the app router cache
 func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	client := NewClient(region)
 
@@ -24,7 +25,18 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 
 	var result []*GetAppListResult
 	err = resp.JSON(&result)
-	return result, err
+	if err != nil {
+		return nil, err
+	}
+
+	for _, app := range result {
+		routerCache[app.AppID] = region
+	}
+	if err = saveRouterCache(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 // DeployImage will deploy the engine group with specify image tag
