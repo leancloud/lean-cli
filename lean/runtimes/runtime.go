@@ -117,22 +117,29 @@ func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, isDeployFromJavaW
 			return err
 		}
 		spinner := chrysanthemum.New("压缩 war 文件:" + warFile).Start()
-		archive(archiveFile, warFile, "ROOT.war")
+		err = archive(archiveFile, warFile, "ROOT.war")
+		if err != nil {
+			spinner.Failed()
+			return err
+		}
 		spinner.Successed()
 	} else {
-		runtime.defaultArchive(archiveFile, ignoreFilePath)
+		err := runtime.defaultArchive(archiveFile, ignoreFilePath)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
 func getDefaultWarFile(projectPath string) (string, error) {
-	files, err := ioutil.ReadDir(filepath.Join(projectPath, "./target"))
+	files, err := ioutil.ReadDir(filepath.Join(projectPath, "target"))
 	if err != nil {
 		return "", err
 	}
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".war") && !file.IsDir() {
-			return filepath.Join(projectPath, "./target", file.Name()), nil
+			return filepath.Join(projectPath, "target", file.Name()), nil
 		}
 	}
 	return "", errors.New("在 ./target 目录没有找到 war 文件。")
