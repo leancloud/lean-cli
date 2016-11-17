@@ -1,9 +1,13 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"path/filepath"
 
 	"github.com/leancloud/lean-cli/lean/api/regions"
+	"github.com/leancloud/lean-cli/lean/utils"
 	"github.com/leancloud/lean-cli/lean/version"
 	"github.com/levigross/grequests"
 )
@@ -46,4 +50,20 @@ func GetAppRegion(appID string) (regions.Region, error) {
 	default:
 		return regions.Invalid, fmt.Errorf("invalid region server: %s", result.APIServer)
 	}
+}
+
+func saveRouterCache() error {
+	data, err := json.MarshalIndent(routerCache, "", "  ")
+	if err != nil {
+		return err
+	}
+	return ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "app_router.json"), data, 0644)
+}
+
+func init() {
+	data, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "app_router.json"))
+	if err != nil {
+		return
+	}
+	json.Unmarshal(data, &routerCache)
 }
