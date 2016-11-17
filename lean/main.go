@@ -198,6 +198,20 @@ func run() {
 					Value: 3000,
 				},
 			},
+			Subcommands: []cli.Command{
+				{
+					Name:      "set",
+					Usage:     "设置新的环境变量",
+					Action:    envSetAction,
+					ArgsUsage: "[env-name] [env-value]",
+				},
+				{
+					Name:      "unset",
+					Usage:     "删除环境变量",
+					Action:    envUnsetAction,
+					ArgsUsage: "[env-name]",
+				},
+			},
 		},
 		{
 			Name:   "cache",

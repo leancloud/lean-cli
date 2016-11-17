@@ -122,7 +122,7 @@ func initAction(*cli.Context) error {
 
 	appName := app.AppName
 
-	if err := boilerplate.FetchRepo(boil, appName, appID); err != nil {
+	if err = boilerplate.FetchRepo(boil, appName, appID); err != nil {
 		return newCliError(err)
 	}
 

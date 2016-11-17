@@ -78,7 +78,7 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 
 	defer func() {
 		spinner := chrysanthemum.New("删除临时文件").Start()
-		err := api.DeleteFile(appID, file.ObjectID)
+		err = api.DeleteFile(appID, file.ObjectID)
 		if err != nil {
 			spinner.Failed()
 		} else {
