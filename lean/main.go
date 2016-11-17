@@ -139,6 +139,10 @@ func run() {
 					Name:  "g",
 					Usage: "从 git 部署项目",
 				},
+				cli.BoolFlag{
+					Name:  "war",
+					Usage: "对于 Java 运行环境，直接部署 war 文件。默认部署 target 目录下找到的第一个 war 文件",
+				},
 				cli.StringFlag{
 					Name:  "leanignore",
 					Usage: "部署过程中需要忽略的文件的规则",
