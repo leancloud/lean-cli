@@ -1,6 +1,8 @@
 package api
 
 import (
+	"errors"
+
 	"github.com/leancloud/lean-cli/lean/api/regions"
 )
 
@@ -198,4 +200,62 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 	err = resp.JSON(&result)
 
 	return result, err
+}
+
+type GetEngineInfoResult struct {
+	AppID         string            `json:"appId"`
+	Mode          string            `json:"mode"`
+	InstanceLimit int               `json:"instanceLimit"`
+	Version       string            `json:"version"`
+	Environments  map[string]string `json:"environments"`
+}
+
+func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return nil, err
+	}
+	client := NewClient(region)
+
+	opts, err := client.options()
+	if err != nil {
+		return nil, err
+	}
+	opts.Headers["X-LC-Id"] = appID
+
+	response, err := client.get("/1.1/functions/_ops/engine", opts)
+	if err != nil {
+		return nil, err
+	}
+	var result = new(GetEngineInfoResult)
+	err = response.JSON(result)
+	return result, err
+}
+
+func PutEnvironments(appID string, envs map[string]string) error {
+	region, err := GetAppRegion(appID)
+	if err != nil {
+		return err
+	}
+	client := NewClient(region)
+
+	opts, err := client.options()
+	if err != nil {
+		return err
+	}
+	opts.Headers["X-LC-Id"] = appID
+
+	params := make(map[string]interface{})
+	for k, v := range envs {
+		params[k] = v
+	}
+
+	response, err := client.put("/1.1/functions/_ops/engine/environments", params, opts)
+	if err != nil {
+		return err
+	}
+	if response.StatusCode != 200 {
+		return errors.New("update environment failed")
+	}
+	return nil
 }
