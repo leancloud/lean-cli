@@ -159,10 +159,16 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 				action = value
 			}
 		}
+		signFuncName := ""
+		if strings.HasPrefix(funcName, "__before") {
+			signFuncName = "__before_for_" + className
+		} else if strings.HasPrefix(funcName, "__after") {
+			signFuncName = "__after_for_" + className
+		}
 		return map[string]string{
 			"className": className,
 			"action":    action,
-			"sign":      signCloudFunc(server.MasterKey, funcName, timeStamp()),
+			"sign":      signCloudFunc(server.MasterKey, signFuncName, timeStamp()),
 		}
 	}).Results()
 
