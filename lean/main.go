@@ -143,6 +143,10 @@ func run() {
 					Name:  "war",
 					Usage: "对于 Java 运行环境，直接部署 war 文件。默认部署 target 目录下找到的第一个 war 文件",
 				},
+				cli.BoolFlag{
+					Name:  "no-cache",
+					Usage: "强制更新第三方依赖",
+				},
 				cli.StringFlag{
 					Name:  "leanignore",
 					Usage: "部署过程中需要忽略的文件的规则",

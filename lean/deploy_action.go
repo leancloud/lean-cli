@@ -70,7 +70,7 @@ func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, igno
 	return file, nil
 }
 
-func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, ignoreFilePath string, message string) error {
+func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, ignoreFilePath string, message string, noDepsCache bool) error {
 	file, err := uploadProject(appID, ".", isDeployFromJavaWar, ignoreFilePath)
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 		}
 	}()
 
-	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL, message)
+	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL, message, noDepsCache)
 	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
@@ -97,8 +97,8 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 	return nil
 }
 
-func deployFromGit(appID string, groupName string) error {
-	eventTok, err := api.DeployAppFromGit(appID, ".", groupName)
+func deployFromGit(appID string, groupName string, noDepsCache bool) error {
+	eventTok, err := api.DeployAppFromGit(appID, ".", groupName, noDepsCache)
 	if err != nil {
 		return err
 	}
@@ -116,6 +116,7 @@ func deployAction(c *cli.Context) error {
 	isDeployFromGit := c.Bool("g")
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
+	noDepsCache := c.Bool("no-cache")
 	message := c.String("message")
 
 	appID, err := apps.GetCurrentAppID("")
@@ -138,12 +139,12 @@ func deployAction(c *cli.Context) error {
 	}
 
 	if isDeployFromGit {
-		err = deployFromGit(appID, groupName)
+		err = deployFromGit(appID, groupName, noDepsCache)
 		if err != nil {
 			return newCliError(err)
 		}
 	} else {
-		err = deployFromLocal(appID, groupName, isDeployFromJavaWar, ignoreFilePath, message)
+		err = deployFromLocal(appID, groupName, isDeployFromJavaWar, ignoreFilePath, message, noDepsCache)
 		if err != nil {
 			return newCliError(err)
 		}

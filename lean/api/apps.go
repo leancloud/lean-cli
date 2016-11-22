@@ -73,7 +73,7 @@ func DeployImage(appID string, groupName string, imageTag string) (string, error
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(appID string, projectPath string, groupName string) (string, error) {
+func DeployAppFromGit(appID string, projectPath string, groupName string, noDepsCache bool) (string, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return "", err
@@ -88,7 +88,7 @@ func DeployAppFromGit(appID string, projectPath string, groupName string) (strin
 
 	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"comment":             "",
-		"noDependenciesCache": false,
+		"noDependenciesCache": noDepsCache,
 		"async":               true,
 	}, opts)
 
@@ -105,7 +105,7 @@ func DeployAppFromGit(appID string, projectPath string, groupName string) (strin
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(appID string, projectPath string, groupName string, fileURL string, message string) (string, error) {
+func DeployAppFromFile(appID string, projectPath string, groupName string, fileURL string, message string, noDepsCache bool) (string, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return "", err
@@ -121,7 +121,7 @@ func DeployAppFromFile(appID string, projectPath string, groupName string, fileU
 	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
 		"zipUrl":              fileURL,
 		"comment":             message,
-		"noDependenciesCache": false,
+		"noDependenciesCache": noDepsCache,
 		"async":               true,
 	}, opts)
 
