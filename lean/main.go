@@ -157,6 +157,9 @@ func run() {
 					Usage: "本次部署备注，仅对从本地文件部署项目有效",
 					Value: "从命令行工具构建",
 				},
+				cli.BoolFlag{
+					Name: "keep-deploy-file",
+				},
 			},
 		},
 		{
