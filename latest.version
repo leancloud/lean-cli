@@ -1,4 +1,4 @@
 {
-  "version": "0.5.0",
-  "changelog": "- added env set / unset commands\r\n- some bugfix\r\n"
+  "version": "0.5.1",
+  "changelog": "- some bugfix\r\n"
 }
