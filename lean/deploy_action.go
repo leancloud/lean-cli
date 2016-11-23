@@ -70,21 +70,23 @@ func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, igno
 	return file, nil
 }
 
-func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, ignoreFilePath string, message string, noDepsCache bool) error {
+func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, ignoreFilePath string, message string, noDepsCache bool, keepFile bool) error {
 	file, err := uploadProject(appID, ".", isDeployFromJavaWar, ignoreFilePath)
 	if err != nil {
 		return err
 	}
 
-	defer func() {
-		spinner := chrysanthemum.New("删除临时文件").Start()
-		err = api.DeleteFile(appID, file.ObjectID)
-		if err != nil {
-			spinner.Failed()
-		} else {
-			spinner.Successed()
-		}
-	}()
+	if !keepFile {
+		defer func() {
+			spinner := chrysanthemum.New("删除临时文件").Start()
+			err = api.DeleteFile(appID, file.ObjectID)
+			if err != nil {
+				spinner.Failed()
+			} else {
+				spinner.Successed()
+			}
+		}()
+	}
 
 	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL, message, noDepsCache)
 	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
@@ -118,6 +120,7 @@ func deployAction(c *cli.Context) error {
 	ignoreFilePath := c.String("leanignore")
 	noDepsCache := c.Bool("no-cache")
 	message := c.String("message")
+	keepFile := c.Bool("keep-deploy-file")
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
@@ -144,7 +147,7 @@ func deployAction(c *cli.Context) error {
 			return newCliError(err)
 		}
 	} else {
-		err = deployFromLocal(appID, groupName, isDeployFromJavaWar, ignoreFilePath, message, noDepsCache)
+		err = deployFromLocal(appID, groupName, isDeployFromJavaWar, ignoreFilePath, message, noDepsCache, keepFile)
 		if err != nil {
 			return newCliError(err)
 		}
