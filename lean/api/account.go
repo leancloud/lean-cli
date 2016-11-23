@@ -1,6 +1,7 @@
 package api
 
 import (
+	"net/url"
 	"os"
 	"path/filepath"
 
@@ -60,6 +61,7 @@ func LoginUSRegion() error {
 // LoginTABRegion will use qrcode to login TAB Region
 func LoginTABRegion(token string) (*GetUserInfoResult, error) {
 	client := NewClient(regions.TAB)
+	token = url.QueryEscape(token)
 	resp, err := client.post("/1.1/signinByToken?token="+token, nil, nil)
 	if err != nil {
 		return nil, err
