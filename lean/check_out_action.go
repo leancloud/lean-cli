@@ -34,12 +34,13 @@ func checkOutAction(c *cli.Context) error {
 	}
 	spinner.Successed()
 
+	var sortedAppList []*api.GetAppListResult
 	linq.From(appList).OrderBy(func(in interface{}) interface{} {
 		return in.(*api.GetAppListResult).AppName[0]
-	}).ToSlice(&appList)
+	}).ToSlice(&sortedAppList)
 
 	// disable it because it's buggy
-	// appList, err = apps.MergeWithRecentApps(".", appList)
+	// sortedAppList, err = apps.MergeWithRecentApps(".", sortedAppList)
 	// if err != nil {
 	// 	return newCliError(err)
 	// }
@@ -51,14 +52,14 @@ func checkOutAction(c *cli.Context) error {
 			return newCliError(err)
 		}
 	} else {
-		for i, app := range appList {
+		for i, app := range sortedAppList {
 			if app.AppID == curentAppID {
-				appList = append(appList[:i], appList[i+1:]...)
+				sortedAppList = append(sortedAppList[:i], sortedAppList[i+1:]...)
 			}
 		}
 	}
 
-	app, err := selectApp(appList)
+	app, err := selectApp(sortedAppList)
 	if err != nil {
 		return newCliError(err)
 	}
