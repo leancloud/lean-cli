@@ -16,6 +16,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 	case "node.js":
 		return []string{
 			".git/",
+			".DS_Store",
 			".avoscloud/",
 			".leancloud/",
 			"node_modules/",
@@ -23,6 +24,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 	case "java":
 		return []string{
 			".git/",
+			".DS_Store",
 			".avoscloud/",
 			".leancloud/",
 			".project",
@@ -33,6 +35,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 	case "php":
 		return []string{
 			".git/",
+			".DS_Store",
 			".avoscloud/",
 			".leancloud/",
 			"vendor/",
@@ -40,6 +43,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 	case "python":
 		return []string{
 			".git/",
+			".DS_Store",
 			".avoscloud/",
 			".leancloud/",
 			"venv",
