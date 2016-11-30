@@ -39,15 +39,16 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 		return nil, err
 	}
 
+	orderedBoils := []*boilerplate.Boilerplate{}
 	linq.From(boils).OrderBy(func(in interface{}) interface{} {
 		return in.(*boilerplate.Boilerplate).Name[0]
-	}).ToSlice(&boils)
+	}).ToSlice(&orderedBoils)
 
 	question := wizard.Question{
 		Content: "请选择需要创建的应用模版：",
 		Answers: []wizard.Answer{},
 	}
-	for _, boil := range boils {
+	for _, boil := range orderedBoils {
 		answer := wizard.Answer{
 			Content: boil.Name,
 		}
@@ -105,11 +106,12 @@ func initAction(*cli.Context) error {
 		return newCliError(err)
 	}
 
+	var orderedAppList []*api.GetAppListResult
 	linq.From(appList).OrderBy(func(in interface{}) interface{} {
 		return in.(*api.GetAppListResult).AppName[0]
-	}).ToSlice(&appList)
+	}).ToSlice(&orderedAppList)
 
-	app, err := selectApp(appList)
+	app, err := selectApp(orderedAppList)
 	if err != nil {
 		return newCliError(err)
 	}

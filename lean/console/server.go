@@ -87,16 +87,19 @@ func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request)
 	result := linq.From(functions).Where(func(in interface{}) bool {
 		function := in.(string)
 		return !strings.HasPrefix(function, "__")
-	}).OrderBy(func(in interface{}) interface{} {
-		function := in.(string)
-		return function[0]
-	}).Select(func(in interface{}) interface{} {
-		function := in.(string)
-		return map[string]string{
-			"name": function,
-			"sign": signCloudFunc(server.MasterKey, function, timeStamp()),
-		}
 	}).Results()
+	if len(result) > 1 {
+		result = linq.From(result).OrderBy(func(in interface{}) interface{} {
+			function := in.(string)
+			return function[0]
+		}).Select(func(in interface{}) interface{} {
+			function := in.(string)
+			return map[string]string{
+				"name": function,
+				"sign": signCloudFunc(server.MasterKey, function, timeStamp()),
+			}
+		}).Results()
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	j, _ := json.MarshalIndent(result, "", "  ")
@@ -126,10 +129,14 @@ func (server *Server) classesHandler(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 		panic("impossible")
-	}).OrderBy(func(in interface{}) interface{} {
-		function := in.(string)
-		return function[0]
 	}).Results()
+
+	if len(result) > 0 {
+		result = linq.From(result).OrderBy(func(in interface{}) interface{} {
+			function := in.(string)
+			return function[0]
+		}).Results()
+	}
 
 	w.Header().Set("Content-Type", "application/json")
 	j, _ := json.MarshalIndent(result, "", "  ")
