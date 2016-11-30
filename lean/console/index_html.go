@@ -136,7 +136,7 @@ const indexHTML = `
               return $('#result').html(err.message || err);
             }
             var apiEndpoint = $('#isCall').is(':checked') ? '/1.1/call/' : '/1.1/functions/';
-            var url = "http://localhost:" + leanenginePort + apiEndpoint + $('#functions').val();
+            var url = "http://" + window.location.hostname + ":" + leanenginePort + apiEndpoint + $('#functions').val();
             request(url, data, user);
           })
         } catch(e){
