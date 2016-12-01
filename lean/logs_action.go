@@ -1,9 +1,8 @@
 package main
 
 import (
-	"os"
-
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
@@ -34,7 +33,7 @@ func logsAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	api.PrintLogs(os.Stdout, info.AppID, info.MasterKey, follow, isProd, limit)
+	api.PrintLogs(color.Output, info.AppID, info.MasterKey, follow, isProd, limit)
 
 	return nil
 }

@@ -12,6 +12,8 @@ import (
 	"sort"
 	"time"
 
+	"gopkg.in/retry.v1"
+
 	filelock "github.com/juju/go4/lock"
 	"gopkg.in/errgo.v1"
 )
@@ -130,25 +132,21 @@ func lockFileName(path string) string {
 	return path + ".lock"
 }
 
-const maxRetryDuration = 1 * time.Second
+var attempt = retry.LimitTime(3*time.Second, retry.Exponential{
+	Initial:  100 * time.Microsecond,
+	Factor:   1.5,
+	MaxDelay: 100 * time.Millisecond,
+})
 
 func lockFile(path string) (io.Closer, error) {
-	retry := 100 * time.Microsecond
-	startTime := time.Now()
-	for {
+	for a := retry.Start(attempt, nil); a.Next(); {
 		locker, err := filelock.Lock(path)
 		if err == nil {
 			return locker, nil
 		}
-		total := time.Since(startTime)
-		if total > maxRetryDuration {
+		if !a.More() {
 			return nil, errgo.Notef(err, "file locked for too long; giving up")
 		}
-		// Always have at least one try at the end of the interval.
-		if remain := maxRetryDuration - total; retry > remain {
-			retry = remain
-		}
-		time.Sleep(retry)
-		retry *= 2
 	}
+	panic("unreachable")
 }

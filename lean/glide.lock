@@ -1,10 +1,10 @@
 hash: 7516dd07f320073644ef8e26fbd31ba6492b22ab9dd47c876e6db2a608a5898d
-updated: 2016-11-10T17:19:24.527504441+08:00
+updated: 2016-12-01T17:07:10.973100631+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: 8985ec99e11a8bff7eb19dd0a0b2187770dab23a
 - name: github.com/aisk/chrysanthemum
-  version: 6c2dd42dc3a0d06f6f7728a05c946fe0b3caea60
+  version: 80f3bf4d1cc3347e13da0334807c5be16d3db652
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
@@ -14,11 +14,11 @@ imports:
 - name: github.com/certifi/gocertifi
   version: a61bf5eafa3aee233ec8043e9da052447e5463dd
 - name: github.com/cheggaaa/pb
-  version: dd61faab99a777c652bb680e37715fe0cb549856
+  version: d7e6ca3010b6f084d8056847f55d7f572f180678
 - name: github.com/chzyer/readline
   version: c914be64f07d9998f52bf0d598ec26d457168c0f
 - name: github.com/codegangsta/cli
-  version: d86a009f5e13f83df65d0d6cee9a2e3f1445f0da
+  version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: github.com/coreos/go-semver
   version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
   subpackages:
@@ -30,7 +30,7 @@ imports:
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/getsentry/raven-go
-  version: b8684db99b339af19aa6f067df3be9de6e995f89
+  version: 3f7439d3e74d88e21d196ba20eb61a5a958bc118
 - name: github.com/google/go-querystring
   version: 9235644dd9e52eeae6fa48efd539fdc351a0af53
   subpackages:
@@ -46,15 +46,17 @@ imports:
   subpackages:
   - lock
 - name: github.com/juju/persistent-cookiejar
-  version: b48f5b9290d63455d10de0c0e4c26e06e6e74842
+  version: 5243747bf8f2d0897f6c7a52799327dc97d585e8
 - name: github.com/leancloud/go-upload
   version: 22a5a534e18731e6ee547667e3fc587776148561
 - name: github.com/levigross/grequests
-  version: 42058d72e0aeb2ed1ac5795f93776e0d69ca44bf
+  version: 14e4175cc49ce3783f0848f90b0527ba09e1d209
 - name: github.com/mattn/go-colorable
   version: d228849504861217f796da67fae4f6e347643f15
 - name: github.com/mattn/go-isatty
-  version: 66b8e73f3f5cda9f96b69efd03dd3d7fc4a5cdb8
+  version: 30a891c33c7cde7b02a981314b4228ec99380cca
+- name: github.com/mattn/go-runewidth
+  version: 737072b4e32b7a5018b4a7125da8d12de90e8045
 - name: github.com/pkg/browser
   version: 9302be274faad99162b9d48ec97b24306872ebb0
 - name: github.com/qiniu/api.v6
@@ -67,13 +69,15 @@ imports:
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
-  version: 9ef22118a4b25863aa94546daffbc0a18feaafb3
+  version: 4971afdc2f162e82d185353533d3cf16188a9f4e
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
-  version: 9a2e24c3733eddc63871eda99f253e2db29bd3b9
+  version: d5645953809d8b4752afb2c3224b1f1ad73dfa70
   subpackages:
   - unix
 - name: gopkg.in/errgo.v1
   version: 66cb46252b94c1f3d65646f54ee8043ab38d766c
+- name: gopkg.in/retry.v1
+  version: c09f6b86ba4d5d2cf5bdf0665364aec9fd4815db
 testImports: []
