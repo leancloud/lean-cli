@@ -9,7 +9,9 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/lean/logo"
 	"github.com/leancloud/lean-cli/lean/stats"
@@ -289,6 +291,16 @@ func init() {
 	err := raven.SetDSN("https://9cb0f83042044458b2798635c6d9f895:0ff60f888a584fa9918cebc42b09e20d@sentry.avoscloud.com/2")
 	if err != nil {
 		panic(err)
+	}
+	if runtime.GOOS == "windows" {
+		chrysanthemum.Frames = []string{
+			"-",
+			"\\",
+			"|",
+			"/",
+		}
+		chrysanthemum.Success = ">"
+		chrysanthemum.Fail = color.RedString("x")
 	}
 }
 

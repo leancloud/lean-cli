@@ -45,9 +45,9 @@ func init() {
 // New create a spinner instance
 func New(text string) *Chrysanthemum {
 	if !isTerminal {
-		fmt.Print(text)
+		fmt.Fprint(color.Output, text)
 	} else {
-		fmt.Print("   " + text)
+		fmt.Fprint(color.Output, "   "+text)
 	}
 	return &Chrysanthemum{
 		stop:    make(chan bool),
@@ -69,7 +69,7 @@ func (c *Chrysanthemum) Start() *Chrysanthemum {
 			if i == len(Frames) {
 				i = 0
 			}
-			fmt.Printf("\r %s ", Frames[i])
+			fmt.Fprintf(color.Output, "\r %s ", Frames[i])
 			i++
 			select {
 			case <-c.stop:
@@ -95,7 +95,7 @@ func (c *Chrysanthemum) end(flag string) {
 	c.stop <- true
 	c.stopped = true
 	// fmt.Printf("\033[?25h") // show cursor
-	fmt.Printf("\r %s \n", flag)
+	fmt.Fprintf(color.Output, "\r %s \n", flag)
 }
 
 func (c *Chrysanthemum) Successed() {
@@ -114,12 +114,12 @@ func Printf(format string, args ...interface{}) {
 	if isTerminal {
 		format = " " + Success + " " + format
 	}
-	fmt.Printf(format, args...)
+	fmt.Fprintf(color.Output, format, args...)
 }
 
 func Println(args ...interface{}) {
 	if isTerminal {
 		args = append([]interface{}{" " + Success}, args...)
 	}
-	fmt.Println(args...)
+	fmt.Fprintln(color.Output, args...)
 }

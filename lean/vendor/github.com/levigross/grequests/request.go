@@ -19,6 +19,8 @@ import (
 
 	"github.com/google/go-querystring/query"
 
+	"context"
+
 	"golang.org/x/net/publicsuffix"
 )
 
@@ -107,11 +109,6 @@ type RequestOptions struct {
 	// this is useful if you want to use an OAUTH client with your request.
 	HTTPClient *http.Client
 
-	// RedirectLocationTrusted is a flag that will enable all headers to be
-	// forwarded to the redirect location. Otherwise, the headers specified in
-	// `SensitiveHTTPHeaders` will be removed from the request.
-	RedirectLocationTrusted bool
-
 	// SensitiveHTTPHeaders is a map of sensitive HTTP headers that a user
 	// doesn't want passed on a redirect.
 	SensitiveHTTPHeaders map[string]struct{}
@@ -128,6 +125,9 @@ type RequestOptions struct {
 	// CookieJar allows you to specify a special cookiejar to use with your request.
 	// this option will take precedence over the `UseCookieJar` option above.
 	CookieJar http.CookieJar
+
+	// Context can be used to maintain state between requests https://golang.org/pkg/context/#Context
+	Context context.Context
 }
 
 func doRegularRequest(requestVerb, url string, ro *RequestOptions) (*Response, error) {
@@ -176,7 +176,12 @@ func buildRequest(httpMethod, url string, ro *RequestOptions, httpClient *http.C
 	// Do we need to add any HTTP headers or Basic Auth?
 	addHTTPHeaders(ro, req)
 	addCookies(ro, req)
+
 	addRedirectFunctionality(httpClient, ro)
+
+	if ro.Context != nil {
+		req = req.WithContext(ro.Context)
+	}
 
 	return httpClient.Do(req)
 }
