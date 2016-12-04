@@ -99,8 +99,8 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 	return nil
 }
 
-func deployFromGit(appID string, groupName string, noDepsCache bool) error {
-	eventTok, err := api.DeployAppFromGit(appID, ".", groupName, noDepsCache)
+func deployFromGit(appID string, groupName string, revision string, noDepsCache bool) error {
+	eventTok, err := api.DeployAppFromGit(appID, ".", groupName, revision, noDepsCache)
 	if err != nil {
 		return err
 	}
@@ -121,6 +121,9 @@ func deployAction(c *cli.Context) error {
 	noDepsCache := c.Bool("no-cache")
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
+	revision := c.String("revision")
+
+	println("revision:", revision)
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
@@ -142,7 +145,7 @@ func deployAction(c *cli.Context) error {
 	}
 
 	if isDeployFromGit {
-		err = deployFromGit(appID, groupName, noDepsCache)
+		err = deployFromGit(appID, groupName, revision, noDepsCache)
 		if err != nil {
 			return newCliError(err)
 		}

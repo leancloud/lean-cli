@@ -73,7 +73,7 @@ func DeployImage(appID string, groupName string, imageTag string) (string, error
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(appID string, projectPath string, groupName string, noDepsCache bool) (string, error) {
+func DeployAppFromGit(appID string, projectPath string, groupName string, revision string, noDepsCache bool) (string, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return "", err
@@ -90,6 +90,7 @@ func DeployAppFromGit(appID string, projectPath string, groupName string, noDeps
 		"comment":             "",
 		"noDependenciesCache": noDepsCache,
 		"async":               true,
+		"gitTag":              revision,
 	}, opts)
 
 	if err != nil {

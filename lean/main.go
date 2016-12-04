@@ -162,6 +162,11 @@ func run() {
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
 				},
+				cli.StringFlag{
+					Name:  "revision,r",
+					Usage: "git 的版本号或分支，仅对从 git 仓库部署有效",
+					Value: "master",
+				},
 			},
 		},
 		{
