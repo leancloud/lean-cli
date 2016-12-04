@@ -1,4 +1,4 @@
 {
-  "version": "0.5.3",
-  "changelog": "- fix crash on debug with empty cloud func / hook\r\n- fix duplicate items while init new app\r\n"
+  "version": "0.5.4",
+  "changelog": "- fix windows's color output\r\n- fix windows's .leanignore pattern dismatch\r\n"
 }
