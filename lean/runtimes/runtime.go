@@ -198,6 +198,8 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 		if info.IsDir() {
 			return nil
 		}
+		// convert DOS's '\' path seprater to UNIX style
+		path = filepath.ToSlash(path)
 		decision, err := matcher.Match(path, info)
 		if err != nil {
 			return err
