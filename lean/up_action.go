@@ -1,11 +1,14 @@
 package main
 
 import (
+	"fmt"
 	"os/exec"
 	"strconv"
 	"time"
 
+	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/console"
@@ -47,6 +50,23 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	rtm.Port = port
+
+	if watchChanges {
+		fmt.Fprintf(
+			color.Output,
+			" %s [WARNING] --watch 选项不再被支持，请使用项目代码本身实现此功能\r\n",
+			chrysanthemum.Fail,
+		)
+		if rtm.Name == "python" {
+			fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+			fmt.Println("   [WARNING] https://github.com/leancloud/python-getting-started/pull/12/files")
+		}
+		if rtm.Name == "node.js" {
+			fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+			fmt.Println("   [WARNING] https://github.com/leancloud/node-js-getting-started/pull/26/files")
+		}
+	}
+	watchChanges = false
 
 	if rtm.Name == "cloudcode" {
 		return cli.NewExitError(`> 命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
