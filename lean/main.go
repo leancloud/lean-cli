@@ -199,6 +199,11 @@ func run() {
 					Usage: "获取日志条目数",
 					Value: 30,
 				},
+				cli.StringFlag{
+					Name:  "format",
+					Usage: "日志展示格式",
+					Value: "default",
+				},
 			},
 		},
 		{

@@ -2,12 +2,10 @@ package api
 
 import (
 	"fmt"
-	"io"
+	"os"
 	"strconv"
-	"strings"
 	"time"
 
-	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/levigross/grequests"
 )
@@ -25,8 +23,11 @@ type Log struct {
 	Instance     string `json:"instance"`
 }
 
+// LogPrinter is print func interface to PrintLogs
+type LogPrinter func(*Log) error
+
 // PrintLogs will poll the leanengine's log and print it to the giver io.Writer
-func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, isProd bool, limit int) error {
+func PrintLogs(printer LogPrinter, appID string, masterKey string, follow bool, isProd bool, limit int) error {
 	var url string
 	var prod int
 
@@ -80,31 +81,10 @@ func PrintLogs(writer io.Writer, appID string, masterKey string, follow bool, is
 
 		for i := len(logs); i > 0; i-- {
 			log := logs[i-1]
-			t, err := time.Parse(time.RFC3339, log.Time)
-			if err != nil {
-				return err
-			}
-			content := strings.TrimSuffix(log.Content, "\n")
-			// fmt.Println(log)
-			level := log.Level
-			var levelSprintf func(string, ...interface{}) string
-			if level == "info" {
-				levelSprintf = color.New(color.BgGreen, color.FgWhite).SprintfFunc()
-			} else {
-				levelSprintf = color.New(color.BgRed, color.FgWhite).SprintfFunc()
-			}
-			var instance string
-			if log.Instance == "" {
-				instance = "    "
-			} else {
-				instance = log.Instance
-			}
 
-			if isProd {
-				fmt.Fprintf(writer, "%s %s %s\r\n", instance, levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
-			} else {
-				// no instance column
-				fmt.Fprintf(writer, "%s %s\r\n", levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			err = printer(&log)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %s\r\n", err, resp)
 			}
 		}
 
