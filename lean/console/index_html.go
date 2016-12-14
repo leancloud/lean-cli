@@ -197,8 +197,10 @@ const indexHTML = `
                 data.object.__sign = sign;
               }
 
-              data.user = user.toJSON();
-              data.user.sessionToken = user._sessionToken;
+              if (user) {
+                data.user = user.toJSON();
+                data.user.sessionToken = user._sessionToken;
+              }
 
               request(url, data, user);
             });
