@@ -88,7 +88,7 @@ func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request)
 		function := in.(string)
 		return !strings.HasPrefix(function, "__")
 	}).Results()
-	if len(result) > 1 {
+	if len(result) > 0 {
 		result = linq.From(result).OrderBy(func(in interface{}) interface{} {
 			function := in.(string)
 			return function[0]

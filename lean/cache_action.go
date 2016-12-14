@@ -95,6 +95,8 @@ func enterLeanCacheREPL(appID string, instance string, db int) error {
 			} else {
 				continue
 			}
+		} else if line == "exit" || line == "quit" {
+			break
 		} else if err == io.EOF {
 			break
 		}
@@ -142,7 +144,6 @@ func cacheAction(c *cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
-	println("===>", db)
 
 	err = enterLeanCacheREPL(appID, cache.Instance, db)
 	if err != nil {
