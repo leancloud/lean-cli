@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"path/filepath"
@@ -76,7 +77,7 @@ func getRedisCommandCompleter() *readline.PrefixCompleter {
 
 func enterLeanCacheREPL(appID string, instance string, db int) error {
 	l, err := readline.NewEx(&readline.Config{
-		Prompt:          "LeanCache > ",
+		Prompt:          fmt.Sprintf("LeanCache (db %d) > ", db),
 		HistoryFile:     filepath.Join(utils.ConfigDir(), "leancloud", "leancache_history"),
 		AutoComplete:    getRedisCommandCompleter(),
 		InterruptPrompt: "^C",
@@ -114,13 +115,29 @@ func enterLeanCacheREPL(appID string, instance string, db int) error {
 		} else if err != nil {
 			return newCliError(err)
 		} else {
-			fmt.Println(result.Result)
+			err = printCacheReult(result)
+			if err != nil {
+				return newCliError(err)
+			}
 		}
 	}
 	return nil
 }
 
+func printCacheReult(result *api.ExecuteCacheCommandResult) error {
+	data, err := json.MarshalIndent(result.Result, "", "  ")
+	if err != nil {
+		return err
+	}
+	fmt.Println(string(data))
+	return nil
+}
+
 func cacheAction(c *cli.Context) error {
+	db := c.Int("db")
+	instanceName := c.String("name")
+	command := c.String("eval")
+
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		return newCliError(err)
@@ -135,19 +152,39 @@ func cacheAction(c *cli.Context) error {
 		return cli.NewExitError("该应用没有 LeanCache 实例", 1)
 	}
 
-	cache, err := selectCache(caches)
-	if err != nil {
-		return newCliError(err)
+	if instanceName == "" {
+		cache, err := selectCache(caches)
+		if err != nil {
+			return newCliError(err)
+		}
+		instanceName = cache.Instance
 	}
 
-	db, err := selectDb()
-	if err != nil {
-		return newCliError(err)
+	if db == -1 {
+		db, err = selectDb()
+		if err != nil {
+			return newCliError(err)
+		}
 	}
 
-	err = enterLeanCacheREPL(appID, cache.Instance, db)
-	if err != nil {
-		return newCliError(err)
+	if command == "" {
+		err = enterLeanCacheREPL(appID, instanceName, db)
+		if err != nil {
+			return newCliError(err)
+		}
+	} else {
+		result, err := api.ExecuteCacheCommand(appID, instanceName, db, command)
+		if e, ok := err.(api.Error); ok {
+			fmt.Println(e.Content)
+			return cli.NewExitError("", 1)
+		} else if err != nil {
+			return newCliError(err)
+		} else {
+			err = printCacheReult(result)
+			if err != nil {
+				return newCliError(err)
+			}
+		}
 	}
 
 	return nil
