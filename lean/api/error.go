@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/levigross/grequests"
 )
@@ -37,7 +38,7 @@ func NewErrorFromBody(body string) error {
 // NewErrorFromResponse build an error value from *grequest.Response
 func NewErrorFromResponse(resp *grequests.Response) error {
 	contentType := resp.Header.Get("Content-Type")
-	if contentType == "application/json" || contentType == "application/json;charset=utf-8" {
+	if strings.HasPrefix(contentType, strings.TrimSpace("application/json")) {
 		return NewErrorFromBody(resp.String())
 	}
 
