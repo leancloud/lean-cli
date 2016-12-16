@@ -20,11 +20,11 @@ func (r Region) String() string {
 func (r Region) APIServerURL() string {
 	switch r {
 	case CN:
-		return "api.leancloud.cn"
+		return "https://api.leancloud.cn"
 	case US:
-		return "us-api.leancloud.cn"
+		return "https://us-api.leancloud.cn"
 	case TAB:
-		return "e1-api.leancloud.cn"
+		return "https://e1-api.leancloud.cn"
 	default:
 		return ""
 	}
