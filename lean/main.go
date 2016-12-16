@@ -236,6 +236,21 @@ func run() {
 			Name:   "cache",
 			Usage:  "LeanCache 管理相关功能",
 			Action: cacheAction,
+			Flags: []cli.Flag{
+				cli.IntFlag{
+					Name:  "db",
+					Usage: "需要连接的 LeanCache 实例 db",
+					Value: -1,
+				},
+				cli.StringFlag{
+					Name:  "name",
+					Usage: "需要连接的 LeanCache 实例名",
+				},
+				cli.StringFlag{
+					Name:  "eval",
+					Usage: "需要立即执行的 LeanCache 命令",
+				},
+			},
 			Subcommands: []cli.Command{
 				{
 					Name:   "list",
