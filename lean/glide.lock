@@ -1,8 +1,8 @@
-hash: 7516dd07f320073644ef8e26fbd31ba6492b22ab9dd47c876e6db2a608a5898d
-updated: 2016-12-01T17:07:10.973100631+08:00
+hash: a4943dac9bdfa05d6ace7579df8bade2cad779c04f93270bb0b4ce5a97d0da53
+updated: 2016-12-19T23:27:07.757778682+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
-  version: 8985ec99e11a8bff7eb19dd0a0b2187770dab23a
+  version: ba42ddae458c0def2bc25a414ff03a6cc449752d
 - name: github.com/aisk/chrysanthemum
   version: 80f3bf4d1cc3347e13da0334807c5be16d3db652
 - name: github.com/aisk/cookieparser
@@ -25,6 +25,8 @@ imports:
   - semver
 - name: github.com/facebookgo/parseignore
   version: 41ebb753c47c8cce5b5d5c1d65289df4ce0183cc
+- name: github.com/facebookgo/symwalk
+  version: 42004b9f322246749dd73ad71008b1f3160c0052
 - name: github.com/fatih/color
   version: dea9d3a26a087187530244679c1cfb3a42937794
 - name: github.com/fsnotify/fsnotify
@@ -69,11 +71,11 @@ imports:
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: golang.org/x/net
-  version: 4971afdc2f162e82d185353533d3cf16188a9f4e
+  version: 45e771701b814666a7eb299e6c7a57d0b1799e91
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
-  version: d5645953809d8b4752afb2c3224b1f1ad73dfa70
+  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
   subpackages:
   - unix
 - name: gopkg.in/errgo.v1

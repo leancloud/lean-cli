@@ -26,3 +26,4 @@ import:
 - package: github.com/aisk/chrysanthemum
 - package: github.com/pkg/browser
 - package: github.com/leancloud/go-upload
+- package: github.com/facebookgo/symwalk
