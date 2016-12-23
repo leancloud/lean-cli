@@ -15,6 +15,7 @@ import (
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/facebookgo/parseignore"
+	"github.com/facebookgo/symwalk"
 	"github.com/fsnotify/fsnotify"
 	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/utils"
@@ -191,7 +192,7 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 	}
 
 	files := []string{}
-	filepath.Walk(".", func(path string, info os.FileInfo, err error) error {
+	symwalk.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
