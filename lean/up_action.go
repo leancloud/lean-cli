@@ -78,6 +78,11 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
+	engineInfo, err := api.GetEngineInfo(appID)
+	if err != nil {
+		return newCliError(err)
+	}
+
 	rtm.Envs = []string{
 		"LC_APP_ID=" + appInfo.AppID,
 		"LC_APP_KEY=" + appInfo.AppKey,
@@ -92,6 +97,10 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_API_SERVER=" + apiServerURL,
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
+	}
+
+	for k, v := range engineInfo.Environments {
+		rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
 	}
 
 	cons := &console.Server{
