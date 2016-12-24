@@ -130,7 +130,13 @@ func run() {
 			Name:      "checkout",
 			Usage:     "切换当前项目关联的 LeanCloud 应用",
 			Action:    checkOutAction,
-			ArgsUsage: "[appID]",
+			ArgsUsage: "[appID | appName]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "region",
+					Usage: "目标应用节点",
+				},
+			},
 		},
 		{
 			Name:   "deploy",
