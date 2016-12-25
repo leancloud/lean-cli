@@ -7,23 +7,67 @@ import (
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
 
-func checkOutAction(c *cli.Context) error {
-	if c.NArg() > 0 {
-		appID := c.Args()[0]
-		fmt.Println("切换至应用：" + appID)
-		err := apps.LinkApp("", appID)
+func checkOutWithAppInfo(arg string, regionString string) error {
+	var region regions.Region
+	switch regionString {
+	case "cn", "CN", "":
+		region = regions.CN
+	case "us", "US":
+		region = regions.US
+	case "tab", "TAB":
+		region = regions.TAB
+	}
+	currentApps, err := api.GetAppList(region)
+	if err != nil {
+		return err
+	}
+
+	// check if arg is a current app id
+	for _, app := range currentApps {
+		if app.AppID == arg {
+			fmt.Printf("切换至应用：%s (%s)", app.AppName, region)
+			return apps.LinkApp("", app.AppID)
+		}
+	}
+
+	// check if arg is a app name, and is the app name is unique
+	matchedApps := make([]*api.GetAppListResult, 0)
+	for _, app := range currentApps {
+		if app.AppName == arg {
+			matchedApps = append(matchedApps, app)
+		}
+	}
+	if len(matchedApps) == 1 {
+		fmt.Printf("切换至应用：%s (%s)", matchedApps[0].AppName, region)
+		return apps.LinkApp("", matchedApps[0].AppID)
+	} else if len(matchedApps) > 1 {
+		return cli.NewExitError("找到多个应用使用此应用名，切换失败。请尝试使用 app ID 取代应用名来进行切换。", 1)
+	}
+
+	return cli.NewExitError("找不到对应的应用，切换失败。", 1)
+}
+
+func checkOutWithWizard(regionString string) error {
+	var region regions.Region
+	var err error
+	switch regionString {
+	case "":
+		region, err = selectRegion()
 		if err != nil {
 			return newCliError(err)
 		}
-		return nil
-	}
-
-	region, err := selectRegion()
-	if err != nil {
-		return newCliError(err)
+	case "tab", "TAB":
+		region = regions.TAB
+	case "cn", "CN":
+		region = regions.CN
+	case "us", "US":
+		region = regions.US
+	default:
+		return cli.NewExitError("错误的 region 参数", 1)
 	}
 
 	spinner := chrysanthemum.New("获取应用列表").Start()
@@ -70,4 +114,16 @@ func checkOutAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	return nil
+}
+
+func checkOutAction(c *cli.Context) error {
+	if c.NArg() > 0 {
+		arg := c.Args()[0]
+		err := checkOutWithAppInfo(arg, c.String("region"))
+		if err != nil {
+			return newCliError(err)
+		}
+		return nil
+	}
+	return checkOutWithWizard(c.String("region"))
 }
