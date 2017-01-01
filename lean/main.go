@@ -274,6 +274,10 @@ func run() {
 					Usage: "指定 CQL 结果展示格式",
 					Value: "table",
 				},
+				cli.StringFlag{
+					Name:  "eval",
+					Usage: "需要立即执行的 CQL 命令",
+				},
 			},
 		},
 		{
