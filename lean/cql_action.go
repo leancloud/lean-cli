@@ -164,24 +164,13 @@ func printJSONCQLResult(result *api.ExecuteCQLResult) {
 }
 
 func cqlAction(c *cli.Context) error {
+	eval := c.String("eval")
 	format := printCQLResultFormatInvalid
 	_format := c.String("format")
 	switch _format {
-	case "json":
-		fallthrough
-	case "JSON":
-		fallthrough
-	case "j":
-		fallthrough
-	case "J":
+	case "json", "JSON", "j", "J":
 		format = printCQLResultFormatJSON
-	case "table":
-		fallthrough
-	case "tab":
-		fallthrough
-	case "t":
-		fallthrough
-	case "T":
+	case "table", "tab", "t", "T":
 		format = printCQLResultFormatTable
 	default:
 		return cli.NewExitError("invalid format argument", 1)
@@ -196,10 +185,25 @@ func cqlAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	err = enterCQLREPL(appInfo, format)
-	if err != nil {
-		return newCliError(err)
+	if eval != "" {
+		region, err := api.GetAppRegion(appInfo.AppID)
+		if err != nil {
+			return newCliError(err)
+		}
+		result, err := api.ExecuteCQL(appInfo.AppID, appInfo.MasterKey, region, eval)
+		if err != nil {
+			return newCliError(err)
+		}
+		if format == printCQLResultFormatJSON {
+			printJSONCQLResult(result)
+		} else {
+			printTableCQLResult(result)
+		}
+	} else {
+		err = enterCQLREPL(appInfo, format)
+		if err != nil {
+			return newCliError(err)
+		}
 	}
-
 	return nil
 }
