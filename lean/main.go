@@ -125,6 +125,12 @@ func run() {
 			Name:   "init",
 			Usage:  "初始化云引擎项目",
 			Action: initAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "region",
+					Usage: "目标应用节点",
+				},
+			},
 		},
 		{
 			Name:      "checkout",

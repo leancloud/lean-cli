@@ -95,10 +95,23 @@ func selectRegion() (regions.Region, error) {
 	return region, err
 }
 
-func initAction(*cli.Context) error {
-	region, err := selectRegion()
-	if err != nil {
-		return newCliError(err)
+func initAction(c *cli.Context) error {
+	var region regions.Region
+	var err error
+	switch c.String("region") {
+	case "cn", "CN":
+		region = regions.CN
+	case "us", "US":
+		region = regions.US
+	case "tab", "TAB":
+		region = regions.TAB
+	case "":
+		region, err = selectRegion()
+		if err != nil {
+			return newCliError(err)
+		}
+	default:
+		return cli.NewExitError("invalid region", 1)
 	}
 
 	appList, err := api.GetAppList(region)
