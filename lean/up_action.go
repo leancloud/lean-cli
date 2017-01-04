@@ -73,15 +73,21 @@ func upAction(c *cli.Context) error {
 > https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 	}
 
+	bar := chrysanthemum.New("获取应用信息").Start()
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
+		bar.Failed()
 		return newCliError(err)
 	}
+	bar.Successed()
 
+	bar = chrysanthemum.New("获取云引擎信息").Start()
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
+		bar.Failed()
 		return newCliError(err)
 	}
+	bar.Successed()
 
 	rtm.Envs = []string{
 		"LC_APP_ID=" + appInfo.AppID,
