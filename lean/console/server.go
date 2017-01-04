@@ -91,6 +91,9 @@ func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request)
 	if len(result) > 0 {
 		result = linq.From(result).OrderBy(func(in interface{}) interface{} {
 			function := in.(string)
+			if function == "" {
+				return " "[0]
+			}
 			return function[0]
 		}).Select(func(in interface{}) interface{} {
 			function := in.(string)
