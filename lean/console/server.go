@@ -56,7 +56,16 @@ func (server *Server) getFunctions() ([]string, error) {
 }
 
 func (server *Server) indexHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, indexHTML)
+	fmt.Fprintf(w, resources["index.html"])
+}
+
+func (server *Server) resourcesHandler(w http.ResponseWriter, req *http.Request) {
+	resourceName := mux.Vars(req)["resourceName"]
+	if resource, ok := resources[resourceName]; ok {
+		fmt.Fprintf(w, resource)
+	} else {
+		http.NotFound(w, req)
+	}
 }
 
 func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
@@ -190,6 +199,7 @@ func (server *Server) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", server.indexHandler)
+	router.HandleFunc("/{resourceName}", server.resourcesHandler)
 	router.HandleFunc("/__engine/1/appInfo", server.appInfoHandler)
 	router.HandleFunc("/__engine/1/functions", server.functionsHandler)
 	router.HandleFunc("/__engine/1/classes", server.classesHandler)
