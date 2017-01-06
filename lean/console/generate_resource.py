@@ -1,6 +1,7 @@
 #! /usr/bin/env python3
 
 import os
+from urllib import request
 
 
 def print_header():
@@ -20,22 +21,29 @@ def print_footer():
     """)
 
 
-def print_file(file_name):
-    content = open(os.path.join('resources', file_name)).read()
+def print_file(name, content):
+    b = ','.join(str(x) for x in content)
     print("""
 
-    resources["{}"] = `
-{}
-`
+    resources["%s"] = string([]byte{%s})
 
-    """.format(file_name, content))
+    """ % (name, b))
+
+
+remote_files = {
+}
 
 
 def main():
     print_header()
 
-    for file_name in os.listdir('resources'):
-        print_file(os.path.join(file_name))
+    for name in os.listdir('resources'):
+        content = open(os.path.join('resources', name), mode='br').read()
+        print_file(name, content)
+
+    for name, url in remote_files.items():
+        content = request.urlopen(url).read()
+        print_file(name, content)
 
     print_footer()
 
