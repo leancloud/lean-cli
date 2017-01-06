@@ -106,6 +106,7 @@ func upAction(c *cli.Context) error {
 	}
 
 	for k, v := range engineInfo.Environments {
+		fmt.Println("   从服务器导出自定义环境变量:", k)
 		rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
 	}
 
