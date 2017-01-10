@@ -87,7 +87,6 @@ func DeployAppFromGit(appID string, projectPath string, groupName string, revisi
 	opts.Headers["X-LC-Id"] = appID
 
 	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
-		"comment":             "",
 		"noDependenciesCache": noDepsCache,
 		"async":               true,
 		"gitTag":              revision,

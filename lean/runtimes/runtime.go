@@ -90,13 +90,13 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 				_ = event
 				now := time.Now()
 				if now.Sub(lastFiredTime) > interval {
-					err := runtime.command.Process.Kill()
+					err = runtime.command.Process.Kill()
 					if err != nil {
 						runtime.Errors <- err
 					}
 					lastFiredTime = now
 				}
-			case err := <-watcher.Errors:
+			case err = <-watcher.Errors:
 				runtime.Errors <- err
 			}
 		}
