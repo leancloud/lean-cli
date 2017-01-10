@@ -192,12 +192,9 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 	}
 
 	files := []string{}
-	symwalk.Walk(".", func(path string, info os.FileInfo, err error) error {
+	err = symwalk.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
-		}
-		if info.IsDir() {
-			return nil
 		}
 		// convert DOS's '\' path seprater to UNIX style
 		path = filepath.ToSlash(path)
@@ -205,6 +202,14 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 		if err != nil {
 			return err
 		}
+
+		if info.IsDir() {
+			if decision == parseignore.Exclude {
+				return filepath.SkipDir
+			}
+			return nil
+		}
+
 		if decision != parseignore.Exclude {
 			files = append(files, path)
 		}
