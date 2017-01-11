@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
@@ -70,16 +72,49 @@ func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, igno
 	return file, nil
 }
 
-func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) error {
-	file, err := uploadProject(opts.appID, ".", isDeployFromJavaWar, ignoreFilePath)
+func uploadWar(appID string, repoPath string) (*upload.File, error) {
+	var warPath string
+	files, err := ioutil.ReadDir(filepath.Join(repoPath, "target"))
 	if err != nil {
-		return err
+		return nil, err
+	}
+	for _, file := range files {
+		if strings.HasSuffix(file.Name(), ".war") && !file.IsDir() {
+			warPath = filepath.Join(repoPath, "target", file.Name())
+		}
+	}
+	if warPath == "" {
+		return nil, errors.New("在 ./target 目录没有找到 war 文件")
+	}
+
+	fileDir, err := ioutil.TempDir("", "leanengine")
+	if err != nil {
+		return nil, err
+	}
+	archivePath := filepath.Join(fileDir, "ROOT.war.zip")
+
+	if err = runtimes.Archive(archivePath, warPath, "ROOT.war"); err != nil {
+		return nil, err
+	}
+
+	return api.UploadFile(appID, archivePath)
+}
+
+func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) error {
+	var file *upload.File
+	if isDeployFromJavaWar {
+	} else {
+		var err error
+		file, err = uploadProject(opts.appID, ".", isDeployFromJavaWar, ignoreFilePath)
+		if err != nil {
+			return err
+		}
 	}
 
 	if !keepFile {
 		defer func() {
 			spinner := chrysanthemum.New("删除临时文件").Start()
-			err = api.DeleteFile(opts.appID, file.ObjectID)
+			err := api.DeleteFile(opts.appID, file.ObjectID)
 			if err != nil {
 				spinner.Failed()
 			} else {

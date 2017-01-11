@@ -118,7 +118,7 @@ func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, isDeployFromJavaW
 			return err
 		}
 		spinner := chrysanthemum.New("压缩 war 文件:" + warFile).Start()
-		err = archive(archiveFile, warFile, "ROOT.war")
+		err = Archive(archiveFile, warFile, "ROOT.war")
 		if err != nil {
 			spinner.Failed()
 			return err
@@ -146,7 +146,8 @@ func getDefaultWarFile(projectPath string) (string, error) {
 	return "", errors.New("在 ./target 目录没有找到 war 文件。")
 }
 
-func archive(archiveFile string, file string, name string) error {
+// Archive will archive a file to .zip package
+func Archive(archiveFile string, file string, name string) error {
 	targetFile, err := os.Create(archiveFile)
 	if err != nil {
 		return err
