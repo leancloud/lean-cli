@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/lean/api/regions"
@@ -78,8 +79,8 @@ type GetUserInfoResult struct {
 }
 
 // GetUserInfo returns the current logined user info
-func GetUserInfo() (*GetUserInfoResult, error) {
-	client := NewClient(regions.CN)
+func GetUserInfo(region regions.Region) (*GetUserInfoResult, error) {
+	client := NewClient(region)
 
 	resp, err := client.get("/1.1/clients/self", nil)
 	if err != nil {
@@ -89,4 +90,35 @@ func GetUserInfo() (*GetUserInfoResult, error) {
 	result := new(GetUserInfoResult)
 	err = resp.JSON(result)
 	return result, err
+}
+
+// GetLoginedRegion returns all regions which is logined
+func GetLoginedRegion() (result []regions.Region, err error) {
+	jar, err := cookiejar.New(&cookiejar.Options{
+		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	cookies := jar.AllCookies()
+
+	for _, cookie := range cookies {
+		if cookie.Name != "uluru_user" {
+			continue
+		}
+		if cookie.Expires.Before(time.Now()) {
+			continue
+		}
+		switch cookie.Domain {
+		case "leancloud.cn":
+			result = append(result, regions.CN)
+		case "us.leancloud.cn":
+			result = append(result, regions.US)
+		case "tab.leancloud.cn":
+			result = append(result, regions.TAB)
+		}
+	}
+
+	return
 }

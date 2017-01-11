@@ -5,48 +5,72 @@ import (
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
-	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
 
 func infoAction(c *cli.Context) error {
-	bar := chrysanthemum.New("获取用户信息").Start()
-	userInfo, err := api.GetUserInfo()
-	if err == api.ErrNotLogined {
-		return cli.NewExitError("未登录，请先使用 `lean login` 命令登录 LeanCloud。", 1)
-	}
+	callbacks := make([]func(), 0)
+
+	loginedRegions, err := api.GetLoginedRegion()
 	if err != nil {
-		bar.Failed()
 		return newCliError(err)
 	}
-	bar.End()
-	fmt.Fprintf(color.Output, "当前登录用户: %s (%s)\r\n", userInfo.UserName, userInfo.Email)
 
-	bar = chrysanthemum.New("获取应用信息").Start()
-	appID, err := apps.GetCurrentAppID("")
-	if err == apps.ErrNoAppLinked {
-		bar.End()
-		fmt.Fprintln(color.Output, "当前目录没有关联任何 LeanCloud 应用。")
+	if len(loginedRegions) == 0 {
+		fmt.Println("未登录")
 		return nil
+	}
+
+	for _, loginedRegion := range loginedRegions {
+		bar := chrysanthemum.New(fmt.Sprintf("获取 %s 节点用户信息", loginedRegion)).Start()
+		userInfo, err := api.GetUserInfo(loginedRegion)
+		if err != nil {
+			bar.Failed()
+			callbacks = append(callbacks, func() {
+				fmt.Printf("获取 %s 节点用户信息失败: %v\r\n", loginedRegion, err)
+			})
+		} else {
+			bar.Successed()
+			callbacks = append(callbacks, func() {
+				fmt.Printf("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
+			})
+		}
+	}
+
+	bar := chrysanthemum.New("获取应用信息").Start()
+	appID, err := apps.GetCurrentAppID("")
+	_ = appID
+
+	if err == apps.ErrNoAppLinked {
+		bar.Failed()
+		callbacks = append(callbacks, func() {
+			fmt.Println("当前目录没有关联任何 LeanCloud 应用")
+		})
 	} else if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		callbacks = append(callbacks, func() {
+			fmt.Println("获取当前目录关联应用失败：", err)
+		})
+	} else {
+		appInfo, err := api.GetAppInfo(appID)
+		if err != nil {
+			bar.Failed()
+			callbacks = append(callbacks, func() {
+				fmt.Println("获取应用信息失败：", err)
+			})
+		} else {
+			bar.Successed()
+			region, _ := api.GetAppRegion(appID)
+			callbacks = append(callbacks, func() {
+				fmt.Printf("当前目录关联 %s 节点应用：%s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
+			})
+		}
 	}
-	region, err := api.GetAppRegion(appID)
-	if err != nil {
-		bar.Failed()
-		return newCliError(err)
-	}
-	appInfo, err := api.GetAppInfo(appID)
-	if err != nil {
-		bar.Failed()
-		return newCliError(err)
-	}
-	bar.End()
 
-	fmt.Fprintf(color.Output, "当前目录关联节点：%s \r\n", region)
-	fmt.Fprintf(color.Output, "当前目录关联应用：%s (%s)\r\n", appInfo.AppName, appInfo.AppID)
+	for _, callback := range callbacks {
+		callback()
+	}
 
 	return nil
 }
