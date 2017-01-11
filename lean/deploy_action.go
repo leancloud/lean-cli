@@ -70,8 +70,8 @@ func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, igno
 	return file, nil
 }
 
-func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, ignoreFilePath string, message string, noDepsCache bool, keepFile bool) error {
-	file, err := uploadProject(appID, ".", isDeployFromJavaWar, ignoreFilePath)
+func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) error {
+	file, err := uploadProject(opts.appID, ".", isDeployFromJavaWar, ignoreFilePath)
 	if err != nil {
 		return err
 	}
@@ -79,7 +79,7 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 	if !keepFile {
 		defer func() {
 			spinner := chrysanthemum.New("删除临时文件").Start()
-			err = api.DeleteFile(appID, file.ObjectID)
+			err = api.DeleteFile(opts.appID, file.ObjectID)
 			if err != nil {
 				spinner.Failed()
 			} else {
@@ -88,8 +88,8 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 		}()
 	}
 
-	eventTok, err := api.DeployAppFromFile(appID, ".", groupName, file.URL, message, noDepsCache)
-	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
+	eventTok, err := api.DeployAppFromFile(opts.appID, ".", opts.groupName, file.URL, opts.message, opts.noDepsCache)
+	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -99,12 +99,12 @@ func deployFromLocal(appID string, groupName string, isDeployFromJavaWar bool, i
 	return nil
 }
 
-func deployFromGit(appID string, groupName string, revision string, noDepsCache bool) error {
-	eventTok, err := api.DeployAppFromGit(appID, ".", groupName, revision, noDepsCache)
+func deployFromGit(revision string, opts *deployOptions) error {
+	eventTok, err := api.DeployAppFromGit(opts.appID, ".", opts.groupName, revision, opts.noDepsCache)
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(appID, eventTok, os.Stdout)
+	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
 	}
@@ -144,16 +144,30 @@ func deployAction(c *cli.Context) error {
 		chrysanthemum.Printf("准备部署应用到生产环境: %s\r\n", groupName)
 	}
 
+	opts := &deployOptions{
+		appID:       appID,
+		groupName:   groupName,
+		message:     message,
+		noDepsCache: noDepsCache,
+	}
+
 	if isDeployFromGit {
-		err = deployFromGit(appID, groupName, revision, noDepsCache)
+		err = deployFromGit(revision, opts)
 		if err != nil {
 			return newCliError(err)
 		}
 	} else {
-		err = deployFromLocal(appID, groupName, isDeployFromJavaWar, ignoreFilePath, message, noDepsCache, keepFile)
+		err = deployFromLocal(isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
 			return newCliError(err)
 		}
 	}
 	return nil
+}
+
+type deployOptions struct {
+	appID       string
+	groupName   string
+	message     string
+	noDepsCache bool
 }
