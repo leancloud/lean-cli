@@ -53,7 +53,7 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	utils.CheckError(os.Mkdir(appName, 0775))
 
-	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn/" + boil.URL
+	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn" + boil.URL
 
 	dir, err := ioutil.TempDir("", "leanengine")
 	utils.CheckError(err)
@@ -71,7 +71,10 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 		return errors.New(utils.FormatServerErrorResult(resp.String()))
 	}
 	zipFilePath := filepath.Join(dir, "getting-started.zip")
-	DownloadToFile(resp, zipFilePath)
+	err = DownloadToFile(resp, zipFilePath)
+	if err != nil {
+		return err
+	}
 
 	spinner := chrysanthemum.New("正在创建项目...").Start()
 
