@@ -1,15 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
 
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
-	// "github.com/fatih/color"
-	"encoding/json"
-
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 )

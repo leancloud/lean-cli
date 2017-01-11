@@ -5,11 +5,38 @@ import (
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
+
+func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*api.GetAppListResult, error) {
+	var selectedApp *api.GetAppListResult
+	question := wizard.Question{
+		Content: "请选择 APP",
+		Answers: []wizard.Answer{},
+	}
+	for _, app := range appList {
+		answer := wizard.Answer{
+			Content: app.AppName,
+		}
+		if app.AppID == currentAppID {
+			answer.Content += color.RedString(" (current)")
+		}
+		// for scope problem
+		func(app *api.GetAppListResult) {
+			answer.Handler = func() {
+				selectedApp = app
+			}
+		}(app)
+		question.Answers = append(question.Answers, answer)
+	}
+	err := wizard.Ask([]wizard.Question{question})
+	return selectedApp, err
+}
 
 func checkOutWithAppInfo(arg string, regionString string) error {
 	var region regions.Region
@@ -89,21 +116,14 @@ func checkOutWithWizard(regionString string) error {
 	// 	return newCliError(err)
 	// }
 
-	// remove current linked app from app list
-	curentAppID, err := apps.GetCurrentAppID(".")
+	currentAppID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		if err != apps.ErrNoAppLinked {
 			return newCliError(err)
 		}
-	} else {
-		for i, app := range sortedAppList {
-			if app.AppID == curentAppID {
-				sortedAppList = append(sortedAppList[:i], sortedAppList[i+1:]...)
-			}
-		}
 	}
 
-	app, err := selectApp(sortedAppList)
+	app, err := selectCheckOutApp(sortedAppList, currentAppID)
 	if err != nil {
 		return newCliError(err)
 	}
