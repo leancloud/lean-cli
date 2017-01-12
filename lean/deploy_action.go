@@ -49,7 +49,7 @@ func determineGroupName(appID string) (string, error) {
 	return groupName.(string), nil
 }
 
-func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, ignoreFilePath string) (*upload.File, error) {
+func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func uploadProject(appID string, repoPath string, isDeployFromJavaWar bool, igno
 		return nil, err
 	}
 
-	runtime.ArchiveUploadFiles(archiveFile, isDeployFromJavaWar, ignoreFilePath)
+	runtime.ArchiveUploadFiles(archiveFile, ignoreFilePath)
 
 	file, err := api.UploadFile(appID, archiveFile)
 	if err != nil {
@@ -87,6 +87,8 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 		return nil, errors.New("在 ./target 目录没有找到 war 文件")
 	}
 
+	chrysanthemum.Println("找到默认的 war 文件：", warPath)
+
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
@@ -102,10 +104,11 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 
 func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) error {
 	var file *upload.File
+	var err error
 	if isDeployFromJavaWar {
+		file, err = uploadWar(opts.appID, ".")
 	} else {
-		var err error
-		file, err = uploadProject(opts.appID, ".", isDeployFromJavaWar, ignoreFilePath)
+		file, err = uploadProject(opts.appID, ".", ignoreFilePath)
 		if err != nil {
 			return err
 		}
@@ -157,8 +160,6 @@ func deployAction(c *cli.Context) error {
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
-
-	println("revision:", revision)
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
