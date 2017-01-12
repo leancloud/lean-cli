@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/leancloud/lean-cli/lean/api/regions"
 )
@@ -25,7 +24,6 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("xxxx", resp, resp.StatusCode)
 
 	var result []*GetAppListResult
 	err = resp.JSON(&result)
