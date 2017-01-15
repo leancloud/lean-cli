@@ -1,6 +1,7 @@
 package runtimes
 
 import (
+	"fmt"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -57,7 +58,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 
 func (runtime *Runtime) readIgnore(ignoreFilePath string) (parseignore.Matcher, error) {
 	if ignoreFilePath == ".leanignore" && !utils.IsFileExists(filepath.Join(runtime.ProjectPath, ".leanignore")) {
-		chrysanthemum.Println("> 没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件")
+		fmt.Printf(" %s 没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件\r\n", chrysanthemum.Fail)
 		content := strings.Join(runtime.defaultIgnorePatterns(), "\r\n")
 		err := ioutil.WriteFile(filepath.Join(runtime.ProjectPath, ".leanignore"), []byte(content), 0644)
 		if err != nil {

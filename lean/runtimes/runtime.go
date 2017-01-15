@@ -111,42 +111,12 @@ func (runtime *Runtime) Watch(interval time.Duration) error {
 	return nil
 }
 
-func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, isDeployFromJavaWar bool, ignoreFilePath string) error {
-	if runtime.Name == "java" && isDeployFromJavaWar {
-		warFile, err := getDefaultWarFile(runtime.ProjectPath)
-		if err != nil {
-			return err
-		}
-		spinner := chrysanthemum.New("压缩 war 文件:" + warFile).Start()
-		err = archive(archiveFile, warFile, "ROOT.war")
-		if err != nil {
-			spinner.Failed()
-			return err
-		}
-		spinner.Successed()
-	} else {
-		err := runtime.defaultArchive(archiveFile, ignoreFilePath)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, ignoreFilePath string) error {
+	return runtime.defaultArchive(archiveFile, ignoreFilePath)
 }
 
-func getDefaultWarFile(projectPath string) (string, error) {
-	files, err := ioutil.ReadDir(filepath.Join(projectPath, "target"))
-	if err != nil {
-		return "", err
-	}
-	for _, file := range files {
-		if strings.HasSuffix(file.Name(), ".war") && !file.IsDir() {
-			return filepath.Join(projectPath, "target", file.Name()), nil
-		}
-	}
-	return "", errors.New("在 ./target 目录没有找到 war 文件。")
-}
-
-func archive(archiveFile string, file string, name string) error {
+// Archive will archive a file to .zip package
+func Archive(archiveFile string, file string, name string) error {
 	targetFile, err := os.Create(archiveFile)
 	if err != nil {
 		return err
@@ -283,6 +253,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		chrysanthemum.Printf("检测到 Java 运行时\r\n")
 		return newJavaRuntime(projectPath)
 	}
+	bar.Failed()
 	return nil, ErrInvalidRuntime
 }
 
