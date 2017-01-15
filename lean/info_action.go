@@ -6,6 +6,7 @@ import (
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/lean/api"
+	"github.com/leancloud/lean-cli/lean/api/regions"
 	"github.com/leancloud/lean-cli/lean/apps"
 )
 
@@ -32,9 +33,11 @@ func infoAction(c *cli.Context) error {
 			})
 		} else {
 			bar.Successed()
-			callbacks = append(callbacks, func() {
-				fmt.Printf("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
-			})
+			func(loginedRegion regions.Region) {
+				callbacks = append(callbacks, func() {
+					fmt.Printf("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
+				})
+			}(loginedRegion)
 		}
 	}
 
