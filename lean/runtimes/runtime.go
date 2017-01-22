@@ -1,8 +1,6 @@
 package runtimes
 
 import (
-	"archive/zip"
-	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,7 +15,6 @@ import (
 	"github.com/facebookgo/parseignore"
 	"github.com/facebookgo/symwalk"
 	"github.com/fsnotify/fsnotify"
-	"github.com/jhoonb/archivex"
 	"github.com/leancloud/lean-cli/lean/utils"
 )
 
@@ -115,44 +112,6 @@ func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, ignoreFilePath st
 	return runtime.defaultArchive(archiveFile, ignoreFilePath)
 }
 
-// Archive will archive a file to .zip package
-func Archive(archiveFile string, file string, name string) error {
-	targetFile, err := os.Create(archiveFile)
-	if err != nil {
-		return err
-	}
-	writer := zip.NewWriter(targetFile)
-	defer writer.Close()
-	zippedFile, err := writer.Create(name)
-	if err != nil {
-		return err
-	}
-	fromFile, err := os.Open(file)
-	if err != nil {
-		return err
-	}
-	fileReader := bufio.NewReader(fromFile)
-	blockSize := 512 * 1024 // 512kb
-	bytes := make([]byte, blockSize)
-	for {
-		readedBytes, err := fileReader.Read(bytes)
-		if err != nil {
-			if err.Error() == "EOF" {
-				break
-			}
-			if err.Error() != "EOF" {
-				return err
-			}
-		}
-		if readedBytes >= blockSize {
-			zippedFile.Write(bytes)
-			continue
-		}
-		zippedFile.Write(bytes[:readedBytes])
-	}
-	return nil
-}
-
 func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string) error {
 	matcher, err := runtime.readIgnore(ignoreFilePath)
 	if os.IsNotExist(err) {
@@ -161,7 +120,7 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 		return err
 	}
 
-	files := []string{}
+	files := []struct{ Name, Path string }{}
 	err = symwalk.Walk(".", func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -181,7 +140,10 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 		}
 
 		if decision != parseignore.Exclude {
-			files = append(files, path)
+			files = append(files, struct{ Name, Path string }{
+				Name: path,
+				Path: path,
+			})
 		}
 		return nil
 	})
@@ -190,17 +152,11 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 		return err
 	}
 	spinner := chrysanthemum.New("压缩项目文件").Start()
-	zip := new(archivex.ZipFile)
-	func() {
-		defer zip.Close()
-		zip.Create(archiveFile)
-		for _, f := range files {
-			err := zip.AddFile(filepath.ToSlash(f))
-			if err != nil {
-				panic(err)
-			}
-		}
-	}()
+
+	err = utils.ArchiveFiles(archiveFile, files)
+	if err != nil {
+		spinner.Failed()
+	}
 	spinner.Successed()
 	return nil
 }

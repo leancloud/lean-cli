@@ -15,6 +15,7 @@ import (
 	"github.com/leancloud/lean-cli/lean/api"
 	"github.com/leancloud/lean-cli/lean/apps"
 	"github.com/leancloud/lean-cli/lean/runtimes"
+	"github.com/leancloud/lean-cli/lean/utils"
 )
 
 func determineGroupName(appID string) (string, error) {
@@ -95,7 +96,11 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 	}
 	archivePath := filepath.Join(fileDir, "ROOT.war.zip")
 
-	if err = runtimes.Archive(archivePath, warPath, "ROOT.war"); err != nil {
+	file := []struct{ Name, Path string }{{
+		Name: "ROOT.war",
+		Path: warPath,
+	}}
+	if err = utils.ArchiveFiles(archivePath, file); err != nil {
 		return nil, err
 	}
 
