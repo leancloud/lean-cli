@@ -1,5 +1,5 @@
-hash: a4943dac9bdfa05d6ace7579df8bade2cad779c04f93270bb0b4ce5a97d0da53
-updated: 2016-12-19T23:27:07.757778682+08:00
+hash: 3d9da2c3c8d1f8344bb7024bd46dffb24213689759177afbd247f11da029fee9
+updated: 2017-01-22T16:39:50.295887529+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: ba42ddae458c0def2bc25a414ff03a6cc449752d
@@ -28,7 +28,7 @@ imports:
 - name: github.com/facebookgo/symwalk
   version: 42004b9f322246749dd73ad71008b1f3160c0052
 - name: github.com/fatih/color
-  version: dea9d3a26a087187530244679c1cfb3a42937794
+  version: 34e4ee095d12986a2cef5ddb9aeb3b8cfcfea17c
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/getsentry/raven-go
@@ -40,9 +40,7 @@ imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 0eeaf8392f5b04950925b8a69fe70f110fa7cbfc
-- name: github.com/jhoonb/archivex
-  version: b669bdadd30ace382d6e082dfcc8e33b926db1a1
+  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
 - name: github.com/juju/go4
   version: 40d72ab9641a2a8c36a9c46a51e28367115c8e59
   subpackages:

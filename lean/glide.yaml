@@ -5,7 +5,6 @@ import:
 - package: github.com/levigross/grequests
 - package: github.com/bitly/go-simplejson
 - package: github.com/ahmetalpbalkan/go-linq
-- package: github.com/jhoonb/archivex
 - package: github.com/fsnotify/fsnotify
 - package: github.com/aisk/cookieparser
 - package: github.com/gorilla/mux
