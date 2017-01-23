@@ -5,7 +5,7 @@ import (
 
 	"github.com/coreos/go-semver/semver"
 	"github.com/fatih/color"
-	"github.com/leancloud/lean-cli/lean/version"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
 )
 
