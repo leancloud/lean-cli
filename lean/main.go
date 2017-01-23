@@ -9,9 +9,9 @@ import (
 	"github.com/aisk/chrysanthemum"
 	"github.com/fatih/color"
 	"github.com/getsentry/raven-go"
-	"github.com/leancloud/lean-cli/lean/commands"
-	"github.com/leancloud/lean-cli/lean/stats"
-	"github.com/leancloud/lean-cli/lean/version"
+	"github.com/leancloud/lean-cli/commands"
+	"github.com/leancloud/lean-cli/stats"
+	"github.com/leancloud/lean-cli/version"
 )
 
 func run() {
