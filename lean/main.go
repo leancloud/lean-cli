@@ -16,7 +16,10 @@ import (
 
 func run() {
 	if len(os.Args) >= 2 && os.Args[1] == "--_collect-stats" {
-		stats.Init("Rp8mUcQBVObk8EuyVMDPv39U-gzGzoHsz", "9g3bs563vEsOGdycO2E9ly0y")
+		err := stats.Init("Rp8mUcQBVObk8EuyVMDPv39U-gzGzoHsz", "9g3bs563vEsOGdycO2E9ly0y")
+		if err != nil {
+			raven.CaptureError(err, nil, nil)
+		}
 		stats.Client.AppVersion = version.Version
 		stats.Client.AppChannel = pkgType
 

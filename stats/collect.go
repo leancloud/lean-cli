@@ -15,6 +15,8 @@ var (
 // Client is current user's client info
 var Client ClientType
 
+var session SessionType
+
 // Init LeanCloud app info
 func Init(appID string, appKey string) error {
 	leanCloudAppID = appID
@@ -27,7 +29,8 @@ func Init(appID string, appKey string) error {
 
 	Client.ID = deviceID
 	Client.Platform = runtime.GOOS
-	return nil
+	session.ID, err = newDeviceID()
+	return err
 }
 
 // Event is collect payload's evnets field type
@@ -35,7 +38,7 @@ type Event struct {
 	Event string `json:"event"`
 }
 
-// ClientType is collect payload's client filed type
+// ClientType is collect payload's client field type
 type ClientType struct {
 	ID         string `json:"id"`
 	Platform   string `json:"platform"`
@@ -43,17 +46,24 @@ type ClientType struct {
 	AppChannel string `json:"app_channel"`
 }
 
+// SessionType is collect payload's session filed type
+type SessionType struct {
+	ID string `json:"id"`
+}
+
 // Payload is leancloud statics collect's playload
 type Payload struct {
-	Client ClientType `json:"client"`
-	Events []Event    `json:"events"`
+	Client  ClientType  `json:"client"`
+	Events  []Event     `json:"events"`
+	Session SessionType `json:"session"`
 }
 
 // Collect the user's stats
 func Collect(events []Event) {
 	payload := &Payload{
-		Client: Client,
-		Events: events,
+		Client:  Client,
+		Events:  events,
+		Session: session,
 	}
 	grequests.Post("https://api.leancloud.cn/1.1/stats/open/collect", &grequests.RequestOptions{
 		Headers: map[string]string{
