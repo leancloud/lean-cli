@@ -17,3 +17,18 @@ Install the dependences first:
 - [glide](https://glide.sh)
 
 Clone this repo to your `${GOPATH}/src/github.com/leancloud/lean-cli`, then have a look at `Makefile`.
+
+## Packaging
+
+Install this dependences:
+
+- [msitool](https://wiki.gnome.org/msitools)
+- [dpkg](https://wiki.debian.org/Teams/Dpkg)
+
+> You can install them via homebrew
+
+and
+
+```bash
+$ make all
+```
