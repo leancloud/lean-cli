@@ -1,4 +1,4 @@
 lean/lean
 lean/lean.exe
-build/
+_build/
 __pycache__/

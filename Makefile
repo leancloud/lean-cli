@@ -1,4 +1,4 @@
-OUTPUT=./build
+OUTPUT=./_build
 SRC=$(shell find lean/ -iname "*.go")
 LDFLAGS='-X main.pkgType="binary" -s -w'
 
