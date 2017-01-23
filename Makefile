@@ -34,10 +34,10 @@ install:
 	GOOS=$(GOOS) go install github.com/leancloud/lean-cli/lean
 
 test:
-	go test -v github.com/leancloud/lean-cli/lean/boilerplate
-	go test -v github.com/leancloud/lean-cli/lean/console
-	go test -v github.com/leancloud/lean-cli/lean/apps
-	go test -v github.com/leancloud/lean-cli/lean/stats
+	go test -v github.com/leancloud/lean-cli/boilerplate
+	go test -v github.com/leancloud/lean-cli/console
+	go test -v github.com/leancloud/lean-cli/apps
+	go test -v github.com/leancloud/lean-cli/stats
 
 clean:
 	rm -rf $(OUTPUT)
