@@ -32,9 +32,6 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	// TODO:
-	apiServerURL := "https://api.leancloud.cn"
-
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		return newCliError(err)
@@ -94,13 +91,13 @@ func upAction(c *cli.Context) error {
 		"LC_APP_KEY=" + appInfo.AppKey,
 		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
 		"LC_APP_PORT=" + port,
-		"LC_API_SERVER=" + apiServerURL,
+		"LC_API_SERVER=" + region.APIServerURL(),
 		"LEANCLOUD_APP_ID=" + appInfo.AppID,
 		"LEANCLOUD_APP_KEY=" + appInfo.AppKey,
 		"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
 		"LEANCLOUD_APP_HOOK_KEY=" + appInfo.HookKey,
 		"LEANCLOUD_APP_PORT=" + port,
-		"LEANCLOUD_API_SERVER=" + apiServerURL,
+		"LEANCLOUD_API_SERVER=" + region.APIServerURL(),
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
 	}
