@@ -1,6 +1,6 @@
 # lean(1)
 
-[![Build Status](https://travis-ci.org/leancloud/lean-cli.svg?branch=master)](https://travis-ci.org/leancloud/lean-cli)
+[![Build Status](https://travis-ci.org/leancloud/lean-cli.svg?branch=master)](https://travis-ci.org/leancloud/lean-cli) [![GoDoc](https://godoc.org/github.com/leancloud/lean-cli?status.svg)](https://godoc.org/github.com/leancloud/lean-cli)
 
 Command line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 
