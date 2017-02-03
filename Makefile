@@ -1,6 +1,7 @@
 OUTPUT=./_build
-SRC=$(shell find lean/ -iname "*.go")
+SRC=$(shell find . -iname "*.go")
 LDFLAGS='-X main.pkgType="binary" -s -w'
+RESOURCES=$(wildcard ./console/resources/*.html)
 
 all: binaries msi deb
 
@@ -30,7 +31,7 @@ deb:
 $(OUTPUT)/lean-$(GOOS)-$(GOARCH)$(POSTFIX): $(SRC)
 	GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-install:
+install: resources
 	GOOS=$(GOOS) go install github.com/leancloud/lean-cli/lean
 
 test:
@@ -39,7 +40,10 @@ test:
 	go test -v github.com/leancloud/lean-cli/apps
 	go test -v github.com/leancloud/lean-cli/stats
 
+resources:
+	(cd console; $(MAKE))
+
 clean:
 	rm -rf $(OUTPUT)
 
-.PHONY: test
+.PHONY: test msi deb install clean resources

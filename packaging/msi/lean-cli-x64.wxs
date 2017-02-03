@@ -12,7 +12,7 @@
     <Directory Id='TARGETDIR' Name='SourceDir'>
       <Directory Id="System64Folder" Name="SystemFolder">
         <Component Id='MainExecutable' Guid="*">
-          <File Id='LeanEXE' Name='lean.exe' DiskId='1' Source='build/lean-windows-amd64.exe' KeyPath='yes'/>
+          <File Id='LeanEXE' Name='lean.exe' DiskId='1' Source='_build/lean-windows-amd64.exe' KeyPath='yes'/>
         </Component>
       </Directory>
     </Directory>
