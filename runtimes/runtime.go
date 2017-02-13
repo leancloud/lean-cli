@@ -308,11 +308,15 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 }
 
 func newPhpRuntime(projectPath string) (*Runtime, error) {
+	entryScript, err := getPHPEntryScriptPath()
+	if err != nil {
+		return nil, err
+	}
 	return &Runtime{
 		ProjectPath: projectPath,
 		Name:        "php",
 		Exec:        "php",
-		Args:        []string{"-S", "127.0.0.1:3000", "-t", "public"},
+		Args:        []string{"-S", "127.0.0.1:3000", "-t", "public", entryScript},
 		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
