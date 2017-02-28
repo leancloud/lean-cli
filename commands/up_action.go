@@ -77,6 +77,7 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	bar.Successed()
+	chrysanthemum.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	bar = chrysanthemum.New("获取云引擎信息").Start()
 	engineInfo, err := api.GetEngineInfo(appID)
