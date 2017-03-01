@@ -63,11 +63,10 @@ func upAction(c *cli.Context) error {
 			fmt.Println("   [WARNING] https://github.com/leancloud/node-js-getting-started/pull/26/files")
 		}
 	}
-	watchChanges = false
 
 	if rtm.Name == "cloudcode" {
-		return cli.NewExitError(`> 命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
-> https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
+		return cli.NewExitError(`命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
+https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 	}
 
 	bar := chrysanthemum.New("获取应用信息").Start()
@@ -118,9 +117,7 @@ func upAction(c *cli.Context) error {
 	}
 
 	rtm.Run()
-	if watchChanges {
-		rtm.Watch(3 * time.Second)
-	}
+	time.Sleep(time.Millisecond * 300)
 	cons.Run()
 
 	for {
