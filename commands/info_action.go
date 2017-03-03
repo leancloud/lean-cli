@@ -42,8 +42,7 @@ func infoAction(c *cli.Context) error {
 	}
 
 	bar := chrysanthemum.New("获取应用信息").Start()
-	appID, err := apps.GetCurrentAppID("")
-	_ = appID
+	appID, err := apps.GetCurrentAppID(".")
 
 	if err == apps.ErrNoAppLinked {
 		bar.Failed()
@@ -64,10 +63,27 @@ func infoAction(c *cli.Context) error {
 			})
 		} else {
 			bar.Successed()
-			region, _ := api.GetAppRegion(appID)
-			callbacks = append(callbacks, func() {
-				fmt.Printf("当前目录关联 %s 节点应用：%s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
-			})
+			region, err := api.GetAppRegion(appID)
+			if err != nil {
+				bar.Failed()
+				callbacks = append(callbacks, func() {
+					fmt.Println("获取应用节点信息失败：", err)
+				})
+			} else {
+				callbacks = append(callbacks, func() {
+					fmt.Printf("当前目录关联 %s 节点应用：%s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
+				})
+				group, err := apps.GetCurrentGroup(".")
+				if err != nil {
+					callbacks = append(callbacks, func() {
+						fmt.Println("获取关联分组信息失败：", err)
+					})
+				} else {
+					callbacks = append(callbacks, func() {
+						fmt.Printf("当前目录关联分组：%s\r\n", group)
+					})
+				}
+			}
 		}
 	}
 
