@@ -23,6 +23,10 @@ func currentAppIDFilePath(projectPath string) string {
 	return filepath.Join(appDirPath(projectPath), "current_app_id")
 }
 
+func currentGroupFilePath(projectPath string) string {
+	return filepath.Join(appDirPath(projectPath), "current_group")
+}
+
 // LinkApp will write the specific appID to ${projectPath}/.leancloud/current_app_id
 func LinkApp(projectPath string, appID string) error {
 	err := os.Mkdir(appDirPath(projectPath), 0775)
@@ -42,6 +46,19 @@ func GetCurrentAppID(projectPath string) (string, error) {
 	content, err := ioutil.ReadFile(currentAppIDFilePath(projectPath))
 	if os.IsNotExist(err) {
 		return migrateLegencyProjectConfig(projectPath)
+	}
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
+// GetCurrentGroup returns the content of ${projectPath}/.leancloud/current_group if it exists,
+// or migrate the project's primary group.
+func GetCurrentGroup(projectPath string) (string, error) {
+	content, err := ioutil.ReadFile(currentGroupFilePath(projectPath))
+	if os.IsNotExist(err) {
+		return migrateLegencyGroupProjectConfig(projectPath)
 	}
 	if err != nil {
 		return "", err
@@ -102,4 +119,14 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 	chrysanthemum.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
 
 	return appID, nil
+}
+
+func migrateLegencyGroupProjectConfig(projectPath string) (string, error) {
+	spinner := chrysanthemum.New("检测到当前项目没有关联分组，正在迁移项目至默认分组(web)").Start()
+	if err := ioutil.WriteFile(currentGroupFilePath(projectPath), []byte("web"), 0644); err != nil {
+		spinner.Failed()
+		return "", err
+	}
+	spinner.Successed()
+	return "web", nil
 }
