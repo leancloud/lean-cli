@@ -56,16 +56,12 @@ func publishAction(c *cli.Context) error {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
 	}
 
-	prodGroup, err := getDefaultGroup(appID, prod)
-	if err != nil {
-		return newCliError(err)
-	}
 	stagGroup, err := getDefaultGroup(appID, stag)
 	if err != nil {
 		return newCliError(err)
 	}
 
-	tok, err := api.DeployImage(appID, prodGroup.GroupName, stagGroup.CurrentImage.ImageTag)
+	tok, err := api.DeployImage(appID, "web", 1, stagGroup.CurrentImage.ImageTag)
 	ok, err := api.PollEvents(appID, tok, os.Stdout)
 	if err != nil {
 		return err
