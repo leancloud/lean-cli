@@ -78,13 +78,17 @@ https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 	bar.Successed()
 	chrysanthemum.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
-	bar = chrysanthemum.New("获取云引擎信息").Start()
-	engineInfo, err := api.GetEngineInfo(appID)
+	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		bar.Failed()
 		return newCliError(err)
 	}
-	bar.Successed()
+	spinner := chrysanthemum.New("获取运引擎分组 " + groupName + " 信息").Start()
+	groupInfo, err := api.GetGroup(appID, groupName)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
+	spinner.Successed()
 
 	rtm.Envs = []string{
 		"LC_APP_ID=" + appInfo.AppID,
@@ -102,8 +106,8 @@ https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 		"LEANCLOUD_REGION=" + region.String(),
 	}
 
-	for k, v := range engineInfo.Environments {
-		fmt.Println("   从服务器导出自定义环境变量:", k)
+	for k, v := range groupInfo.Environments {
+		chrysanthemum.Println("从服务器导出自定义环境变量:", k)
 		rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
 	}
 
