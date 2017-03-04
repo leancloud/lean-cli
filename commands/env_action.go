@@ -46,12 +46,19 @@ func envAction(c *cli.Context) error {
 		"LEANCLOUD_REGION=" + region.String(),
 	}
 
-	engineInfo, err := api.GetEngineInfo(appInfo.AppID)
+	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		return newCliError(err)
 	}
+	spinner := chrysanthemum.New("获取运引擎分组 " + groupName + " 信息").Start()
+	groupInfo, err := api.GetGroup(appID, groupName)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
+	spinner.Successed()
 
-	for k, v := range engineInfo.Environments {
+	for k, v := range groupInfo.Environments {
 		envs = append(envs, k+"="+v)
 	}
 

@@ -165,6 +165,7 @@ type GetGroupsResult struct {
 		Runtime  string `json:"runtime"`
 		ImageTag string `json:"imageTag"`
 	} `json:"currentImage"`
+	Environments map[string]string `json:"environments"`
 }
 
 // GetGroups returns the application's engine groups
@@ -190,6 +191,20 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 	err = resp.JSON(&result)
 
 	return result, err
+}
+
+// GetGroup will fetch all groups from API and return the current group info
+func GetGroup(appID string, groupName string) (*GetGroupsResult, error) {
+	groups, err := GetGroups(appID)
+	if err != nil {
+		return nil, err
+	}
+	for _, group := range groups {
+		if group.GroupName == groupName {
+			return group, nil
+		}
+	}
+	return nil, errors.New("找不到分组：" + groupName)
 }
 
 type GetEngineInfoResult struct {
@@ -245,7 +260,7 @@ func PutEnvironments(appID string, envs map[string]string) error {
 		return err
 	}
 	if response.StatusCode != 200 {
-		return errors.New("update environment failed")
+		return errors.New("更新运引擎环境变量失败，响应码：" + string(response.StatusCode))
 	}
 	return nil
 }
