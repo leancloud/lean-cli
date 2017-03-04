@@ -131,7 +131,11 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		}()
 	}
 
-	eventTok, err := api.DeployAppFromFile(opts.appID, ".", opts.groupName, file.URL, opts.message, opts.noDepsCache)
+	prod := 0
+	if opts.groupName == "web" {
+		prod = 1
+	}
+	eventTok, err := api.DeployAppFromFile(opts.appID, "web", prod, file.URL, opts.message, opts.noDepsCache)
 	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
@@ -143,7 +147,11 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 }
 
 func deployFromGit(revision string, opts *deployOptions) error {
-	eventTok, err := api.DeployAppFromGit(opts.appID, ".", opts.groupName, revision, opts.noDepsCache)
+	prod := 0
+	if opts.groupName == "web" {
+		prod = 1
+	}
+	eventTok, err := api.DeployAppFromGit(opts.appID, "web", prod, revision, opts.noDepsCache)
 	if err != nil {
 		return err
 	}
@@ -166,7 +174,7 @@ func deployAction(c *cli.Context) error {
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
 
-	appID, err := apps.GetCurrentAppID("")
+	appID, err := apps.GetCurrentAppID(".")
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}

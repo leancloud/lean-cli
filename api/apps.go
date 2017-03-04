@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/levigross/grequests"
 )
 
 // GetAppListResult is GetAppList function's result type
@@ -41,61 +42,61 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	return result, nil
 }
 
-// DeployImage will deploy the engine group with specify image tag
-func DeployImage(appID string, groupName string, imageTag string) (string, error) {
+func deploy(appID string, group string, prod int, params map[string]interface{}) (*grequests.Response, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	client := NewClient(region)
 
 	opts, err := client.options()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.put("/1.1/engine/groups/"+groupName+"/deploy", map[string]interface{}{
+	var url string
+	switch prod {
+	case 1:
+		url = "/1.1/engine/groups/" + group + "/stagingImage"
+	case 2:
+		url = "/1.1/engine/groups/" + group + "/productionImage"
+	default:
+		return nil, errors.New("invalid prod value " + string(prod))
+	}
+
+	return client.post(url, params, opts)
+}
+
+// DeployImage will deploy the engine group with specify image tag
+func DeployImage(appID string, group string, prod int, imageTag string) (string, error) {
+	params := map[string]interface{}{
 		"imageTag": imageTag,
 		"async":    true,
-	}, opts)
-
+	}
+	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
 		return "", err
 	}
 	result := new(struct {
 		EventToken string `json:"eventToken"`
 	})
-
 	err = resp.JSON(result)
 	return result.EventToken, err
 }
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(appID string, projectPath string, groupName string, revision string, noDepsCache bool) (string, error) {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return "", err
-	}
-	client := NewClient(region)
-
-	opts, err := client.options()
-	if err != nil {
-		return "", err
-	}
-	opts.Headers["X-LC-Id"] = appID
-
-	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
+func DeployAppFromGit(appID string, group string, prod int, revision string, noDepsCache bool) (string, error) {
+	params := map[string]interface{}{
 		"noDependenciesCache": noDepsCache,
 		"async":               true,
 		"gitTag":              revision,
-	}, opts)
-
+	}
+	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
 		return "", err
 	}
-
 	result := new(struct {
 		EventToken string `json:"eventToken"`
 	})
@@ -105,26 +106,14 @@ func DeployAppFromGit(appID string, projectPath string, groupName string, revisi
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(appID string, projectPath string, groupName string, fileURL string, message string, noDepsCache bool) (string, error) {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return "", err
-	}
-	client := NewClient(region)
-
-	opts, err := client.options()
-	if err != nil {
-		return "", err
-	}
-	opts.Headers["X-LC-Id"] = appID
-
-	resp, err := client.post("/1.1/engine/groups/"+groupName+"/buildAndDeploy", map[string]interface{}{
+func DeployAppFromFile(appID string, group string, prod int, fileURL string, message string, noDepsCache bool) (string, error) {
+	params := map[string]interface{}{
 		"zipUrl":              fileURL,
 		"comment":             message,
 		"noDependenciesCache": noDepsCache,
 		"async":               true,
-	}, opts)
-
+	}
+	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
 		return "", err
 	}
