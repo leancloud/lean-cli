@@ -155,9 +155,10 @@ func GetAppInfo(appID string) (*GetAppInfoResult, error) {
 
 // GetGroupsResult is GetGroups's result struct
 type GetGroupsResult struct {
-	GroupName string `json:"groupName"`
-	Prod      int    `json:"prod"`
-	Instances []struct {
+	GroupName  string `json:"groupName"`
+	Prod       int    `json:"prod"`
+	Repository string `json:"repository"`
+	Instances  []struct {
 		Name  string `json:"name"`
 		Quota int    `json:"quota"`
 	} `json:"instances"`
@@ -189,8 +190,20 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 
 	var result []*GetGroupsResult
 	err = resp.JSON(&result)
+	if err != nil {
+		return nil, err
+	}
 
-	return result, err
+	// filter the staging group, since it's not used anymore
+	var filtered []*GetGroupsResult
+	for _, group := range result {
+		if group.GroupName == "staging" {
+			continue
+		}
+		filtered = append(filtered, group)
+	}
+
+	return result, nil
 }
 
 // GetGroup will fetch all groups from API and return the current group info
