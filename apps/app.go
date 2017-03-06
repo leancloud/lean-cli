@@ -41,6 +41,16 @@ func LinkApp(projectPath string, appID string) error {
 	return ioutil.WriteFile(currentAppIDFilePath(projectPath), []byte(appID), 0644)
 }
 
+// LinkGroup will write the specific groupName to ${projectPath}/.leancloud/current_group
+func LinkGroup(projectPath string, groupName string) error {
+	err := os.Mkdir(appDirPath(projectPath), 0775)
+	if err != nil && !os.IsExist(err) {
+		return err
+	}
+
+	return ioutil.WriteFile(currentGroupFilePath(projectPath), []byte(groupName), 0644)
+}
+
 // GetCurrentAppID will return the content of ${projectPath}/.leancloud/current_app_id
 func GetCurrentAppID(projectPath string) (string, error) {
 	content, err := ioutil.ReadFile(currentAppIDFilePath(projectPath))

@@ -32,6 +32,31 @@ func selectApp(appList []*api.GetAppListResult) (*api.GetAppListResult, error) {
 	return selectedApp, err
 }
 
+func selectGroup(groupList []*api.GetGroupsResult) (*api.GetGroupsResult, error) {
+	if len(groupList) == 1 {
+		return groupList[0], nil
+	}
+
+	var selectedGroup *api.GetGroupsResult
+	question := wizard.Question{
+		Content: "请选择云引擎分组",
+		Answers: []wizard.Answer{},
+	}
+	for _, group := range groupList {
+		answer := wizard.Answer{
+			Content: group.GroupName,
+		}
+		func(app *api.GetGroupsResult) {
+			answer.Handler = func() {
+				selectedGroup = group
+			}
+		}(group)
+		question.Answers = append(question.Answers, answer)
+	}
+	err := wizard.Ask([]wizard.Question{question})
+	return selectedGroup, err
+}
+
 func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	var selectBoil *boilerplate.Boilerplate
 	boils, err := boilerplate.GetBoilerplateList()
@@ -128,7 +153,16 @@ func initAction(c *cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
-	appID := app.AppID
+
+	groupList, err := api.GetGroups(app.AppID)
+	if err != nil {
+		return newCliError(err)
+	}
+
+	group, err := selectGroup(groupList)
+	if err != nil {
+		return newCliError(err)
+	}
 
 	boil, err := selectBoilerplate()
 	if err != nil {
@@ -137,7 +171,7 @@ func initAction(c *cli.Context) error {
 
 	appName := app.AppName
 
-	if err = boilerplate.FetchRepo(boil, appName, appID); err != nil {
+	if err = boilerplate.FetchRepo(boil, appName, app.AppID); err != nil {
 		return newCliError(err)
 	}
 
@@ -145,5 +179,11 @@ func initAction(c *cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
+
+	err = apps.LinkGroup(app.AppName, group.GroupName)
+	if err != nil {
+		return newCliError(err)
+	}
+
 	return nil
 }
