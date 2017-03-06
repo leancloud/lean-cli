@@ -57,9 +57,9 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 
 	var url string
 	switch prod {
-	case 1:
+	case 0:
 		url = "/1.1/engine/groups/" + group + "/stagingImage"
-	case 2:
+	case 1:
 		url = "/1.1/engine/groups/" + group + "/productionImage"
 	default:
 		return nil, errors.New("invalid prod value " + string(prod))
