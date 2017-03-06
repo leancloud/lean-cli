@@ -34,6 +34,7 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 	}
 }
 
+// Run the command line
 func Run(args []string) {
 	// add banner text to help text
 	cli.AppHelpTemplate = logo.Logo() + cli.AppHelpTemplate
@@ -110,6 +111,11 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "region",
 					Usage: "目标应用节点",
+				},
+				cli.StringFlag{
+					Name:  "group",
+					Usage: "目标应用 group",
+					Value: "",
 				},
 			},
 		},
