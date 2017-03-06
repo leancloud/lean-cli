@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"errors"
+
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/wizard"
 	"github.com/codegangsta/cli"
@@ -121,6 +123,7 @@ func selectRegion() (regions.Region, error) {
 }
 
 func initAction(c *cli.Context) error {
+	groupName := c.String("group")
 	var region regions.Region
 	var err error
 	switch c.String("region") {
@@ -158,10 +161,24 @@ func initAction(c *cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
-
-	group, err := selectGroup(groupList)
-	if err != nil {
-		return newCliError(err)
+	if groupName == "" {
+		group, err := selectGroup(groupList)
+		if err != nil {
+			return newCliError(err)
+		}
+		groupName = group.GroupName
+	} else {
+		err = func() error {
+			for _, group := range groupList {
+				if group.GroupName == groupName {
+					return nil
+				}
+			}
+			return errors.New("找不到分组 " + groupName)
+		}()
+		if err != nil {
+			return newCliError(err)
+		}
 	}
 
 	boil, err := selectBoilerplate()
@@ -180,7 +197,7 @@ func initAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	err = apps.LinkGroup(app.AppName, group.GroupName)
+	err = apps.LinkGroup(app.AppName, groupName)
 	if err != nil {
 		return newCliError(err)
 	}
