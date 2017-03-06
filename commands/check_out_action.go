@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/ahmetalpbalkan/go-linq"
@@ -38,7 +39,7 @@ func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*a
 	return selectedApp, err
 }
 
-func checkOutWithAppInfo(arg string, regionString string) error {
+func checkOutWithAppInfo(arg string, regionString string, groupName string) error {
 	var region regions.Region
 	switch regionString {
 	case "cn", "CN", "":
@@ -53,7 +54,7 @@ func checkOutWithAppInfo(arg string, regionString string) error {
 		return err
 	}
 
-	// check if arg is a current app id
+	// check if arg is an app id
 	for _, app := range currentApps {
 		if app.AppID == arg {
 			fmt.Printf("切换至应用：%s (%s)", app.AppName, region)
@@ -78,7 +79,7 @@ func checkOutWithAppInfo(arg string, regionString string) error {
 	return cli.NewExitError("找不到对应的应用，切换失败。", 1)
 }
 
-func checkOutWithWizard(regionString string) error {
+func checkOutWithWizard(regionString string, groupName string) error {
 	var region regions.Region
 	var err error
 	switch regionString {
@@ -127,9 +128,39 @@ func checkOutWithWizard(regionString string) error {
 	if err != nil {
 		return newCliError(err)
 	}
-	fmt.Println("切换应用至 " + app.AppName)
+
+	groupList, err := api.GetGroups(app.AppID)
+	if err != nil {
+		return newCliError(err)
+	}
+
+	var group *api.GetGroupsResult
+	if groupName == "" {
+		group, err = selectGroup(groupList)
+		if err != nil {
+			return newCliError(err)
+		}
+	} else {
+		err = func() error {
+			for _, group = range groupList {
+				if group.GroupName == groupName {
+					return nil
+				}
+			}
+			return errors.New("找不到分组 " + groupName)
+		}()
+		if err != nil {
+			return err
+		}
+	}
+
+	fmt.Printf("切换应用至：%s ，分组：%s\r\n", app.AppName, group.GroupName)
 
 	err = apps.LinkApp(".", app.AppID)
+	if err != nil {
+		return newCliError(err)
+	}
+	err = apps.LinkGroup(".", group.GroupName)
 	if err != nil {
 		return newCliError(err)
 	}
@@ -137,13 +168,15 @@ func checkOutWithWizard(regionString string) error {
 }
 
 func checkOutAction(c *cli.Context) error {
+	region := c.String("region")
+	group := c.String("group")
 	if c.NArg() > 0 {
 		arg := c.Args()[0]
-		err := checkOutWithAppInfo(arg, c.String("region"))
+		err := checkOutWithAppInfo(arg, region, group)
 		if err != nil {
 			return newCliError(err)
 		}
 		return nil
 	}
-	return checkOutWithWizard(c.String("region"))
+	return checkOutWithWizard(region, group)
 }
