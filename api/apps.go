@@ -162,10 +162,10 @@ type GetGroupsResult struct {
 		Name  string `json:"name"`
 		Quota int    `json:"quota"`
 	} `json:"instances"`
-	CurrentImage struct {
+	StagingImage struct {
 		Runtime  string `json:"runtime"`
 		ImageTag string `json:"imageTag"`
-	} `json:"currentImage"`
+	} `json:"stagingImage"`
 	Environments map[string]string `json:"environments"`
 }
 
