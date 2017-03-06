@@ -100,6 +100,10 @@ func Run(args []string) {
 					Name:  "region",
 					Usage: "目标应用节点",
 				},
+				cli.StringFlag{
+					Name:  "group",
+					Usage: "目标应用 group",
+				},
 			},
 		},
 		{
@@ -115,7 +119,6 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "group",
 					Usage: "目标应用 group",
-					Value: "",
 				},
 			},
 		},
