@@ -3,36 +3,12 @@ package commands
 import (
 	"os"
 
-	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 )
-
-const (
-	stag = 0
-	prod = 1
-)
-
-func getDefaultGroup(appID string, env int) (*api.GetGroupsResult, error) {
-	if env != stag && env != prod {
-		panic("Invalid prod params")
-	}
-	groups, err := api.GetGroups(appID)
-	if err != nil {
-		return nil, err
-	}
-
-	group := linq.From(groups).Where(func(group interface{}) bool {
-		return group.(*api.GetGroupsResult).Prod == env
-	}).First()
-	if err != nil {
-		return nil, err
-	}
-	return group.(*api.GetGroupsResult), nil
-}
 
 func publishAction(c *cli.Context) error {
 	appID, err := apps.GetCurrentAppID("")
@@ -43,25 +19,30 @@ func publishAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
+	groupName, err := apps.GetCurrentGroup(".")
+	if err != nil {
+		return newCliError(err)
+	}
+
 	spinner := chrysanthemum.New("获取应用信息").Start()
 	info, err := api.GetAppInfo(appID)
 	if err != nil {
 		spinner.Failed()
 		return newCliError(err)
 	}
+	group, err := api.GetGroup(appID, groupName)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
 	spinner.Successed()
-	chrysanthemum.Printf("准备部署至目标应用：%s (%s)\r\n", color.RedString(info.AppName), appID)
+	chrysanthemum.Printf("准备部署至目标应用：%s (%s)，分组：%s\r\n", color.RedString(info.AppName), appID, color.RedString(groupName))
 
 	if info.LeanEngineMode == "free" {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
 	}
 
-	stagGroup, err := getDefaultGroup(appID, stag)
-	if err != nil {
-		return newCliError(err)
-	}
-
-	tok, err := api.DeployImage(appID, "web", 1, stagGroup.CurrentImage.ImageTag)
+	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag)
 	ok, err := api.PollEvents(appID, tok, os.Stdout)
 	if err != nil {
 		return err
