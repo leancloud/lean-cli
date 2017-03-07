@@ -131,6 +131,29 @@ func (client *Client) post(path string, params map[string]interface{}, options *
 	return resp, nil
 }
 
+func (client *Client) patch(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+	var err error
+	if options == nil {
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
+	}
+	options.JSON = params
+	resp, err := grequests.Patch(client.baseURL()+path, options)
+	if err != nil {
+		return nil, err
+	}
+	if !resp.Ok {
+		return nil, NewErrorFromResponse(resp)
+	}
+
+	if err = client.CookieJar.Save(); err != nil {
+		return resp, err
+	}
+
+	return resp, nil
+}
+
 func (client *Client) put(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
 	var err error
 	if options == nil {

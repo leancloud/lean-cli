@@ -250,7 +250,7 @@ func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
 	return result, err
 }
 
-func PutEnvironments(appID string, envs map[string]string) error {
+func PutEnvironments(appID string, group string, envs map[string]string) error {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return err
@@ -264,11 +264,14 @@ func PutEnvironments(appID string, envs map[string]string) error {
 	opts.Headers["X-LC-Id"] = appID
 
 	params := make(map[string]interface{})
+	environments := make(map[string]interface{})
 	for k, v := range envs {
-		params[k] = v
+		environments[k] = v
 	}
+	params["environments"] = environments
 
-	response, err := client.put("/1.1/functions/_ops/engine/environments", params, opts)
+	url := "/1.1/engine/groups/" + group
+	response, err := client.patch(url, params, opts)
 	if err != nil {
 		return err
 	}
