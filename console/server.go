@@ -141,7 +141,7 @@ func (server *Server) classesHandler(w http.ResponseWriter, req *http.Request) {
 			}
 		}
 		panic("impossible")
-	}).Results()
+	}).Distinct().Results()
 
 	if len(result) > 0 {
 		result = linq.From(result).OrderBy(func(in interface{}) interface{} {
