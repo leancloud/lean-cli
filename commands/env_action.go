@@ -92,12 +92,17 @@ func envSetAction(c *cli.Context) error {
 		bar.Failed()
 		return newCliError(err)
 	}
+	group, err := apps.GetCurrentGroup(".")
+	if err != nil {
+		bar.Failed()
+		return newCliError(err)
+	}
 	bar.Successed()
 
 	envs := engineInfo.Environments
 	envs[envName] = envValue
-	bar = chrysanthemum.New("更新云引擎环境变量").Start()
-	err = api.PutEnvironments(appID, envs)
+	bar = chrysanthemum.New("更新云引擎 " + group + " 分组环境变量").Start()
+	err = api.PutEnvironments(appID, group, envs)
 	if err != nil {
 		bar.Failed()
 		return newCliError(err)
@@ -123,6 +128,11 @@ func envUnsetAction(c *cli.Context) error {
 	}
 
 	bar := chrysanthemum.New("获取云引擎信息").Start()
+	group, err := apps.GetCurrentGroup(".")
+	if err != nil {
+		bar.Failed()
+		return newCliError(err)
+	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		bar.Failed()
@@ -133,8 +143,8 @@ func envUnsetAction(c *cli.Context) error {
 	envs := engineInfo.Environments
 	delete(envs, env)
 
-	bar = chrysanthemum.New("更新云引擎环境变量").Start()
-	err = api.PutEnvironments(appID, envs)
+	bar = chrysanthemum.New("更新云引擎 " + group + " 分组环境变量").Start()
+	err = api.PutEnvironments(appID, group, envs)
 	if err != nil {
 		bar.Failed()
 		return newCliError(err)
