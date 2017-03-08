@@ -41,11 +41,6 @@ func NewClient(region regions.Region) *Client {
 	}
 }
 
-func (client *Client) fetchRouter() error {
-	// TODO: fetch router from server
-	return nil
-}
-
 func (client *Client) baseURL() string {
 	switch client.Region {
 	case regions.CN:
@@ -83,14 +78,32 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	}, nil
 }
 
-func (client *Client) get(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
+func doRequest(client *Client, method string, path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
 			return nil, err
 		}
 	}
-	resp, err := grequests.Get(client.baseURL()+path, options)
+	if params != nil {
+		options.JSON = params
+	}
+	var fn func(string, *grequests.RequestOptions) (*grequests.Response, error)
+	switch method {
+	case "GET":
+		fn = grequests.Get
+	case "POST":
+		fn = grequests.Post
+	case "PUT":
+		fn = grequests.Put
+	case "DELETE":
+		fn = grequests.Delete
+	case "PATCH":
+		fn = grequests.Patch
+	default:
+		panic("invalid method: " + method)
+	}
+	resp, err := fn(client.baseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -106,95 +119,25 @@ func (client *Client) get(path string, options *grequests.RequestOptions) (*greq
 	}
 
 	return resp, nil
+
+}
+
+func (client *Client) get(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
+	return doRequest(client, "GET", path, nil, options)
 }
 
 func (client *Client) post(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
-	options.JSON = params
-	resp, err := grequests.Post(client.baseURL()+path, options)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		return nil, NewErrorFromResponse(resp)
-	}
-
-	if err = client.CookieJar.Save(); err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return doRequest(client, "POST", path, params, options)
 }
 
 func (client *Client) patch(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
-	options.JSON = params
-	resp, err := grequests.Patch(client.baseURL()+path, options)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		return nil, NewErrorFromResponse(resp)
-	}
-
-	if err = client.CookieJar.Save(); err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return doRequest(client, "PATCH", path, params, options)
 }
 
 func (client *Client) put(path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
-	options.JSON = params
-	resp, err := grequests.Put(client.baseURL()+path, options)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		return nil, NewErrorFromResponse(resp)
-	}
-
-	if err = client.CookieJar.Save(); err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return doRequest(client, "PUT", path, params, options)
 }
 
 func (client *Client) delete(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
-	resp, err := grequests.Delete(client.baseURL()+path, options)
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		return nil, NewErrorFromResponse(resp)
-	}
-
-	if err = client.CookieJar.Save(); err != nil {
-		return resp, err
-	}
-
-	return resp, nil
+	return doRequest(client, "DELETE", path, nil, options)
 }
