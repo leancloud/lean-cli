@@ -171,7 +171,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	return nil
 }
 
-func checkOutAction(c *cli.Context) error {
+func switchAction(c *cli.Context) error {
 	region := c.String("region")
 	group := c.String("group")
 	if c.NArg() > 0 {
@@ -183,4 +183,9 @@ func checkOutAction(c *cli.Context) error {
 		return nil
 	}
 	return checkOutWithWizard(region, group)
+}
+
+func checkOutAction(c *cli.Context) error {
+	fmt.Printf(" %s [WARNNING] lean checkout 被标记为废弃，请使用 lean switch 代替此命令。\r\n", chrysanthemum.Fail)
+	return switchAction(c)
 }
