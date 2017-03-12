@@ -27,8 +27,11 @@ type Question struct {
 	Input   *Input
 }
 
-// Ask ...
+// Ask the question
 func Ask(questions []Question) error {
+	if useInquirer() {
+		return inquirer(questions)
+	}
 	rl, err := readline.New(" => ")
 	if err != nil {
 		return err

@@ -8,7 +8,7 @@ imports:
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
-  version: 91d82286c9dc4c04e0de4092b688fe8c7da4fb2c
+  version: 45b1b4b542137d8db63c3d462d63a9917471f923
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/certifi/gocertifi

@@ -14,14 +14,14 @@ func inputAccountInfo() (string, string, error) {
 	password := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "请输入您的邮箱：",
+			Content: "请输入您的邮箱",
 			Input: &wizard.Input{
 				Result: email,
 				Hidden: false,
 			},
 		},
 		{
-			Content: "请输入您的密码：",
+			Content: "请输入您的密码",
 			Input: &wizard.Input{
 				Result: password,
 				Hidden: true,
@@ -61,7 +61,7 @@ func loginWithSessionToken() (*api.GetUserInfoResult, error) {
 	sessionToken := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "请在浏览器打开：https://console.qcloud.com/tab?goto=cli-login-token，并输入页面给出的 token：",
+			Content: "请在浏览器打开：https://console.qcloud.com/tab?goto=cli-login-token，并输入页面给出的 token",
 			Input: &wizard.Input{
 				Result: sessionToken,
 				Hidden: false,
