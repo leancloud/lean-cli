@@ -12,13 +12,13 @@ func main() {
 
 	questions := []wizard.Question{
 		{
-			Content: "PLease input your user name:",
+			Content: "PLease input your user name",
 			Input: &wizard.Input{
 				Result: &username,
 			},
 		},
 		{
-			Content: "Please input your password:",
+			Content: "Please input your password",
 			Input: &wizard.Input{
 				Result: &password,
 				Hidden: true,
@@ -45,6 +45,7 @@ func main() {
 
 	err := wizard.Ask(questions)
 	if err != nil {
+		println("error happened!")
 		panic(err)
 	}
 

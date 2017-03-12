@@ -72,7 +72,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	}).ToSlice(&orderedBoils)
 
 	question := wizard.Question{
-		Content: "请选择需要创建的应用模版：",
+		Content: "请选择需要创建的应用模版",
 		Answers: []wizard.Answer{},
 	}
 	for _, boil := range orderedBoils {
