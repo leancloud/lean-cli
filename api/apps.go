@@ -203,7 +203,7 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 		filtered = append(filtered, group)
 	}
 
-	return result, nil
+	return filtered, nil
 }
 
 // GetGroup will fetch all groups from API and return the current group info
