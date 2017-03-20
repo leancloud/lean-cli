@@ -57,10 +57,12 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 	// check if arg is an app id
 	for _, app := range currentApps {
 		if app.AppID == arg {
-			fmt.Printf("切换至应用：%s (%s)", app.AppName, region)
-			if err = apps.LinkApp(".", app.AppID); err != nil {
-				return apps.LinkGroup(".", groupName)
+			err = apps.LinkApp(".", app.AppID)
+			if err != nil {
+				return err
 			}
+			fmt.Printf("切换至应用：%s (%s)\r\n", app.AppName, region)
+			return apps.LinkGroup(".", groupName)
 		}
 	}
 
@@ -72,10 +74,12 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 		}
 	}
 	if len(matchedApps) == 1 {
-		fmt.Printf("切换至应用：%s (%s)", matchedApps[0].AppName, region)
-		if err = apps.LinkApp(".", matchedApps[0].AppID); err != nil {
-			return apps.LinkGroup(".", groupName)
+		fmt.Printf("切换至应用：%s (%s)\r\n", matchedApps[0].AppName, region)
+		err = apps.LinkApp(".", matchedApps[0].AppID)
+		if err != nil {
+			return err
 		}
+		return apps.LinkGroup(".", groupName)
 	} else if len(matchedApps) > 1 {
 		return cli.NewExitError("找到多个应用使用此应用名，切换失败。请尝试使用 app ID 取代应用名来进行切换。", 1)
 	}

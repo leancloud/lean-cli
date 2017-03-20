@@ -25,7 +25,7 @@ func publishAction(c *cli.Context) error {
 	}
 
 	spinner := chrysanthemum.New("获取应用信息").Start()
-	info, err := api.GetAppInfo(appID)
+	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		spinner.Failed()
 		return newCliError(err)
@@ -36,11 +36,12 @@ func publishAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	spinner.Successed()
-	chrysanthemum.Printf("准备部署至目标应用：%s (%s)，分组：%s\r\n", color.RedString(info.AppName), appID, color.RedString(groupName))
 
-	if info.LeanEngineMode == "free" {
+	if engineInfo.Mode != "prod" {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
 	}
+
+	chrysanthemum.Printf("准备部署至目标分组：%s\r\n", color.RedString(groupName))
 
 	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag)
 	ok, err := api.PollEvents(appID, tok, os.Stdout)

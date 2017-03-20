@@ -2,53 +2,20 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
 
-	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
-	"github.com/fatih/color"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/runtimes"
 	"github.com/leancloud/lean-cli/utils"
 )
-
-func determineGroupName(appID string) (string, error) {
-	spinner := chrysanthemum.New("获取应用信息").Start()
-
-	info, err := api.GetAppInfo(appID)
-	if err != nil {
-		spinner.Failed()
-		return "", err
-	}
-	spinner.Successed()
-	chrysanthemum.Printf("准备部署至目标应用：%s (%s)\r\n", color.RedString(info.AppName), appID)
-	mode := info.LeanEngineMode
-
-	spinner = chrysanthemum.New("获取应用分组信息").Start()
-	groups, err := api.GetGroups(appID)
-	if err != nil {
-		spinner.Failed()
-		return "", err
-	}
-	spinner.Successed()
-
-	groupName := linq.From(groups).Where(func(group interface{}) bool {
-		groupName := group.(*api.GetGroupsResult).GroupName
-		if mode == "free" {
-			return groupName != "staging"
-		}
-		return groupName == "staging"
-	}).Select(func(group interface{}) interface{} {
-		return group.(*api.GetGroupsResult).GroupName
-	}).First()
-	return groupName.(string), nil
-}
 
 func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -131,11 +98,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		}()
 	}
 
-	prod := 0
-	if opts.groupName == "web" {
-		prod = 1
-	}
-	eventTok, err := api.DeployAppFromFile(opts.appID, "web", prod, file.URL, opts.message, opts.noDepsCache)
+	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
 	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
@@ -147,11 +110,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 }
 
 func deployFromGit(revision string, opts *deployOptions) error {
-	prod := 0
-	if opts.groupName == "web" {
-		prod = 1
-	}
-	eventTok, err := api.DeployAppFromGit(opts.appID, "web", prod, revision, opts.noDepsCache)
+	eventTok, err := api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache)
 	if err != nil {
 		return err
 	}
@@ -175,22 +134,31 @@ func deployAction(c *cli.Context) error {
 	revision := c.String("revision")
 
 	appID, err := apps.GetCurrentAppID(".")
-	if err == apps.ErrNoAppLinked {
-		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
-	}
 	if err != nil {
 		return newCliError(err)
 	}
 
-	groupName, err := determineGroupName(appID)
+	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		return newCliError(err)
 	}
 
-	if groupName == "staging" {
-		chrysanthemum.Printf("准备部署应用到预备环境\r\n")
+	spinner := chrysanthemum.New("获取应用信息").Start()
+	engineInfo, err := api.GetEngineInfo(appID)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
+	spinner.Successed()
+
+	prod := 0
+	if engineInfo.Mode == "prod" {
+		chrysanthemum.Printf("准备部署应用到分组 %s 预备环境\r\n", groupName)
+	} else if engineInfo.Mode == "free" {
+		prod = 1
+		chrysanthemum.Printf("准备部署应用到分组 %s 生产环境\r\n", groupName)
 	} else {
-		chrysanthemum.Printf("准备部署应用到生产环境: %s\r\n", groupName)
+		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
 	}
 
 	opts := &deployOptions{
@@ -198,6 +166,7 @@ func deployAction(c *cli.Context) error {
 		groupName:   groupName,
 		message:     message,
 		noDepsCache: noDepsCache,
+		prod:        prod,
 	}
 
 	if isDeployFromGit {
@@ -219,4 +188,5 @@ type deployOptions struct {
 	groupName   string
 	message     string
 	noDepsCache bool
+	prod        int
 }

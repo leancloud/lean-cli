@@ -127,13 +127,12 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, mes
 
 // GetAppInfoResult is GetAppInfo function's result type
 type GetAppInfoResult struct {
-	AppDomain      string `json:"app_domain"`
-	AppID          string `json:"app_id"`
-	AppKey         string `json:"app_key"`
-	AppName        string `json:"app_name"`
-	HookKey        string `json:"hook_key"`
-	LeanEngineMode string `json:"leanengine_mode"`
-	MasterKey      string `json:"master_key"`
+	AppDomain string `json:"app_domain"`
+	AppID     string `json:"app_id"`
+	AppKey    string `json:"app_key"`
+	AppName   string `json:"app_name"`
+	HookKey   string `json:"hook_key"`
+	MasterKey string `json:"master_key"`
 }
 
 // GetAppInfo returns the application's detail info
@@ -156,7 +155,6 @@ func GetAppInfo(appID string) (*GetAppInfoResult, error) {
 // GetGroupsResult is GetGroups's result struct
 type GetGroupsResult struct {
 	GroupName  string `json:"groupName"`
-	Prod       int    `json:"prod"`
 	Repository string `json:"repository"`
 	Instances  []struct {
 		Name  string `json:"name"`
