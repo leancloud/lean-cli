@@ -178,7 +178,7 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 				action = value
 			}
 		}
-		signFuncName := ""
+		signFuncName := funcName
 		if strings.HasPrefix(funcName, "__before") {
 			signFuncName = "__before_for_" + className
 		} else if strings.HasPrefix(funcName, "__after") {
