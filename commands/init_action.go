@@ -48,7 +48,7 @@ func selectGroup(groupList []*api.GetGroupsResult) (*api.GetGroupsResult, error)
 		answer := wizard.Answer{
 			Content: group.GroupName,
 		}
-		func(app *api.GetGroupsResult) {
+		func(group *api.GetGroupsResult) {
 			answer.Handler = func() {
 				selectedGroup = group
 			}
