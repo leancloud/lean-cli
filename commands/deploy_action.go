@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
@@ -84,6 +85,10 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		if err != nil {
 			return err
 		}
+		spinner := chrysanthemum.New("等待文件同步").Start()
+		// wait for qiniu file sync.
+		time.Sleep(2 * time.Second)
+		spinner.Successed()
 	}
 
 	if !keepFile {
