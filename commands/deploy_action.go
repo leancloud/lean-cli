@@ -104,6 +104,9 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	}
 
 	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
+	if err != nil {
+		return err
+	}
 	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
 	if err != nil {
 		return err
