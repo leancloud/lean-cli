@@ -105,6 +105,7 @@ func Run(args []string) {
 			Usage:     "切换当前项目关联的 LeanCloud 应用",
 			Action:    checkOutAction,
 			ArgsUsage: "[appID | appName]",
+			Hidden:    true,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
