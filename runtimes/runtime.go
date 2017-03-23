@@ -232,20 +232,26 @@ func lookupBin(fallbacks []string) (string, error) {
 func newPythonRuntime(projectPath string) (*Runtime, error) {
 	execName := "python2.7"
 
-	if content, err := ioutil.ReadFile(filepath.Join(projectPath, "runtime.txt")); err == nil {
-		if strings.HasPrefix(string(content), "python-2.7") {
-			execName, err = lookupBin([]string{"python2.7", "python2", "python"})
-			if err != nil {
-				return nil, err
-			}
-		} else if strings.HasPrefix(string(content), "python-3.5") {
-			execName, err = lookupBin([]string{"python3.5", "python3", "python"})
-			if err != nil {
-				return nil, err
-			}
-		} else {
-			return nil, errors.New("invalid python runtime.txt format, only `python-2.7` and `python-3.5` were allowed")
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, "runtime.txt"))
+	if err != nil {
+		if !os.IsNotExist(err) {
+			return nil, err
 		}
+		// the default content
+		content = []byte("python-2.7")
+	}
+	if strings.HasPrefix(string(content), "python-2.7") {
+		execName, err = lookupBin([]string{"python2.7", "python2", "python"})
+		if err != nil {
+			return nil, err
+		}
+	} else if strings.HasPrefix(string(content), "python-3.5") {
+		execName, err = lookupBin([]string{"python3.5", "python3", "python"})
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		return nil, errors.New("invalid python runtime.txt format, only `python-2.7` and `python-3.5` were allowed")
 	}
 
 	return &Runtime{
