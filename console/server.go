@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -62,6 +63,9 @@ func (server *Server) indexHandler(w http.ResponseWriter, req *http.Request) {
 func (server *Server) resourcesHandler(w http.ResponseWriter, req *http.Request) {
 	resourceName := mux.Vars(req)["resourceName"]
 	if resource, ok := resources[resourceName]; ok {
+		if filepath.Ext(resourceName) == ".js" {
+			w.Header().Set("Content-Type", "application/javascript")
+		}
 		fmt.Fprintf(w, resource)
 	} else {
 		http.NotFound(w, req)
@@ -78,6 +82,7 @@ func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
 		"appKey":         server.AppKey,
 		"masterKey":      server.MasterKey,
 		"leanenginePort": port,
+		"warnings":       []string{},
 	})
 	if err != nil {
 		panic(err)
@@ -114,7 +119,10 @@ func (server *Server) functionsHandler(w http.ResponseWriter, req *http.Request)
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	j, _ := json.MarshalIndent(result, "", "  ")
+	j, err := json.MarshalIndent(result, "", "  ")
+	if err != nil {
+		panic(err)
+	}
 	w.Write(j)
 }
 
