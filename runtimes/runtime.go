@@ -275,6 +275,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 				Start string `json:"start"`
 				Dev   string `json:"dev"`
 			} `json:"scripts"`
+			Dependencies map[string]string `json:"dependencies"`
 		})
 		err = json.Unmarshal(content, pkg)
 		if err != nil {
@@ -288,6 +289,16 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 			execName = "npm"
 			args = []string{"start"}
 		}
+
+		if sdkVersion, ok := pkg.Dependencies["leanengine"]; ok {
+			if strings.HasPrefix(sdkVersion, "0.") ||
+				strings.HasPrefix(sdkVersion, "~0.") ||
+				strings.HasPrefix(sdkVersion, "^0.") {
+				s := "当前使用 leanengine SDK 版本过低，本地云函数调试功能将会不能正常启用。建议参考 http://url.leanapp.cn/Og1cVia 尽快升级。"
+				fmt.Fprintf(os.Stderr, " %s [WARNING] %s\r\n", chrysanthemum.Fail, s)
+			}
+		}
+
 	}
 
 	return &Runtime{
