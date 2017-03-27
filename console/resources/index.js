@@ -16,7 +16,6 @@ $(document).ready(function (){
     for (var i=0; i<data.warnings.length; i++) {
       warnings.push(data.warnings[i]);
     }
-    console.log(warnings);
   });
 
   $(window).onerror = function (msg, url, line){
