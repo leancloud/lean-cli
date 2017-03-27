@@ -2,8 +2,13 @@ var appId, appKey, masterKey, leanenginePort;
 var hooksInfo = {};
 var functionsInfo = [];
 var warnings = [];
+var _ = AV._;
 
 $(document).ready(function (){
+  $.fn.select2.defaults.set("theme", "bootstrap");
+  $('#functions').select2();
+  $('#hooks').select2();
+  $('#classes').select2();
 
   $.get("/__engine/1/appInfo", function(data) {
     appId = data.appId;
