@@ -2,6 +2,8 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
+	"os"
 
 	"github.com/coreos/go-semver/semver"
 	"github.com/fatih/color"
@@ -22,7 +24,8 @@ func updateCommand() string {
 	case "binary":
 		return "访问 https://github.com/leancloud/lean-cli/releases"
 	default:
-		panic("invalid pkgType: " + pkgType)
+		fmt.Fprintln(os.Stderr, "invalid pkgType: "+pkgType)
+		return ""
 	}
 }
 
