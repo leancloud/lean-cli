@@ -9,7 +9,7 @@ import (
 	"github.com/levigross/grequests"
 )
 
-const checkUpdateURL = "https://download.leancloud.cn/sdk/lean_cli.json"
+const checkUpdateURL = "https://lcinternal-cloud-code-update.leanapp.cn/cli-version.json"
 
 var pkgType = "go"
 
@@ -38,8 +38,8 @@ func checkUpdate() error {
 	}
 
 	var result struct {
-		Version   string `json:"version"`
-		ChangeLog string `json:"changelog"`
+		Version string `json:"version"`
+		Message string `json:"message"`
 	}
 	if err := json.Unmarshal(resp.Bytes(), &result); err != nil {
 		return err
@@ -49,7 +49,7 @@ func checkUpdate() error {
 	latest := semver.New(result.Version)
 
 	if current.LessThan(*latest) {
-		color.Green("发现新版本 %s，变更如下：\r\n%s \r\n您可以通过以下方式升级：%s", result.Version, result.ChangeLog, updateCommand())
+		color.Green("发现新版本 %s，变更如下：\r\n%s \r\n您可以通过以下方式升级：%s", result.Version, result.Message, updateCommand())
 	}
 
 	return nil
