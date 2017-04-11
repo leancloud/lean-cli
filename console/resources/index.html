@@ -9,10 +9,14 @@
   <script type="application/javascript" src="https://cdn1.lncld.net/static/js/av-core-mini-0.5.4.js"></script>
   <script type="application/javascript" src="https://cdn.staticfile.org/vue/2.2.5/vue.min.js"></script>
   <script type="application/javascript" src="https://cdn.staticfile.org/select2/4.0.3/js/select2.min.js"></script>
-  <script type="application/javascript" src="/index.js"></script>
+  <script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.1/css/bootstrap.min.css" type="text/css" media="screen"/>
   <link rel="stylesheet" href="https://cdn.staticfile.org/select2/4.0.3/css/select2.min.css" type="text/css"/>
   <link rel="stylesheet" href="https://cdn.staticfile.org/select2-bootstrap-theme/0.1.0-beta.6/select2-bootstrap.min.css" type="text/css"/>
+  <script>
+Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22').install();
+  </script>
+  <script type="application/javascript" src="/index.js"></script>
   <style>
 .navbar {
   border-radius: 0px;
