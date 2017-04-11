@@ -30,7 +30,7 @@ func updateCommand() string {
 }
 
 func checkUpdate() error {
-	if pkgType == "homebrew-head" {
+	if pkgType == "homebrew-head" || pkgType == "aur-git" {
 		return nil
 	}
 	resp, err := grequests.Get(checkUpdateURL, &grequests.RequestOptions{
