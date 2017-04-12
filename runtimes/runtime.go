@@ -172,14 +172,16 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 			Name: "cloudcode",
 		}, nil
 	}
-	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
+	packageFilePath := filepath.Join(projectPath, "package.json")
+	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(packageFilePath) {
 		bar.Successed()
 		chrysanthemum.Printf("检测到 node.js 运行时\r\n")
 		return newNodeRuntime(projectPath)
 	}
-	if utils.IsFileExists(filepath.Join(projectPath, "package.json")) {
-		data, err := ioutil.ReadFile(filepath.Join(projectPath, "package.json"))
+	if utils.IsFileExists(packageFilePath) {
+		data, err := ioutil.ReadFile(packageFilePath)
 		if err == nil {
+			data = utils.StripUTF8BOM(data)
 			var result struct {
 				Scripts struct {
 					Start string `json:"start"`
@@ -270,6 +272,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 	args := []string{"server.js"}
 	pkgFile := filepath.Join(projectPath, "package.json")
 	if content, err := ioutil.ReadFile(pkgFile); err == nil {
+		content = utils.StripUTF8BOM(content)
 		pkg := new(struct {
 			Scripts struct {
 				Start string `json:"start"`
