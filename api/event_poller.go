@@ -2,7 +2,6 @@ package api
 
 import (
 	"github.com/aisk/chrysanthemum"
-	"io"
 	"strings"
 	"time"
 )
@@ -18,7 +17,7 @@ type deployEvent struct {
 }
 
 // PollEvents will poll the server's event logs and print the result to the given io.Writer
-func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
+func PollEvents(appID string, tok string) (bool, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return false, err
@@ -65,7 +64,7 @@ func PollEvents(appID string, tok string, writer io.Writer) (bool, error) {
 				}
 			}
 
-			spinner = chrysanthemum.New(e.Content).Start()
+			spinner = chrysanthemum.New("[REMOTE] " + e.Content).Start()
 			from = e.Time
 			ok = strings.ToLower(e.Level) != "error"
 		}

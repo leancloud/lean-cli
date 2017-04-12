@@ -1,11 +1,8 @@
 package commands
 
 import (
-	"os"
-
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
-	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 )
@@ -25,6 +22,16 @@ func publishAction(c *cli.Context) error {
 	}
 
 	spinner := chrysanthemum.New("获取应用信息").Start()
+	region, err := api.GetAppRegion(appID)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
+	appInfo, err := api.GetAppInfo(appID)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		spinner.Failed()
@@ -41,10 +48,10 @@ func publishAction(c *cli.Context) error {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
 	}
 
-	chrysanthemum.Printf("准备部署至目标分组：%s\r\n", color.RedString(groupName))
+	chrysanthemum.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 
 	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag)
-	ok, err := api.PollEvents(appID, tok, os.Stdout)
+	ok, err := api.PollEvents(appID, tok)
 	if err != nil {
 		return err
 	}

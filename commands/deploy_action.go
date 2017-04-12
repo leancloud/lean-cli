@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 	"strings"
 	"time"
@@ -107,7 +106,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
+	ok, err := api.PollEvents(opts.appID, eventTok)
 	if err != nil {
 		return err
 	}
@@ -122,7 +121,7 @@ func deployFromGit(revision string, opts *deployOptions) error {
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(opts.appID, eventTok, os.Stdout)
+	ok, err := api.PollEvents(opts.appID, eventTok)
 	if err != nil {
 		return err
 	}
@@ -152,6 +151,16 @@ func deployAction(c *cli.Context) error {
 	}
 
 	spinner := chrysanthemum.New("获取应用信息").Start()
+	region, err := api.GetAppRegion(appID)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
+	appInfo, err := api.GetAppInfo(appID)
+	if err != nil {
+		spinner.Failed()
+		return newCliError(err)
+	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		spinner.Failed()
@@ -161,10 +170,10 @@ func deployAction(c *cli.Context) error {
 
 	prod := 0
 	if engineInfo.Mode == "prod" {
-		chrysanthemum.Printf("准备部署应用到分组 %s 预备环境\r\n", groupName)
+		chrysanthemum.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 预备环境\r\n", appInfo.AppName, appID, region, groupName)
 	} else if engineInfo.Mode == "free" {
 		prod = 1
-		chrysanthemum.Printf("准备部署应用到分组 %s 生产环境\r\n", groupName)
+		chrysanthemum.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 	} else {
 		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
 	}
