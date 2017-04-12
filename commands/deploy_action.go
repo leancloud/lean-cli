@@ -86,7 +86,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		}
 		spinner := chrysanthemum.New("等待文件同步").Start()
 		// wait for qiniu file sync.
-		time.Sleep(2 * time.Second)
+		time.Sleep(1 * time.Second)
 		spinner.Successed()
 	}
 
