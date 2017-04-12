@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/aisk/chrysanthemum"
 )
@@ -60,7 +61,12 @@ func GetCurrentAppID(projectPath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(content), nil
+	appID := strings.TrimSpace(string(content))
+	if appID == "" {
+		msg := "Invalid group, please check the `.leancloud/current_app_id`'s content."
+		return "", errors.New(msg)
+	}
+	return appID, nil
 }
 
 // GetCurrentGroup returns the content of ${projectPath}/.leancloud/current_group if it exists,
@@ -73,7 +79,12 @@ func GetCurrentGroup(projectPath string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return string(content), nil
+	groupName := strings.TrimSpace(string(content))
+	if groupName == "" {
+		msg := "Invalid group, please check the `.leancloud/current_group`'s content."
+		return "", errors.New(msg)
+	}
+	return groupName, nil
 }
 
 func getLegencyAppID(projectPath string) (string, error) {

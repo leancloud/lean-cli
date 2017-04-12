@@ -111,7 +111,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
 			return nil, NewErrorFromResponse(resp)
 		}
-		return nil, fmt.Errorf("HTTP Error: %d", resp.StatusCode)
+		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
 	}
 
 	if err = client.CookieJar.Save(); err != nil {
