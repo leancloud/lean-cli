@@ -1,4 +1,4 @@
-var appId, appKey, masterKey, leanenginePort;
+var appId, appKey, masterKey, hookKey, leanenginePort, sendHookKey ;
 var hooksInfo = {};
 var functionsInfo = [];
 var warnings = [];
@@ -14,6 +14,8 @@ $(document).ready(function (){
     appId = data.appId;
     appKey = data.appKey;
     masterKey = data.masterKey;
+    hookKey = data.hookKey;
+    sendHookKey = data.sendHookKey;
     leanenginePort = data.leanenginePort;
     AV._initialize(appId, appKey, masterKey);
     AV._useMasterKey = true;
@@ -79,7 +81,8 @@ $(document).ready(function (){
       headers    : {
         "X-AVOSCloud-Application-Id": appId,
         "X-AVOSCloud-Application-Key": appKey,
-        "X-AVOSCloud-Session-Token": user ? user._sessionToken : undefined
+        "X-AVOSCloud-Session-Token": user ? user._sessionToken : undefined,
+        "X-LC-Hook-Key": sendHookKey ? hookKey : undefined
       },
       data       : JSON.stringify(data),
       dataType   : 'json',
@@ -122,7 +125,8 @@ $(document).ready(function (){
       if(paramsStr != null && paramsStr.trim() != ''){
         data = JSON.parse(parseJSON(paramsStr));
       }
-      if (_.contains([
+
+      if (!sendHookKey && _.contains([ // Node SDK < 2.0
         '_messageReceived', '_receiversOffline', '_messageSent', '_conversationStart', '_conversationStarted',
         '_conversationAdd', '_conversationRemove', '_conversationUpdate'
       ], $('#functions').val())) {
@@ -186,14 +190,16 @@ $(document).ready(function (){
 
           var hookInfo = _.findWhere(hooksInfo[$('#classes').val()], {action: hookName});
 
-          var sign = hookInfo && hookInfo.sign;
+          if (!sendHookKey) { // Node SDK < 2.0
+            var sign = hookInfo && hookInfo.sign;
 
-          if (hookName.indexOf('before') === 0) {
-            data.object.__before = sign;
-          } else if (hookName.indexOf('after') === 0) {
-            data.object.__after = sign;
-          } else {
-            data.object.__sign = sign;
+            if (hookName.indexOf('before') === 0) {
+              data.object.__before = sign;
+            } else if (hookName.indexOf('after') === 0) {
+              data.object.__after = sign;
+            } else {
+              data.object.__sign = sign;
+            }
           }
 
           if (user) {
