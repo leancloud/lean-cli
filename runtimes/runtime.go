@@ -232,34 +232,56 @@ func lookupBin(fallbacks []string) (string, error) {
 }
 
 func newPythonRuntime(projectPath string) (*Runtime, error) {
-	execName := "python2.7"
 
-	content, err := ioutil.ReadFile(filepath.Join(projectPath, "runtime.txt"))
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".python-version"))
 	if err != nil {
 		if !os.IsNotExist(err) {
 			return nil, err
 		}
-		// the default content
-		content = []byte("python-2.7")
-	}
-	if strings.HasPrefix(string(content), "python-2.7") {
-		execName, err = lookupBin([]string{"python2.7", "python2", "python"})
+
+		execName := "python2.7"
+		content, err = ioutil.ReadFile(filepath.Join(projectPath, "runtime.txt"))
 		if err != nil {
-			return nil, err
+			if !os.IsNotExist(err) {
+				return nil, err
+			}
+			// the default content
+			content = []byte("python-2.7")
 		}
-	} else if strings.HasPrefix(string(content), "python-3.5") {
-		execName, err = lookupBin([]string{"python3.5", "python3", "python"})
-		if err != nil {
-			return nil, err
+		if strings.HasPrefix(string(content), "python-2.7") {
+			execName, err = lookupBin([]string{"python2.7", "python2", "python"})
+			if err != nil {
+				return nil, err
+			}
+		} else if strings.HasPrefix(string(content), "python-3.5") {
+			execName, err = lookupBin([]string{"python3.5", "python3", "python"})
+			if err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, errors.New("invalid python runtime.txt format, only `python-2.7` and `python-3.5` were allowed")
 		}
-	} else {
-		return nil, errors.New("invalid python runtime.txt format, only `python-2.7` and `python-3.5` were allowed")
+
+		return &Runtime{
+			ProjectPath: projectPath,
+			Name:        "python",
+			Exec:        execName,
+			Args:        []string{"wsgi.py"},
+			WatchFiles:  []string{"."},
+			Envs:        os.Environ(),
+			Errors:      make(chan error),
+		}, nil
 	}
+	pythonVersion := string(content)
+	if !(strings.HasPrefix(pythonVersion, "2.") || strings.HasPrefix(pythonVersion, "3.")) {
+		return nil, errors.New("错误的 pyenv 版本，目前云引擎只支持 CPython，请检查 .python-version 文件确认")
+	}
+	chrysanthemum.Println("检测到项目使用 pyenv，请确保当前环境 pyenv 已正确设置")
 
 	return &Runtime{
 		ProjectPath: projectPath,
 		Name:        "python",
-		Exec:        execName,
+		Exec:        "python",
 		Args:        []string{"wsgi.py"},
 		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
