@@ -29,6 +29,7 @@ type Server struct {
 	AppID       string
 	AppKey      string
 	MasterKey   string
+	HookKey     string
 	AppPort     string
 	ConsolePort string
 	Errors      chan error
@@ -77,10 +78,16 @@ func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
 	if err != nil {
 		panic(err)
 	}
+
+	optionsURL := fmt.Sprintf("http://localhost:%s/1.1/functions/_ops/metadatas", server.AppPort)
+	optionsResponse, err := grequests.Options(optionsURL, &grequests.RequestOptions{})
+
 	content, err := json.Marshal(map[string]interface{}{
 		"appId":          server.AppID,
 		"appKey":         server.AppKey,
 		"masterKey":      server.MasterKey,
+		"hookKey":        server.HookKey,
+		"sendHookKey":    strings.Contains(optionsResponse.Header.Get("Access-Control-Allow-Headers"), "X-LC-Hook-Key"),
 		"leanenginePort": port,
 		"warnings":       []string{},
 	})

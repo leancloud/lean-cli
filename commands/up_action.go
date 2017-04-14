@@ -115,6 +115,7 @@ https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 		AppID:       appInfo.AppID,
 		AppKey:      appInfo.AppKey,
 		MasterKey:   appInfo.MasterKey,
+		HookKey:     appInfo.HookKey,
 		AppPort:     port,
 		ConsolePort: consPort,
 		Errors:      make(chan error),
