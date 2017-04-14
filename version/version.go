@@ -1,4 +1,4 @@
 package version
 
 // Version is lean-cli's version.
-const Version = "0.7.3"
+const Version = "0.7.4"
