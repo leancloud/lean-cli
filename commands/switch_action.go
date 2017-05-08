@@ -57,11 +57,21 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 	// check if arg is an app id
 	for _, app := range currentApps {
 		if app.AppID == arg {
+			fmt.Printf("切换至应用：%s (%s)\r\n", app.AppName, region)
 			err = apps.LinkApp(".", app.AppID)
 			if err != nil {
 				return err
 			}
-			fmt.Printf("切换至应用：%s (%s)\r\n", app.AppName, region)
+			if groupName == "" {
+				groupList, err := api.GetGroups(app.AppID)
+				if err != nil {
+					return err
+				}
+				if len(groupList) != 1 {
+					return cli.NewExitError("此应用对应多个分组，请使用 --group 参数指定分组", 1)
+				}
+				groupName = groupList[0].GroupName
+			}
 			return apps.LinkGroup(".", groupName)
 		}
 	}
@@ -74,10 +84,21 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 		}
 	}
 	if len(matchedApps) == 1 {
-		fmt.Printf("切换至应用：%s (%s)\r\n", matchedApps[0].AppName, region)
+		matchedApp := matchedApps[0]
+		fmt.Printf("切换至应用：%s (%s)\r\n", matchedApp.AppName, region)
 		err = apps.LinkApp(".", matchedApps[0].AppID)
 		if err != nil {
 			return err
+		}
+		if groupName == "" {
+			groupList, err := api.GetGroups(matchedApp.AppID)
+			if err != nil {
+				return err
+			}
+			if len(groupList) != 1 {
+				return cli.NewExitError("此应用对应多个分组，请使用 --group 参数指定分组", 1)
+			}
+			groupName = groupList[0].GroupName
 		}
 		return apps.LinkGroup(".", groupName)
 	} else if len(matchedApps) > 1 {
@@ -118,12 +139,6 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	linq.From(appList).OrderBy(func(in interface{}) interface{} {
 		return in.(*api.GetAppListResult).AppName[0]
 	}).ToSlice(&sortedAppList)
-
-	// disable it because it's buggy
-	// sortedAppList, err = apps.MergeWithRecentApps(".", sortedAppList)
-	// if err != nil {
-	// 	return newCliError(err)
-	// }
 
 	currentAppID, err := apps.GetCurrentAppID(".")
 	if err != nil {
