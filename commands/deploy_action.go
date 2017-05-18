@@ -30,7 +30,10 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 		return nil, err
 	}
 
-	runtime.ArchiveUploadFiles(archiveFile, ignoreFilePath)
+	err = runtime.ArchiveUploadFiles(archiveFile, ignoreFilePath)
+	if err != nil {
+		return nil, err
+	}
 
 	file, err := api.UploadFile(appID, archiveFile)
 	if err != nil {
