@@ -43,6 +43,8 @@ func logsAction(c *cli.Context) error {
 		api.PrintLogs(getDefaultLogPrinter(isProd), info.AppID, info.MasterKey, follow, isProd, limit)
 	} else if strings.ToLower(format) == "json" {
 		api.PrintLogs(jsonLogPrinter, info.AppID, info.MasterKey, follow, isProd, limit)
+	} else {
+		return cli.NewExitError("错误的 format 参数，必须为 json / default 其中之一。", 1)
 	}
 
 	return nil
