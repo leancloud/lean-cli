@@ -39,16 +39,16 @@ func logsAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
+	var printer api.LogPrinter
 	if format == "default" {
-		if err := api.PrintLogs(getDefaultLogPrinter(isProd), info.AppID, info.MasterKey, follow, isProd, limit); err != nil {
-			return err
-		}
+		printer = getDefaultLogPrinter(isProd)
 	} else if strings.ToLower(format) == "json" {
-		if err := api.PrintLogs(jsonLogPrinter, info.AppID, info.MasterKey, follow, isProd, limit); err != nil {
-			return err
-		}
+		printer = jsonLogPrinter
 	} else {
 		return cli.NewExitError("错误的 format 参数，必须为 json / default 其中之一。", 1)
+	}
+	if err := api.PrintLogsByLimit(printer, info.AppID, info.MasterKey, follow, isProd, limit); err != nil {
+		return err
 	}
 
 	return nil
