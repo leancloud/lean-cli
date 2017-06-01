@@ -40,9 +40,13 @@ func logsAction(c *cli.Context) error {
 	}
 
 	if format == "default" {
-		api.PrintLogs(getDefaultLogPrinter(isProd), info.AppID, info.MasterKey, follow, isProd, limit)
+		if err := api.PrintLogs(getDefaultLogPrinter(isProd), info.AppID, info.MasterKey, follow, isProd, limit); err != nil {
+			return err
+		}
 	} else if strings.ToLower(format) == "json" {
-		api.PrintLogs(jsonLogPrinter, info.AppID, info.MasterKey, follow, isProd, limit)
+		if err := api.PrintLogs(jsonLogPrinter, info.AppID, info.MasterKey, follow, isProd, limit); err != nil {
+			return err
+		}
 	} else {
 		return cli.NewExitError("错误的 format 参数，必须为 json / default 其中之一。", 1)
 	}
@@ -51,6 +55,8 @@ func logsAction(c *cli.Context) error {
 }
 
 func getDefaultLogPrinter(isProd bool) api.LogPrinter {
+	// 根据文档描述，有些类型的日志中的 production 字段，不论生产环境还是预备环境都会为 1，因此不能以此字段
+	// 为依据来决定展示样式。
 	return func(log *api.Log) error {
 		t, err := time.Parse(time.RFC3339, log.Time)
 		if err != nil {
