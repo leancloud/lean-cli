@@ -51,6 +51,8 @@ func PrintLogs(printer LogPrinter, appID string, masterKey string, follow bool, 
 		url = fmt.Sprintf("https://api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
 	case regions.US:
 		url = fmt.Sprintf("https://us-api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
+	case regions.TAB:
+		url = fmt.Sprintf("https://e1-api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
 	}
 
 	retryCount := 0
@@ -69,7 +71,7 @@ func PrintLogs(printer LogPrinter, appID string, masterKey string, follow bool, 
 			if retryCount > 3 {
 				return err
 			}
-			time.Sleep(5 * time.Second)
+			time.Sleep(1100 * time.Millisecond)
 			continue
 		}
 
@@ -92,7 +94,7 @@ func PrintLogs(printer LogPrinter, appID string, masterKey string, follow bool, 
 			break
 		}
 
-		// limit is not necessary in second fetch
+		// limit is not necessary in second round of fetch
 		delete(params, "limit")
 
 		if len(logs) > 0 {
@@ -100,7 +102,6 @@ func PrintLogs(printer LogPrinter, appID string, masterKey string, follow bool, 
 		}
 
 		time.Sleep(5 * time.Second)
-
 	}
 
 	return nil
