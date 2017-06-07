@@ -185,6 +185,14 @@ func Run(args []string) {
 					Value: 30,
 				},
 				cli.StringFlag{
+					Name:  "from",
+					Usage: "日志开始时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+				},
+				cli.StringFlag{
+					Name:  "to",
+					Usage: "日志结束时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+				},
+				cli.StringFlag{
 					Name:  "format",
 					Usage: "日志展示格式",
 					Value: "default",
@@ -265,12 +273,12 @@ func Run(args []string) {
 			ArgsUsage: "<kwywords>",
 			Action: func(c *cli.Context) error {
 				if c.NArg() == 0 {
-					cli.ShowCommandHelp(c, "search")
+					if err := cli.ShowCommandHelp(c, "search"); err != nil {
+						return err
+					}
 				}
 				keyword := strings.Join(c.Args(), " ")
-				browser.OpenURL("https://leancloud.cn/search.html?q=" + url.QueryEscape(keyword))
-
-				return nil
+				return browser.OpenURL("https://leancloud.cn/search.html?q=" + url.QueryEscape(keyword))
 			},
 		},
 		{
@@ -283,9 +291,7 @@ func Run(args []string) {
 				if args.Present() {
 					return cli.ShowCommandHelp(c, args.First())
 				}
-
-				cli.ShowAppHelp(c)
-				return nil
+				return cli.ShowAppHelp(c)
 			},
 		},
 	}
