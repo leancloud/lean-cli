@@ -14,7 +14,3 @@ func FormatServerErrorResult(body string) string {
 	json.Unmarshal([]byte(body), &result)
 	return result.Error
 }
-
-func FetchAppDetail() {
-
-}

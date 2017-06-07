@@ -10,6 +10,10 @@ import (
 	"github.com/levigross/grequests"
 )
 
+const (
+	serverTimeLayout = "2006-01-02T15:04:05.999999999Z"
+)
+
 // Log is EngineLogs's type structure
 type Log struct {
 	InstanceName string `json:"instanceName"`
@@ -23,13 +27,17 @@ type Log struct {
 	Instance     string `json:"instance"`
 }
 
-// LogPrinter is print func interface to PrintLogs
-type LogPrinter func(*Log) error
+// LogReceiver is print func interface to PrintLogs
+type LogReceiver func(*Log) error
 
-// PrintLogsByLimit will poll the leanengine's log and print it to the giver io.Writer
-func PrintLogsByLimit(printer LogPrinter, appID string, masterKey string, follow bool, isProd bool, limit int) error {
+// ReceiveLogsByLimit will poll the leanengine's log and print it to the giver io.Writer
+func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isProd bool, limit int, follow bool) error {
 	params := map[string]string{
-		"limit": strconv.Itoa(limit),
+		"limit":      strconv.Itoa(limit),
+		"production": "0",
+	}
+	if isProd {
+		params["production"] = "1"
 	}
 
 	for {
@@ -63,27 +71,66 @@ func PrintLogsByLimit(printer LogPrinter, appID string, masterKey string, follow
 	return nil
 }
 
+// ReceiveLogsByRange will poll the leanengine's log and print it to the giver io.Writer
+func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, from *time.Time, to *time.Time) error {
+	params := map[string]string{
+		"since":      from.Format(serverTimeLayout),
+		"production": "0",
+	}
+	if isProd {
+		params["production"] = "1"
+	}
+
+	for {
+		logs, err := FetchLogs(appID, masterKey, params, isProd)
+		if err != nil {
+			return err
+		}
+		for i := len(logs); i > 0; i-- {
+			log := logs[i-1]
+
+			logTime, err := time.Parse(serverTimeLayout, log.Time)
+			if err != nil {
+				return err
+			}
+			if to != nil && logTime.After(*to) {
+				// reached the end
+				return nil
+			}
+
+			err = printer(&log)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %s\r\n", err, log)
+			}
+		}
+
+		if len(logs) == 0 {
+			// no more logs
+			return nil
+		}
+
+		if len(logs) > 0 {
+			params["since"] = logs[0].Time
+		}
+	}
+
+	return nil
+}
+
 func FetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return nil, err
 	}
 
-	var prod int
-	if isProd {
-		prod = 1
-	} else {
-		prod = 0
-	}
-
 	var url string
 	switch region {
 	case regions.CN:
-		url = fmt.Sprintf("https://api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
+		url = "https://api.leancloud.cn/1.1/tables/EngineLogs"
 	case regions.US:
-		url = fmt.Sprintf("https://us-api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
+		url = "https://us-api.leancloud.cn/1.1/tables/EngineLogs"
 	case regions.TAB:
-		url = fmt.Sprintf("https://e1-api.leancloud.cn/1.1/tables/EngineLogs?production=%d", prod)
+		url = "https://e1-api.leancloud.cn/1.1/tables/EngineLogs"
 	}
 
 	options := &grequests.RequestOptions{
