@@ -2,7 +2,7 @@ Package: lean-cli
 Section: devel
 Version: 0.7.5
 Priority: optional
-Architecture: i386
+Architecture: amd64
 Maintainer: asaka <lan@leancloud.rocks>
 Homepage: https://leancloud.cn
 Description: LeanCloud Command Line Tool
