@@ -127,7 +127,7 @@ $(document).ready(function() {
         }).bind(this)).done((function(result) {
           this.result = result;
         }).bind(this)).fail((function(err) {
-          this.result = err.message;
+          this.result = err.responseText || err.message;
         }).bind(this));
       },
     },
