@@ -22,99 +22,109 @@ Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22')
   border-radius: 0px;
 }
   </style>
+  <script type="text/x-template" id="select2-template">
+    <select>
+      <slot></slot>
+    </select>
+  </script>
+
 </head>
 <body>
-<nav class="navbar navbar-default">
+<div id="application">
+  <nav class="navbar navbar-default">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand" href="/">
+          Cloud Code Debug Console
+        </a>
+      </div>
+    </div>
+  </nav>
+  
   <div class="container">
-    <div class="navbar-header">
-      <a class="navbar-brand" href="/">
-        Cloud Code Debug Console
-      </a>
-    </div>
-  </div>
-</nav>
-
-<div class="container">
-  <div class="row" id="warnings" v-if="warnings">
-    <div class="col-md-12">
-      <div class="alert alert-danger" v-for="warning in warnings">
-        {{ warning }}
+    <div class="row" id="warnings" v-if="warnings">
+      <div class="col-md-12">
+        <div class="alert alert-danger" v-for="warning in warnings">
+          {{ warning }}
+        </div>
       </div>
     </div>
-  </div>
-
-  <div class="row">
-    <div class="col-md-6">
-      <h4>测试 AV.Cloud.define 的函数</h4>
-      <div class="form-group">
-        <label>选择函数</label>
-        <select id="functions" class="form-control"></select>
+  
+    <div class="row">
+      <div class="col-md-6" id="cloudFunction">
+        <h4>测试 AV.Cloud.define 的函数</h4>
+        <div class="form-group">
+          <label>选择函数</label>
+          <select2 :options="cloudFunctions" v-model="selectedFunction" class="form-control">
+          </select2>
+        </div>
+        <div class="form-group">
+          <label>登录用户的 Object Id（模拟登录用户，可为空）</label>
+          <input v-model="cloudFunctionUserId" class="form-control"></input>
+        </div>
+        <div class="form-group">
+          <label>传入 JSON 格式参数（可为空）</label>
+          <span>
+            &raquo; <input type="checkbox" v-model="isCall">
+            <label for="isCall">作为 AVObject 传输（call）</label>
+          </span>
+          <textarea v-model="cloudFunctionParams" rows="10" cols="80" class="form-control"></textarea>
+        </div>
+        <button type="button" v-on:click="executeCloudFunction()" class="btn btn-default">执行</button>
+  
       </div>
-      <div class="form-group">
-        <label>登录用户的 Object Id（模拟登录用户，可为空）</label>
-        <input id="userId1" name="userId1" class="form-control"></input>
-      </div>
-      <div class="form-group">
-        <label>传入 JSON 格式参数（可为空）</label>
-        <span>
-          &raquo; <input type="checkbox" id="isCall">
-          <label for="isCall">作为 AVObject 传输（call）</label>
-        </span>
-        <textarea id='params' rows="10" cols="80" class="form-control"></textarea>
-      </div>
-      <button type="button" id="callFuncs" class="btn btn-default">执行</button>
-    </div>
-
-    <div class="col-md-6">
-      <h4>测试 Class Hooks（beforeSave, afterSave 等）</h4>
-      <div class="form-group">
-        <label>选择 Class</label>
-        <select id="classes" class="form-control"></select>
-      </div>
-      <div class="form-group">
-        <label>选择函数</label>
-        <select id="hooks" class="form-control"></select>
-      </div>
-      <div class="form-group">
-        <label>登录用户的 Object Id（模拟登录用户，可为空）</label>
-        <input id="userId2" name="userId2" class="form-control"></input>
-      </div>
-      <div class="form-group">
-        <label>填写已经存在对象的 objectId</label>
-        <input type="text" id="objectId" class="form-control"></input>
-      </div>
-      <div class="form-group" id="divUpdatedKeys">
-        <label>修改过的字段（逗号隔开）</label>
-        <input type="text" id="updatedKeys" class="form-control"></input>
-      </div>
-      <div class="form-group">
-        <label>或者传入 JSON 格式的对象</label>
-        <textarea rows="10" id="object" class="form-control"></textarea>
-      </div>
-      <button type="button" id="callHooks" class="btn btn-default">执行</button>
-    </div>
-  </div>
-</div>
-
-<div class="container">
-  <hr/>
-  <div class="row">
-    <div class="col-md-12">
-      <div class='alert alert-info'>
-        <h4>结果</h4>
-        <pre id='result'></pre>
+  
+      <div class="col-md-6">
+        <h4>测试 Class Hooks（beforeSave, afterSave 等）</h4>
+        <div class="form-group">
+          <label>选择 Class</label>
+          <select id="classes" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label>选择函数</label>
+          <select id="hooks" class="form-control"></select>
+        </div>
+        <div class="form-group">
+          <label>登录用户的 Object Id（模拟登录用户，可为空）</label>
+          <input id="userId2" name="userId2" class="form-control"></input>
+        </div>
+        <div class="form-group">
+          <label>填写已经存在对象的 objectId</label>
+          <input type="text" id="objectId" class="form-control"></input>
+        </div>
+        <div class="form-group" id="divUpdatedKeys">
+          <label>修改过的字段（逗号隔开）</label>
+          <input type="text" id="updatedKeys" class="form-control"></input>
+        </div>
+        <div class="form-group">
+          <label>或者传入 JSON 格式的对象</label>
+          <textarea rows="10" id="object" class="form-control"></textarea>
+        </div>
+        <button type="button" id="callHooks" class="btn btn-default">执行</button>
       </div>
     </div>
   </div>
-</div>
-
-<div class="container">
-  <hr/>
-  <footer class="footer">
-  <div class="row text-center">
-    <p>&copy; <a href="https://leancloud.cn">LeanCloud</a>, All Rights Reserved.</p>
+  
+  <div class="container">
+    <hr/>
+    <div class="row">
+      <div class="col-md-12">
+        <div class='alert alert-info'>
+          <h4>结果</h4>
+          <pre>{{ result }}</pre>
+        </div>
+      </div>
+    </div>
   </div>
-  </footer>
+  
+  <div class="container">
+    <hr/>
+    <footer class="footer">
+    <div class="row text-center">
+      <p>&copy; <a href="https://leancloud.cn">LeanCloud</a>, All Rights Reserved.</p>
+    </div>
+    </footer>
+  </div>
 </div>
 </body>
 </html>
