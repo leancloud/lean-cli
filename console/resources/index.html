@@ -7,13 +7,13 @@
   <title>LeanCloud Cloud Code Debug Tool</title>
   <script type="application/javascript" src="https://cdn.staticfile.org/jquery/2.0.3/jquery.min.js"></script>
   <script type="application/javascript" src="https://cdn1.lncld.net/static/js/av-core-mini-0.5.4.js"></script>
-  <script type="application/javascript" src="https://cdn.staticfile.org/vue/2.2.5/vue.min.js"></script>
+  <script type="application/javascript" src="https://cdn.staticfile.org/vue/2.2.5/vue.js"></script>
   <script type="application/javascript" src="https://cdn.staticfile.org/select2/4.0.3/js/select2.min.js"></script>
-  <script src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
+  <script type="application/javascript" src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.1/css/bootstrap.min.css" type="text/css" media="screen"/>
   <link rel="stylesheet" href="https://cdn.staticfile.org/select2/4.0.3/css/select2.min.css" type="text/css"/>
   <link rel="stylesheet" href="https://cdn.staticfile.org/select2-bootstrap-theme/0.1.0-beta.6/select2-bootstrap.min.css" type="text/css"/>
-  <script>
+  <script type="application/javascript">
 Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22').install();
   </script>
   <script type="application/javascript" src="/index.js"></script>
@@ -42,7 +42,7 @@ Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22')
   </nav>
   
   <div class="container">
-    <div class="row" id="warnings" v-if="warnings">
+    <div class="row" v-if="warnings">
       <div class="col-md-12">
         <div class="alert alert-danger" v-for="warning in warnings">
           {{ warning }}
@@ -51,7 +51,7 @@ Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22')
     </div>
   
     <div class="row">
-      <div class="col-md-6" id="cloudFunction">
+      <div class="col-md-6">
         <h4>测试 AV.Cloud.define 的函数</h4>
         <div class="form-group">
           <label>选择函数</label>
@@ -78,29 +78,30 @@ Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22')
         <h4>测试 Class Hooks（beforeSave, afterSave 等）</h4>
         <div class="form-group">
           <label>选择 Class</label>
-          <select id="classes" class="form-control"></select>
+          <select2 :options="hookClasses" v-model="selectedClass" v-on:change="refreshHookFunctions()"  class="form-control">
+          </select2>
         </div>
         <div class="form-group">
           <label>选择函数</label>
-          <select id="hooks" class="form-control"></select>
+          <select2 :options="hookFunctions" v-model="selectedHook" class="form-control"></select>
         </div>
         <div class="form-group">
           <label>登录用户的 Object Id（模拟登录用户，可为空）</label>
-          <input id="userId2" name="userId2" class="form-control"></input>
+          <input id="userId2" name="userId2" class="form-control" />
         </div>
         <div class="form-group">
           <label>填写已经存在对象的 objectId</label>
-          <input type="text" id="objectId" class="form-control"></input>
+          <input type="text" id="objectId" class="form-control" />
         </div>
         <div class="form-group" id="divUpdatedKeys">
           <label>修改过的字段（逗号隔开）</label>
-          <input type="text" id="updatedKeys" class="form-control"></input>
+          <input type="text" id="updatedKeys" class="form-control" />
         </div>
         <div class="form-group">
           <label>或者传入 JSON 格式的对象</label>
           <textarea rows="10" id="object" class="form-control"></textarea>
         </div>
-        <button type="button" id="callHooks" class="btn btn-default">执行</button>
+        <button type="button" v-on:click="executeCloudHook()" class="btn btn-default">执行</button>
       </div>
     </div>
   </div>
