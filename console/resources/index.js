@@ -1,3 +1,5 @@
+/* globals window, AV, $, Vue */
+
 var _ = AV._;
 
 // init select2
@@ -16,7 +18,8 @@ Vue.component('select2', {
       .trigger('change')
       // emit event on change.
       .on('change', function () {
-        vm.$emit('input', this.value)
+        vm.$emit('change');
+        vm.$emit('input', this.value);
       });
   },
   watch: {
@@ -26,7 +29,7 @@ Vue.component('select2', {
     },
     options: function (options) {
       // update options
-      $(this.$el).select2({ data: options })
+      $(this.$el).select2({ data: options });
     }
   },
   destroyed: function () {
@@ -49,6 +52,28 @@ function getCloudFunction() {
       cloudFunction.text = cloudFunction.name;
     });
     return cloudFunctions;
+  });
+}
+
+function getHookFunctions(className) {
+  return $.get("/__engine/1/classes/" + className + "/actions").then(function(hookFunctions) {
+    _.each(hookFunctions, function(hookFunction, idx) {
+      hookFunction.id = idx;
+      hookFunction.text = hookFunction.action;
+    });
+    return hookFunctions;
+  });
+}
+
+function getHookClasses() {
+  return $.get("/__engine/1/classes").then(function(hookClasses) {
+    return _.map(hookClasses, function(hookClass, idx) {
+      return {
+        id: idx,
+        name: hookClass,
+        text: hookClass,
+      };
+    });
   });
 }
 
@@ -100,19 +125,29 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
   });
 }
 
-$(document).ready(function() {
-  'use strict';
+function callCloudHook(appInfo, className, hookName) {
+  var url = 'http://' + window.location.hostname + ':' + appInfo.leanenginePort + "/1.1/functions/" + className;
+}
 
+$(document).ready(function() {
   new Vue({
     el: "#application",
     data: {
       warnings: [],
-      selectedFunction: 0,
+      result: '',
+
+      // cloud function related:
       cloudFunctions: [],
+      selectedFunction: 0,
       cloudFunctionUserId: null,
       isCall: false,
       cloudFunctionParams: null,
-      result: '',
+
+      // cloud hook related:
+      hookClasses: [],
+      hookFunctions: [],
+      selectedClass: 0,
+      selectedHook: 0,
     },
     methods: {
       executeCloudFunction: function() {
@@ -123,19 +158,38 @@ $(document).ready(function() {
             cloudFunction,
             this.cloudFunctionParams,
             user,
-            this.isCall)
+            this.isCall);
         }).bind(this)).done((function(result) {
           this.result = result;
         }).bind(this)).fail((function(err) {
           this.result = err.responseText || err.message;
         }).bind(this));
       },
+      refreshHookFunctions: function() {
+        var className = this.hookClasses[this.selectedClass].name;
+        getHookFunctions(className).then((function(hookFunctions) {
+          this.hookFunctions = hookFunctions;
+          this.selectedHook = 0;
+        }).bind(this));
+      },
+      executeCloudHook: function() {
+        var className = this.hookClasses[this.selectedClass].name;
+        var hookName = this.hookFunctions[this.selectedHook];
+        callCloudHook(this.appInfo, className, hookName);
+      },
     },
     mounted: function() {
-      $.when(getAppInfo(), getCloudFunction()).then((function(appInfo, cloudFunctions) {
+      $.when(getAppInfo(), getCloudFunction(), getHookClasses()).then((function(appInfo, cloudFunctions, hookClasses) {
         this.warnings = appInfo.warnings;
         this.appInfo = appInfo;
         this.cloudFunctions = cloudFunctions;
+        this.hookClasses = hookClasses;
+
+        var className = this.hookClasses[this.selectedClass].name;
+        return getHookFunctions(className);
+      }).bind(this)).then((function(hookFunctions) {
+        this.hookFunctions = hookFunctions;
+        this.selectedHook = 0;
       }).bind(this));
     },
   });
