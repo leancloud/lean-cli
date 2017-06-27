@@ -125,8 +125,39 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
   });
 }
 
-function callCloudHook(appInfo, className, hookName) {
-  var url = 'http://' + window.location.hostname + ':' + appInfo.leanenginePort + "/1.1/functions/" + className;
+function getHookObjectById(className, objId) {
+  return new AV.Query(className).get(objId);
+}
+
+function getHookObjectByContent(content) {
+  var dtd = $.Deferred();
+  try {
+    dtd.resolve(JSON.parse(content));
+  } catch (err) {
+    dtd.reject(err);
+  }
+  return dtd;
+}
+
+function callCloudHook(appInfo, hookInfo, obj) {
+  var url = 'http://' + window.location.hostname + ':' + appInfo.leanenginePort + "/1.1/functions/" + hookInfo.className + "/" + hookInfo.action;
+  var data = {
+    object: obj,
+  };
+
+  return $.ajax({
+    type: "POST",
+    url: url,
+    headers: {
+      "X-AVOSCloud-Application-Id": appInfo.appId,
+      "X-AVOSCloud-Application-Key": appInfo.appKey,
+      // "X-AVOSCloud-Session-Token": user ? user._sessionToken : undefined,
+      // "X-LC-Hook-Key": sendHookKey ? hookKey : undefined
+    },
+    data: JSON.stringify(data),
+    dataType: 'json',
+    contentType: 'application/json',
+  });
 }
 
 $(document).ready(function() {
@@ -146,6 +177,8 @@ $(document).ready(function() {
       // cloud hook related:
       hookClasses: [],
       hookFunctions: [],
+      hookObjectId: null,
+      hookObjectContent: null,
       selectedClass: 0,
       selectedHook: 0,
     },
@@ -173,9 +206,22 @@ $(document).ready(function() {
         }).bind(this));
       },
       executeCloudHook: function() {
-        var className = this.hookClasses[this.selectedClass].name;
-        var hookName = this.hookFunctions[this.selectedHook];
-        callCloudHook(this.appInfo, className, hookName);
+        var hookInfo = this.hookFunctions[this.selectedHook];
+        var getObject;
+        if (this.hookObjectId !== null && this.hookObjectId.trim() !== "") {
+          getObject = (function() { return getHookObjectById(hookInfo.className, this.hookObjectId.trim()); }).bind(this);
+        } else if (this.hookObjectContent !== null && this.hookObjectContent.trim() !== "") {
+          getObject = (function() { return getHookObjectByContent(this.hookObjectContent); }).bind(this);
+        } else {
+          getObject = function() { return $.Deferred().resolve({}); };
+        }
+        getObject().then((function(obj) {
+          return callCloudHook(this.appInfo, hookInfo, obj);
+        }).bind(this)).done((function(result) {
+          this.result = result;
+        }).bind(this)).fail((function(err) {
+          this.result = err.responseText || err.message;
+        }).bind(this));
       },
     },
     mounted: function() {
