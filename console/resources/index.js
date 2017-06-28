@@ -37,6 +37,13 @@ Vue.component('select2', {
   }
 });
 
+function isRtmFunction(funcName) {
+  return _.contains([
+    '_messageReceived', '_receiversOffline', '_messageSent', '_conversationStart', '_conversationStarted',
+    '_conversationAdd', '_conversationRemove', '_conversationUpdate'
+  ], funcName);
+}
+
 function getAppInfo() {
   return $.getJSON("/__engine/1/appInfo").then(function(info) {
     AV._initialize(info.appId, info.appKey, info.masterKey);
@@ -78,21 +85,10 @@ function getHookClasses() {
 }
 
 function getUser(uid) {
-  var dtd = $.Deferred();
-  if (!uid) {
-    dtd.resolve(null);
-    return dtd;
+  if (!uid || uid.trim() === '') {
+    return AV.Promise.as(null);
   }
-  var user = AV.Object.createWithoutData("_User", uid);
-  user.fetch({
-    success: function(user) {
-      dtd.resolve(user);
-    },
-    error: function(user, err) {
-      dtd.reject(err);
-    }
-  });
-  return dtd;
+  return new AV.Query(AV.User).get(uid);
 }
 
 function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
@@ -106,9 +102,14 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
       return dtd;
     }
   }
+
   var apiEndpoint = isCall ? '/1.1/call/' : '/1.1/functions/';
   var url = "http://" + window.location.hostname + ":" + appInfo.leanenginePort + apiEndpoint + cloudFunction.name;
   data = data || {};
+
+  if (!appInfo.sendHookKey && isRtmFunction(cloudFunction.name)) {
+    data.__sign = cloudFunction.sign;
+  }
 
   return $.ajax({
     type: "POST",
@@ -117,7 +118,7 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
       "X-AVOSCloud-Application-Id": appInfo.appId,
       "X-AVOSCloud-Application-Key": appInfo.appKey,
       "X-AVOSCloud-Session-Token": user ? user._sessionToken : undefined,
-      // "X-LC-Hook-Key": sendHookKey ? hookKey : undefined
+      "X-LC-Hook-Key": appInfo.sendHookKey ? appInfo.hookKey : undefined
     },
     data: JSON.stringify(data),
     dataType: 'json',
@@ -130,20 +131,30 @@ function getHookObjectById(className, objId) {
 }
 
 function getHookObjectByContent(content) {
-  var dtd = $.Deferred();
-  try {
-    dtd.resolve(JSON.parse(content));
-  } catch (err) {
-    dtd.reject(err);
-  }
-  return dtd;
+  return new AV.Promise(function(resolve, reject) {
+    try {
+      resolve(JSON.parse(content));
+    } catch (err) {
+      reject(err);
+    }
+  });
 }
 
-function callCloudHook(appInfo, hookInfo, obj) {
+function callCloudHook(appInfo, hookInfo, obj, user) {
   var url = 'http://' + window.location.hostname + ':' + appInfo.leanenginePort + "/1.1/functions/" + hookInfo.className + "/" + hookInfo.action;
   var data = {
     object: obj,
   };
+
+  if (!appInfo.sendHookKey) {
+    if (hookInfo.action.match(/^before/)) {
+      data.__before = hookInfo.sign;
+    } else if (hookInfo.action.match(/^after/)) {
+      data.__after = hookInfo.sign;
+    } else {
+      data.__sign = hookInfo.sign;
+    }
+  }
 
   return $.ajax({
     type: "POST",
@@ -151,8 +162,8 @@ function callCloudHook(appInfo, hookInfo, obj) {
     headers: {
       "X-AVOSCloud-Application-Id": appInfo.appId,
       "X-AVOSCloud-Application-Key": appInfo.appKey,
-      // "X-AVOSCloud-Session-Token": user ? user._sessionToken : undefined,
-      // "X-LC-Hook-Key": sendHookKey ? hookKey : undefined
+      "X-AVOSCloud-Session-Token": user ? user._sessionToken : undefined,
+      "X-LC-Hook-Key": appInfo.sendHookKey ? appInfo.hookKey : undefined
     },
     data: JSON.stringify(data),
     dataType: 'json',
@@ -164,6 +175,7 @@ $(document).ready(function() {
   new Vue({
     el: "#application",
     data: {
+      appInfo: {},
       warnings: [],
       result: '',
 
@@ -179,6 +191,8 @@ $(document).ready(function() {
       hookFunctions: [],
       hookObjectId: null,
       hookObjectContent: null,
+      hookUserId: null,
+      updatedKeys: '',
       selectedClass: 0,
       selectedHook: 0,
     },
@@ -213,10 +227,25 @@ $(document).ready(function() {
         } else if (this.hookObjectContent !== null && this.hookObjectContent.trim() !== "") {
           getObject = (function() { return getHookObjectByContent(this.hookObjectContent); }).bind(this);
         } else {
-          getObject = function() { return $.Deferred().resolve({}); };
+          getObject = function() { return AV.Promise.as({}); };
         }
-        getObject().then((function(obj) {
-          return callCloudHook(this.appInfo, hookInfo, obj);
+        AV.Promise.all([getObject(), getUser(this.hookUserId)]).then((function(results) {
+          var obj = results[0];
+          var user = results[1];
+          if (hookInfo.action.match(/^(before|after)Update$/)) {
+            if (this.updatedKeys) {
+              var keys = this.updatedKeys.split(/,\s*/);
+              keys = _.map(keys, function(key) {
+                return key.trim();
+              });
+              keys = _.filter(keys, function(key){
+                return key !== '';
+              });
+              keys = _.uniq(keys);
+              obj._updatedKeys = keys;
+            }
+          }
+          return callCloudHook(this.appInfo, hookInfo, obj, user);
         }).bind(this)).done((function(result) {
           this.result = result;
         }).bind(this)).fail((function(err) {
