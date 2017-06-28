@@ -7,7 +7,7 @@
   <title>LeanCloud Cloud Code Debug Tool</title>
   <script type="application/javascript" src="https://cdn.staticfile.org/jquery/2.0.3/jquery.min.js"></script>
   <script type="application/javascript" src="https://cdn1.lncld.net/static/js/av-core-mini-0.5.4.js"></script>
-  <script type="application/javascript" src="https://cdn.staticfile.org/vue/2.2.5/vue.js"></script>
+  <script type="application/javascript" src="https://cdn.staticfile.org/vue/2.2.5/vue.min.js"></script>
   <script type="application/javascript" src="https://cdn.staticfile.org/select2/4.0.3/js/select2.min.js"></script>
   <script type="application/javascript" src="https://cdn.ravenjs.com/3.8.1/raven.min.js"></script>
   <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/3.3.1/css/bootstrap.min.css" type="text/css" media="screen"/>
@@ -87,11 +87,11 @@ Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22')
         </div>
         <div class="form-group">
           <label>登录用户的 Object Id（模拟登录用户，可为空）</label>
-          <input id="userId2" name="userId2" class="form-control" />
+          <input v-model="hookUserId" class="form-control" />
         </div>
-        <div class="form-group" id="divUpdatedKeys">
+        <div class="form-group" v-if="hookFunctions.length && hookFunctions[selectedHook].action.match(/^(before|after)Update$/)">
           <label>修改过的字段（逗号隔开）</label>
-          <input type="text" id="updatedKeys" class="form-control" />
+          <input type="text" v-model="updatedKeys" class="form-control" />
         </div>
         <div class="form-group">
           <label>填写已经存在对象的 objectId</label>
