@@ -41,6 +41,11 @@ func logsAction(c *cli.Context) error {
 	format := c.String("format")
 	isProd := false
 
+	groupName, err := apps.GetCurrentGroup(".")
+	if err != nil {
+		return newCliError(err)
+	}
+
 	from, to, err := extractDateParams(c)
 	if err != nil {
 		return newCliError(err)
@@ -76,12 +81,9 @@ func logsAction(c *cli.Context) error {
 	}
 
 	if from != nil {
-		return api.ReceiveLogsByRange(printer, info.AppID, info.MasterKey, isProd, from, to)
-	} else {
-		return api.ReceiveLogsByLimit(printer, info.AppID, info.MasterKey, isProd, limit, follow)
+		return api.ReceiveLogsByRange(printer, info.AppID, info.MasterKey, isProd, groupName, from, to)
 	}
-
-	return nil
+	return api.ReceiveLogsByLimit(printer, info.AppID, info.MasterKey, isProd, groupName, limit, follow)
 }
 
 func getDefaultLogPrinter(isProd bool) api.LogReceiver {
