@@ -10,10 +10,6 @@ import (
 	"github.com/levigross/grequests"
 )
 
-const (
-	serverTimeLayout = "2006-01-02T15:04:05.999999999Z"
-)
-
 // Log is EngineLogs's type structure
 type Log struct {
 	InstanceName string `json:"instanceName"`
@@ -31,17 +27,18 @@ type Log struct {
 type LogReceiver func(*Log) error
 
 // ReceiveLogsByLimit will poll the leanengine's log and print it to the giver io.Writer
-func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isProd bool, limit int, follow bool) error {
+func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isProd bool, group string, limit int, follow bool) error {
 	params := map[string]string{
 		"limit":      strconv.Itoa(limit),
 		"production": "0",
+		"group":      group,
 	}
 	if isProd {
 		params["production"] = "1"
 	}
 
 	for {
-		logs, err := FetchLogs(appID, masterKey, params, isProd)
+		logs, err := fetchLogs(appID, masterKey, params, isProd)
 		if err != nil {
 			return err
 		}
@@ -50,7 +47,7 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 
 			err = printer(&log)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %s\r\n", err, log)
+				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
 			}
 		}
 
@@ -72,24 +69,27 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 }
 
 // ReceiveLogsByRange will poll the leanengine's log and print it to the giver io.Writer
-func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, from *time.Time, to *time.Time) error {
+func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from *time.Time, to *time.Time) error {
 	params := map[string]string{
-		"since":      from.Format(serverTimeLayout),
+		"ascend":     "true",
+		"since":      from.Format("2006-01-02T15:04:05.000000000Z"),
 		"production": "0",
+		"group":      group,
+		"limit":      "1000",
 	}
 	if isProd {
 		params["production"] = "1"
 	}
 
 	for {
-		logs, err := FetchLogs(appID, masterKey, params, isProd)
+		logs, err := fetchLogs(appID, masterKey, params, isProd)
 		if err != nil {
 			return err
 		}
 		for i := len(logs); i > 0; i-- {
 			log := logs[i-1]
 
-			logTime, err := time.Parse(serverTimeLayout, log.Time)
+			logTime, err := time.Parse("2006-01-02T15:04:05.999999999Z", log.Time)
 			if err != nil {
 				return err
 			}
@@ -100,7 +100,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 
 			err = printer(&log)
 			if err != nil {
-				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %s\r\n", err, log)
+				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
 			}
 		}
 
@@ -113,11 +113,9 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 			params["since"] = logs[0].Time
 		}
 	}
-
-	return nil
 }
 
-func FetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
+func fetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return nil, err
@@ -143,7 +141,7 @@ func FetchLogs(appID string, masterKey string, params map[string]string, isProd 
 	}
 
 	var resp *grequests.Response
-	var retryCount int = 0
+	retryCount := 0
 	for {
 		resp, err = grequests.Get(url, options)
 		if err == nil {
