@@ -12,9 +12,13 @@ import (
 )
 
 // Upload upload specific file to LeanCloud
-func Upload(name string, mimeType string, reader io.Reader, opts *Options) (*File, error) {
+func Upload(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
 	if opts.serverURL() == "https://api.leancloud.cn" || opts.serverURL() == "https://leancloud.cn" {
-		tokens, err := getFileTokens(name, mimeType, opts)
+		size, err := reader.Seek(0, io.SeekEnd)
+		if err != nil {
+			return nil, err
+		}
+		tokens, err := getFileTokens(name, mimeType, size, opts)
 		if err != nil {
 			return nil, err
 		}

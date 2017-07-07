@@ -43,7 +43,7 @@ type fileTokens struct {
 	Key       string
 }
 
-func getFileTokens(name string, mime string, opts *Options) (*fileTokens, error) {
+func getFileTokens(name string, mime string, size int64, opts *Options) (*fileTokens, error) {
 	key := getFileKey(name)
 	reqOpts := &grequests.RequestOptions{
 		Headers: map[string]string{
@@ -54,7 +54,10 @@ func getFileTokens(name string, mime string, opts *Options) (*fileTokens, error)
 			"name":      name,
 			"key":       key,
 			"mime_type": mime,
-			"metaData":  map[string]interface{}{},
+			"metaData": map[string]interface{}{
+				"owner": "unknown",
+				"size":  size,
+			},
 		},
 	}
 	resp, err := grequests.Post(opts.serverURL()+"/1.1/fileTokens", reqOpts)

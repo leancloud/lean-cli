@@ -48,7 +48,7 @@ imports:
 - name: github.com/juju/persistent-cookiejar
   version: 5243747bf8f2d0897f6c7a52799327dc97d585e8
 - name: github.com/leancloud/go-upload
-  version: 22a5a534e18731e6ee547667e3fc587776148561
+  version: e3c153366b054c53a8832bb23676661d2cd73fe2
 - name: github.com/levigross/grequests
   version: 14e4175cc49ce3783f0848f90b0527ba09e1d209
 - name: github.com/mattn/go-colorable
