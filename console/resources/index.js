@@ -1,4 +1,5 @@
-/* globals window, AV, $, Vue */
+/* globals window, document, AV, $, Vue */
+"use strict";
 
 var _ = AV._;
 
@@ -180,6 +181,23 @@ function callCloudHook(appInfo, hookInfo, obj, user) {
   });
 }
 
+function addToHistoryOperations(operations, operation) {
+  for (var i=0; i<operations.length; i++) {
+    if (_.isEqual(operations[i], operation)) {
+      // operation already exists, just remove the old one and add new one to top.
+      operations.splice(i, 1);
+      operations.unshift(operation);
+      return;
+    }
+  }
+
+  operations.unshift(operation);
+
+  if (operations.length > 30) {
+    operations.pop();
+  }
+}
+
 $(document).ready(function() {
   new Vue({
     el: "#application",
@@ -204,11 +222,21 @@ $(document).ready(function() {
       updatedKeys: '',
       selectedClass: 0,
       selectedHook: 0,
+
+      // history related:
+      showHistoryPanel: false,
+      historyOperations: [],
     },
     methods: {
       executeCloudFunction: function() {
         getUser(this.cloudFunctionUserId).then((function(user) {
           var cloudFunction = this.cloudFunctions[this.selectedFunction];
+          addToHistoryOperations(this.historyOperations, {
+            type: 'cloudFunction',
+            name: cloudFunction.text,
+            userId: this.cloudFunctionUserId,
+            params: this.cloudFunctionParams,
+          });
           return callCloudFunction(
             this.appInfo,
             cloudFunction,
@@ -238,6 +266,14 @@ $(document).ready(function() {
         } else {
           getObject = function() { return AV.Promise.as({}); };
         }
+        addToHistoryOperations(this.historyOperations, {
+          type: 'cloudHook',
+          className: hookInfo.className,
+          hookName: hookInfo.action,
+          userId: this.hookUserId,
+          objId: this.hookObjectId,
+          objContent: this.hookObjectContent,
+        });
         AV.Promise.all([getObject(), getUser(this.hookUserId)]).then((function(results) {
           var obj = results[0];
           var user = results[1];
@@ -260,6 +296,33 @@ $(document).ready(function() {
         }).bind(this)).fail((function(err) {
           this.result = err.responseText || err.message;
         }).bind(this));
+      },
+      restoryHistory: function(operation) {
+        if (operation.type === 'cloudFunction') {
+          this.cloudFunctionParams = operation.params;
+          this.cloudFunctionUserId = operation.userId;
+          for (var i=0; i<this.cloudFunctions.length; i++) {
+            if (this.cloudFunctions[i].name === operation.name) {
+              this.selectedFunction = i;
+            }
+          }
+        } else if (operation.type === 'cloudHook') {
+          this.hookUserId = operation.userId;
+          this.hookObjectId = operation.objId;
+          this.hookObjectContent = operation.objContent;
+          for (var i=0; i<this.hookClasses.length; i++) {
+            if (this.hookClasses[i].name === operation.className) {
+              this.selectedClass = i;
+            }
+          }
+          for (var i=0; i<this.hookFunctions.length; i++) {
+            if (this.hookFunctions[i].action === operation.hookName) {
+              this.selectedHook = i;
+            }
+          }
+        } else {
+          throw new TypeError('invalid operation type: ' + operation.type);
+        }
       },
     },
     mounted: function() {
