@@ -202,7 +202,6 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 	w.Header().Set("Content-Type", "application/json")
 	j, _ := json.MarshalIndent(result, "", "  ")
 	w.Write(j)
-
 }
 
 // Run the dev server
@@ -210,11 +209,11 @@ func (server *Server) Run() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/", server.indexHandler)
-	router.HandleFunc("/{resourceName}", server.resourcesHandler)
 	router.HandleFunc("/__engine/1/appInfo", server.appInfoHandler)
 	router.HandleFunc("/__engine/1/functions", server.functionsHandler)
 	router.HandleFunc("/__engine/1/classes", server.classesHandler)
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
+	router.HandleFunc("/{resourceName}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort
 	fmt.Println("云函数调试服务已启动，请使用浏览器访问：http://" + addr)

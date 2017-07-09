@@ -5,6 +5,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>LeanCloud Cloud Code Debug Tool</title>
+  <link rel="icon" href="https://leancloud.cn/favicon.png" type="image/png">
   <script type="application/javascript" src="https://cdn.staticfile.org/jquery/2.0.3/jquery.min.js"></script>
   <script type="application/javascript" src="https://cdn1.lncld.net/static/js/av-core-mini-0.5.4.js"></script>
   <script type="application/javascript" src="https://cdn.staticfile.org/vue/2.2.5/vue.min.js"></script>
@@ -109,11 +110,23 @@ Raven.config('https://e1c53ea5103f477eb6a5b01dcd78147d@sentry.avoscloud.com/22')
   
   <div class="container">
     <hr/>
-    <div class="row">
+    <ul class="nav nav-tabs">
+      <li role="presentation" v-bind:class="{active: !showHistoryPanel}"><a href="javascript:;" v-on:click="showHistoryPanel=false">结果</a></li>
+      <li role="presentation" v-bind:class="{active: showHistoryPanel}"><a href="javascript:;" v-on:click="showHistoryPanel=true">历史请求</a></li>
+    </ul>
+    <div class="row" style="margin-top: 10px;">
+      <div class="col-md-12" v-if="!showHistoryPanel">
+        <pre style="min-height: 76.5px;">{{ result }}</pre>
+      </div>
       <div class="col-md-12">
-        <div class='alert alert-info'>
-          <h4>结果</h4>
-          <pre>{{ result }}</pre>
+        <div class="list-group" v-if="showHistoryPanel">
+          <a href="javascript:;" class="list-group-item" v-for="operation of historyOperations" v-on:click="restoryHistory(operation)">
+            {{ operation.type }}:
+            <span class="text-info">{{ operation.name }}</span> &nbsp;
+            <span class="text-info">{{ operation.className}}</span> &nbsp; {{operation.hookName}}
+            {{ operation.userId ? "用户id: " + operation.userId : ""}} &nbsp;
+            {{ operation.params ? "参数: " + operation.params.toString().slice(0, 50) + "..." : ""}} &nbsp;
+          </a>
         </div>
       </div>
     </div>
