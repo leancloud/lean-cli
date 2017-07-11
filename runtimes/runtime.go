@@ -35,6 +35,7 @@ type Runtime struct {
 	Args        []string
 	WatchFiles  []string
 	Envs        []string
+	Remote      string
 	Port        string
 	// DeployFiles is the patterns for source code to deploy to the remote server
 	DeployFiles filesPattern

@@ -104,7 +104,7 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
   }
 
   var apiEndpoint = isCall ? '/1.1/call/' : '/1.1/functions/';
-  var url = "http://" + window.location.hostname + ":" + appInfo.leanenginePort + apiEndpoint + cloudFunction.name;
+  var url = appInfo.remoteUrl + apiEndpoint + cloudFunction.name;
   data = data || {};
 
   if (!appInfo.sendHookKey && isRtmFunction(cloudFunction.name)) {
@@ -141,7 +141,7 @@ function getHookObjectByContent(content) {
 }
 
 function callCloudHook(appInfo, hookInfo, obj, user) {
-  var url = 'http://' + window.location.hostname + ':' + appInfo.leanenginePort + "/1.1/functions/" + hookInfo.className + "/" + hookInfo.action;
+  var url = appInfo.remoteUrl + "/1.1/functions/" + hookInfo.className + "/" + hookInfo.action;
   var data = {
     object: obj,
   };
