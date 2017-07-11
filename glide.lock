@@ -1,5 +1,5 @@
 hash: 3d9da2c3c8d1f8344bb7024bd46dffb24213689759177afbd247f11da029fee9
-updated: 2017-01-22T16:39:50.295887529+08:00
+updated: 2017-07-11T16:11:43.993715828+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: ba42ddae458c0def2bc25a414ff03a6cc449752d
@@ -14,7 +14,7 @@ imports:
 - name: github.com/certifi/gocertifi
   version: a61bf5eafa3aee233ec8043e9da052447e5463dd
 - name: github.com/cheggaaa/pb
-  version: d7e6ca3010b6f084d8056847f55d7f572f180678
+  version: f6ccf2184de4dd34495277e38dc19b6e7fbe0ea2
 - name: github.com/chzyer/readline
   version: c914be64f07d9998f52bf0d598ec26d457168c0f
 - name: github.com/codegangsta/cli
@@ -28,7 +28,7 @@ imports:
 - name: github.com/facebookgo/symwalk
   version: 42004b9f322246749dd73ad71008b1f3160c0052
 - name: github.com/fatih/color
-  version: 34e4ee095d12986a2cef5ddb9aeb3b8cfcfea17c
+  version: 570b54cabe6b8eb0bc2dfce68d964677d63b5260
 - name: github.com/fsnotify/fsnotify
   version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/getsentry/raven-go
@@ -40,7 +40,7 @@ imports:
 - name: github.com/gorilla/context
   version: 08b5f424b9271eedf6f9f0ce86cb9396ed337a42
 - name: github.com/gorilla/mux
-  version: 392c28fe23e1c45ddba891b0320b3b5df220beea
+  version: bcd8bc72b08df0f70df986b97f95590779502d31
 - name: github.com/juju/go4
   version: 40d72ab9641a2a8c36a9c46a51e28367115c8e59
   subpackages:
@@ -52,9 +52,10 @@ imports:
 - name: github.com/levigross/grequests
   version: 14e4175cc49ce3783f0848f90b0527ba09e1d209
 - name: github.com/mattn/go-colorable
-  version: d228849504861217f796da67fae4f6e347643f15
+  version: 5411d3eea5978e6cdc258b30de592b60df6aba96
+  repo: https://github.com/mattn/go-colorable
 - name: github.com/mattn/go-isatty
-  version: 30a891c33c7cde7b02a981314b4228ec99380cca
+  version: 57fdcb988a5c543893cc61bce354a6e24ab70022
 - name: github.com/mattn/go-runewidth
   version: 737072b4e32b7a5018b4a7125da8d12de90e8045
 - name: github.com/pkg/browser
@@ -73,7 +74,8 @@ imports:
   subpackages:
   - publicsuffix
 - name: golang.org/x/sys
-  version: d75a52659825e75fff6158388dddc6a5b04f9ba5
+  version: e24f485414aeafb646f6fca458b0bf869c0880a1
+  repo: https://go.googlesource.com/sys
   subpackages:
   - unix
 - name: gopkg.in/errgo.v1
