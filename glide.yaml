@@ -1,4 +1,4 @@
-package: github.com/leancloud/lean-cli/lean
+package: github.com/leancloud/lean-cli
 import:
 - package: github.com/aisk/wizard
 - package: github.com/codegangsta/cli
