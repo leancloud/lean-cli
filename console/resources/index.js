@@ -88,7 +88,8 @@ function getUser(uid) {
   if (!uid || uid.trim() === '') {
     return AV.Promise.as(null);
   }
-  return new AV.Query(AV.User).get(uid);
+  var user = AV.Object.createWithoutData("_User", uid);
+  return user.fetch();
 }
 
 function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
