@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
@@ -30,13 +29,13 @@ type Server struct {
 	AppKey      string
 	MasterKey   string
 	HookKey     string
-	AppPort     string
+	RemoteURL   string
 	ConsolePort string
 	Errors      chan error
 }
 
 func (server *Server) getFunctions() ([]string, error) {
-	url := fmt.Sprintf("http://localhost:%s/1.1/functions/_ops/metadatas", server.AppPort)
+	url := fmt.Sprintf("%s/1.1/functions/_ops/metadatas", server.RemoteURL)
 	response, err := grequests.Get(url, &grequests.RequestOptions{
 		Headers: map[string]string{
 			"x-avoscloud-application-id": server.AppID,
@@ -74,22 +73,17 @@ func (server *Server) resourcesHandler(w http.ResponseWriter, req *http.Request)
 }
 
 func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
-	port, err := strconv.Atoi(server.AppPort)
-	if err != nil {
-		panic(err)
-	}
-
-	optionsURL := fmt.Sprintf("http://localhost:%s/1.1/functions/_ops/metadatas", server.AppPort)
+	optionsURL := fmt.Sprintf("%s/1.1/functions/_ops/metadatas", server.RemoteURL)
 	optionsResponse, err := grequests.Options(optionsURL, &grequests.RequestOptions{})
 
 	content, err := json.Marshal(map[string]interface{}{
-		"appId":          server.AppID,
-		"appKey":         server.AppKey,
-		"masterKey":      server.MasterKey,
-		"hookKey":        server.HookKey,
-		"sendHookKey":    strings.Contains(optionsResponse.Header.Get("Access-Control-Allow-Headers"), "X-LC-Hook-Key"),
-		"leanenginePort": port,
-		"warnings":       []string{},
+		"appId":       server.AppID,
+		"appKey":      server.AppKey,
+		"masterKey":   server.MasterKey,
+		"hookKey":     server.HookKey,
+		"sendHookKey": strings.Contains(optionsResponse.Header.Get("Access-Control-Allow-Headers"), "X-LC-Hook-Key"),
+		"remoteUrl":   server.RemoteURL,
+		"warnings":    []string{},
 	})
 	if err != nil {
 		panic(err)

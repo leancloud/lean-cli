@@ -200,6 +200,23 @@ func Run(args []string) {
 			},
 		},
 		{
+			Name:   "debug",
+			Usage:  "不运行项目，直接启动云函数调试服务",
+			Action: debugAction,
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "remote,r",
+					Usage: "目标应用的访问地址，默认为 http://localhost:3000",
+					Value: "http://localhost:3000",
+				},
+				cli.IntFlag{
+					Name:  "port,p",
+					Usage: "指定本地调试的端口",
+					Value: 3001,
+				},
+			},
+		},
+		{
 			Name:   "env",
 			Usage:  "输出运行当前云引擎应用所需要的环境变量",
 			Action: envAction,
