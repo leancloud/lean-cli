@@ -209,6 +209,10 @@ func Run(args []string) {
 					Usage: "目标应用的访问地址，默认为 http://localhost:3000",
 					Value: "http://localhost:3000",
 				},
+				cli.StringFlag{
+					Name:  "app-id",
+					Usage: "目标应用 appID，如果不指定，则使用当前目录关联应用 appID",
+				},
 				cli.IntFlag{
 					Name:  "port,p",
 					Usage: "指定本地调试的端口",

@@ -14,10 +14,14 @@ import (
 func debugAction(c *cli.Context) error {
 	remote := c.String("remote")
 	port := strconv.Itoa(c.Int("port"))
+	appID := c.String("app-id")
 
-	appID, err := apps.GetCurrentAppID(".")
-	if err != nil {
-		return newCliError(err)
+	if appID == "" {
+		var err error
+		appID, err = apps.GetCurrentAppID(".")
+		if err != nil {
+			return newCliError(err)
+		}
 	}
 
 	bar := chrysanthemum.New("获取应用信息").Start()
