@@ -53,6 +53,7 @@ func (runtime *Runtime) Run() {
 			runtime.command.Env = append(runtime.command.Env, env)
 		}
 
+		chrysanthemum.Printf("使用 %s 启动项目\r\n", runtime.command.Args)
 		chrysanthemum.Printf("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
 		err := runtime.command.Run()
 		if err != nil {
