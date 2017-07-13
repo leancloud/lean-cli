@@ -71,6 +71,10 @@ func Run(args []string) {
 					Name:  "console-port,c",
 					Usage: "指定调试页面启动端口",
 				},
+				cli.StringFlag{
+					Name:  "cmd",
+					Usage: "指定项目启动命令，其他参数将被忽略（--console-port 除外）",
+				},
 			},
 		},
 		{

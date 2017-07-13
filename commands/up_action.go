@@ -3,7 +3,9 @@ package commands
 import (
 	"fmt"
 	"os/exec"
+	"regexp"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/aisk/chrysanthemum"
@@ -15,6 +17,11 @@ import (
 	"github.com/leancloud/lean-cli/runtimes"
 )
 
+var (
+	errDoNotSupportCloudCode = cli.NewExitError(`命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
+https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
+)
+
 // get the console port. now console port is just runtime port plus one.
 func getConsolePort(runtimePort int) int {
 	return runtimePort + 1
@@ -23,6 +30,7 @@ func getConsolePort(runtimePort int) int {
 func upAction(c *cli.Context) error {
 	customArgs := c.Args()
 	watchChanges := c.Bool("watch")
+	customCommand := c.String("cmd")
 	rtmPort := c.Int("port")
 	consPort := c.Int("console-port")
 	if consPort == 0 {
@@ -45,26 +53,19 @@ func upAction(c *cli.Context) error {
 	}
 	rtm.Port = strconv.Itoa(rtmPort)
 	rtm.Args = append(rtm.Args, customArgs...)
+	if customCommand != "" {
+		customCommand = strings.TrimSpace(customCommand)
+		cmds := regexp.MustCompile(" +").Split(customCommand, -1)
+		rtm.Exec = cmds[0]
+		rtm.Args = cmds[1:]
+	}
 
 	if watchChanges {
-		fmt.Fprintf(
-			color.Output,
-			" %s [WARNING] --watch 选项不再被支持，请使用项目代码本身实现此功能\r\n",
-			chrysanthemum.Fail,
-		)
-		if rtm.Name == "python" {
-			fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
-			fmt.Println("   [WARNING] https://github.com/leancloud/python-getting-started/pull/12/files")
-		}
-		if rtm.Name == "node.js" {
-			fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
-			fmt.Println("   [WARNING] https://github.com/leancloud/node-js-getting-started/pull/26/files")
-		}
+		printDeprecatedWatchWarning(rtm)
 	}
 
 	if rtm.Name == "cloudcode" {
-		return cli.NewExitError(`命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
-https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
+		return errDoNotSupportCloudCode
 	}
 
 	bar := chrysanthemum.New("获取应用信息").Start()
@@ -133,5 +134,21 @@ https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 			}
 			panic(err)
 		}
+	}
+}
+
+func printDeprecatedWatchWarning(rtm *runtimes.Runtime) {
+	fmt.Fprintf(
+		color.Output,
+		" %s [WARNING] --watch 选项不再被支持，请使用项目代码本身实现此功能\r\n",
+		chrysanthemum.Fail,
+	)
+	if rtm.Name == "python" {
+		fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+		fmt.Println("   [WARNING] https://github.com/leancloud/python-getting-started/pull/12/files")
+	}
+	if rtm.Name == "node.js" {
+		fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+		fmt.Println("   [WARNING] https://github.com/leancloud/node-js-getting-started/pull/26/files")
 	}
 }

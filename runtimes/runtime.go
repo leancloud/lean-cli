@@ -46,26 +46,20 @@ type Runtime struct {
 // Run the project, and watch file changes
 func (runtime *Runtime) Run() {
 	go func() {
-		for {
-			runtime.command = exec.Command(runtime.Exec, runtime.Args...)
-			runtime.command.Env = os.Environ()
-			runtime.command.Stdout = os.Stdout
-			runtime.command.Stderr = os.Stderr
-			runtime.command.Env = os.Environ()
+		runtime.command = exec.Command(runtime.Exec, runtime.Args...)
+		runtime.command.Env = os.Environ()
+		runtime.command.Stdout = os.Stdout
+		runtime.command.Stderr = os.Stderr
+		runtime.command.Env = os.Environ()
 
-			for _, env := range runtime.Envs {
-				runtime.command.Env = append(runtime.command.Env, env)
-			}
+		for _, env := range runtime.Envs {
+			runtime.command.Env = append(runtime.command.Env, env)
+		}
 
-			chrysanthemum.Printf("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
-			err := runtime.command.Run()
-			// TODO: this maybe not portable
-			if err.Error() == "signal: killed" {
-				continue
-			} else {
-				runtime.Errors <- err
-				break
-			}
+		chrysanthemum.Printf("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
+		err := runtime.command.Run()
+		if err != nil {
+			runtime.Errors <- err
 		}
 	}()
 }
