@@ -9,12 +9,10 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/facebookgo/parseignore"
 	"github.com/facebookgo/symwalk"
-	"github.com/fsnotify/fsnotify"
 	"github.com/leancloud/lean-cli/utils"
 )
 
@@ -33,7 +31,6 @@ type Runtime struct {
 	Name        string
 	Exec        string
 	Args        []string
-	WatchFiles  []string
 	Envs        []string
 	Remote      string
 	Port        string
@@ -62,45 +59,6 @@ func (runtime *Runtime) Run() {
 			runtime.Errors <- err
 		}
 	}()
-}
-
-// Watch file changes
-func (runtime *Runtime) Watch(interval time.Duration) error {
-
-	// watch file changes
-	watcher, err := fsnotify.NewWatcher()
-	if err != nil {
-		return err
-	}
-
-	lastFiredTime := time.Now()
-
-	go func() {
-		for {
-			select {
-			case event := <-watcher.Events:
-				_ = event
-				now := time.Now()
-				if now.Sub(lastFiredTime) > interval {
-					err = runtime.command.Process.Kill()
-					if err != nil {
-						runtime.Errors <- err
-					}
-					lastFiredTime = now
-				}
-			case err = <-watcher.Errors:
-				runtime.Errors <- err
-			}
-		}
-	}()
-	for _, file := range runtime.WatchFiles {
-		err = watcher.Add(file)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, ignoreFilePath string) error {
@@ -262,7 +220,6 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 			Name:        "python",
 			Exec:        execName,
 			Args:        []string{"wsgi.py"},
-			WatchFiles:  []string{"."},
 			Envs:        os.Environ(),
 			Errors:      make(chan error),
 		}, nil
@@ -278,7 +235,6 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 		Name:        "python",
 		Exec:        "python",
 		Args:        []string{"wsgi.py"},
-		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
@@ -326,7 +282,6 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 		Name:        "node.js",
 		Exec:        execName,
 		Args:        args,
-		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
@@ -338,7 +293,6 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 		Name:        "java",
 		Exec:        "mvn",
 		Args:        []string{"jetty:run"},
-		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
@@ -354,7 +308,6 @@ func newPhpRuntime(projectPath string) (*Runtime, error) {
 		Name:        "php",
 		Exec:        "php",
 		Args:        []string{"-S", "127.0.0.1:3000", "-t", "public", entryScript},
-		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil

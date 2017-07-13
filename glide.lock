@@ -29,8 +29,6 @@ imports:
   version: 42004b9f322246749dd73ad71008b1f3160c0052
 - name: github.com/fatih/color
   version: 570b54cabe6b8eb0bc2dfce68d964677d63b5260
-- name: github.com/fsnotify/fsnotify
-  version: fd9ec7deca8bf46ecd2a795baaacf2b3a9be1197
 - name: github.com/getsentry/raven-go
   version: 3f7439d3e74d88e21d196ba20eb61a5a958bc118
 - name: github.com/google/go-querystring
