@@ -25,6 +25,7 @@ func getConsolePort(runtimePort string) (string, error) {
 }
 
 func upAction(c *cli.Context) error {
+	customArgs := c.Args()
 	watchChanges := c.Bool("watch")
 	port := strconv.Itoa(c.Int("port"))
 	consPort, err := getConsolePort(port)
@@ -47,6 +48,7 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	rtm.Port = port
+	rtm.Args = append(rtm.Args, customArgs...)
 
 	if watchChanges {
 		fmt.Fprintf(
