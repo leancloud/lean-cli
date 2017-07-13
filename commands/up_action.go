@@ -16,21 +16,17 @@ import (
 )
 
 // get the console port. now console port is just runtime port plus one.
-func getConsolePort(runtimePort string) (string, error) {
-	port, err := strconv.Atoi(runtimePort)
-	if err != nil {
-		return "", nil
-	}
-	return strconv.Itoa(port + 1), nil
+func getConsolePort(runtimePort int) int {
+	return runtimePort + 1
 }
 
 func upAction(c *cli.Context) error {
 	customArgs := c.Args()
 	watchChanges := c.Bool("watch")
-	port := strconv.Itoa(c.Int("port"))
-	consPort, err := getConsolePort(port)
-	if err != nil {
-		return newCliError(err)
+	rtmPort := c.Int("port")
+	consPort := c.Int("console-port")
+	if consPort == 0 {
+		consPort = getConsolePort(rtmPort)
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
@@ -47,7 +43,7 @@ func upAction(c *cli.Context) error {
 	if err != nil {
 		return newCliError(err)
 	}
-	rtm.Port = port
+	rtm.Port = strconv.Itoa(rtmPort)
 	rtm.Args = append(rtm.Args, customArgs...)
 
 	if watchChanges {
@@ -96,13 +92,13 @@ https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 		"LC_APP_ID=" + appInfo.AppID,
 		"LC_APP_KEY=" + appInfo.AppKey,
 		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
-		"LC_APP_PORT=" + port,
+		"LC_APP_PORT=" + strconv.Itoa(rtmPort),
 		"LC_API_SERVER=" + region.APIServerURL(),
 		"LEANCLOUD_APP_ID=" + appInfo.AppID,
 		"LEANCLOUD_APP_KEY=" + appInfo.AppKey,
 		"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
 		"LEANCLOUD_APP_HOOK_KEY=" + appInfo.HookKey,
-		"LEANCLOUD_APP_PORT=" + port,
+		"LEANCLOUD_APP_PORT=" + strconv.Itoa(rtmPort),
 		"LEANCLOUD_API_SERVER=" + region.APIServerURL(),
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
@@ -118,8 +114,8 @@ https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 		AppKey:      appInfo.AppKey,
 		MasterKey:   appInfo.MasterKey,
 		HookKey:     appInfo.HookKey,
-		RemoteURL:   "http://localhost:" + port,
-		ConsolePort: consPort,
+		RemoteURL:   "http://localhost:" + strconv.Itoa(rtmPort),
+		ConsolePort: strconv.Itoa(consPort),
 		Errors:      make(chan error),
 	}
 

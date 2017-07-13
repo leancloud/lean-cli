@@ -64,8 +64,12 @@ func Run(args []string) {
 				},
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "指定本地调试的端口",
+					Usage: "指定本地服务端口",
 					Value: 3000,
+				},
+				cli.IntFlag{
+					Name:  "console-port,c",
+					Usage: "指定调试页面启动端口",
 				},
 			},
 		},
