@@ -147,6 +147,11 @@ function callCloudHook(appInfo, hookInfo, obj, user) {
     object: obj,
   };
 
+  if (user) {
+    data.user = user.toJSON();
+    data.user.sessionToken = user._sessionToken;
+  }
+
   if (!appInfo.sendHookKey) {
     if (hookInfo.action.match(/^before/)) {
       data.__before = hookInfo.sign;
