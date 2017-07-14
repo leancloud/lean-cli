@@ -128,7 +128,10 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
 }
 
 function getHookObjectById(className, objId) {
-  return new AV.Query(className).get(objId);
+  return new AV.Query(className).get(objId).then(function(obj) {
+    // make this AV.Object to a plain Object
+    return JSON.parse(JSON.stringify(obj));
+  });
 }
 
 function getHookObjectByContent(content) {
