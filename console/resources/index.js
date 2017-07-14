@@ -96,7 +96,7 @@ function callCloudFunction(appInfo, cloudFunction, params, user, isCall) {
   var data = null;
   if(params !== null && params.trim() !== '') {
     try {
-      data = JSON.parse(params);
+      data = JSON5.parse(params);
     } catch (err) {
       var dtd = $.Deferred();
       dtd.reject(err);
@@ -134,7 +134,7 @@ function getHookObjectById(className, objId) {
 function getHookObjectByContent(content) {
   return new AV.Promise(function(resolve, reject) {
     try {
-      resolve(JSON.parse(content));
+      resolve(JSON5.parse(content));
     } catch (err) {
       reject(err);
     }
