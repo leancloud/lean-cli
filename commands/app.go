@@ -238,6 +238,10 @@ func Run(args []string) {
 					Usage: "指定本地调试的端口",
 					Value: 3000,
 				},
+				cli.StringFlag{
+					Name:  "template",
+					Usage: "指定输出环境变量模版，默认 'export {{name}}={{value}}'",
+				},
 			},
 			Subcommands: []cli.Command{
 				{

@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"github.com/cbroglie/mustache"
 	"strconv"
 	"strings"
 
@@ -12,8 +13,22 @@ import (
 	"github.com/leancloud/lean-cli/apps"
 )
 
+var (
+	defaultBashEnvTemplateString = "export {{name}}={{value}}"
+)
+
 func envAction(c *cli.Context) error {
 	port := strconv.Itoa(c.Int("port"))
+	tmplString := c.String("template")
+	if tmplString == "" {
+		tmplString = defaultBashEnvTemplateString
+	}
+
+	tmpl, err := mustache.ParseString(tmplString)
+	if err != nil {
+		return newCliError(err)
+	}
+	fmt.Println(tmpl)
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -30,20 +45,20 @@ func envAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	envs := []string{
-		"LC_APP_ID=" + appInfo.AppID,
-		"LC_APP_KEY=" + appInfo.AppKey,
-		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
-		"LC_APP_PORT=" + port,
-		"LC_API_SERVER=" + region.APIServerURL(),
-		"LEANCLOUD_APP_ID=" + appInfo.AppID,
-		"LEANCLOUD_APP_KEY=" + appInfo.AppKey,
-		"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
-		"LEANCLOUD_APP_HOOK_KEY=" + appInfo.HookKey,
-		"LEANCLOUD_APP_PORT=" + port,
-		"LEANCLOUD_API_SERVER=" + region.APIServerURL(),
-		"LEANCLOUD_APP_ENV=" + "development",
-		"LEANCLOUD_REGION=" + region.String(),
+	envs := []map[string]string{
+		map[string]string{"name": "LC_APP_ID", "value": appInfo.AppID},
+		map[string]string{"name": "LC_APP_KEY", "value": appInfo.AppKey},
+		map[string]string{"name": "LC_APP_MASTER_KEY", "value": appInfo.MasterKey},
+		map[string]string{"name": "LC_APP_PORT", "value": port},
+		map[string]string{"name": "LC_API_SERVER", "value": region.APIServerURL()},
+		map[string]string{"name": "LEANCLOUD_APP_ID", "value": appInfo.AppID},
+		map[string]string{"name": "LEANCLOUD_APP_KEY", "value": appInfo.AppKey},
+		map[string]string{"name": "LEANCLOUD_APP_MASTER_KEY", "value": appInfo.MasterKey},
+		map[string]string{"name": "LEANCLOUD_APP_HOOK_KEY", "value": appInfo.HookKey},
+		map[string]string{"name": "LEANCLOUD_APP_PORT", "value": port},
+		map[string]string{"name": "LEANCLOUD_API_SERVER", "value": region.APIServerURL()},
+		map[string]string{"name": "LEANCLOUD_APP_ENV", "value": "development"},
+		map[string]string{"name": "LEANCLOUD_REGION", "value": region.String()},
 	}
 
 	groupName, err := apps.GetCurrentGroup(".")
@@ -55,12 +70,16 @@ func envAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 
-	for k, v := range groupInfo.Environments {
-		envs = append(envs, k+"="+v)
+	for name, value := range groupInfo.Environments {
+		envs = append(envs, map[string]string{"name": name, "value": value})
 	}
 
 	for _, env := range envs {
-		fmt.Println("export", env)
+		result, err := tmpl.Render(env)
+		if err != nil {
+			return newCliError(err)
+		}
+		fmt.Println(result)
 	}
 
 	return nil
