@@ -3,11 +3,13 @@ package commands
 import (
 	"errors"
 	"fmt"
-	"github.com/cbroglie/mustache"
+	"os"
+	"runtime"
 	"strconv"
 	"strings"
 
 	"github.com/aisk/chrysanthemum"
+	"github.com/cbroglie/mustache"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
@@ -15,20 +17,41 @@ import (
 
 var (
 	defaultBashEnvTemplateString = "export {{name}}={{value}}"
+	defaultDOSEnvTemplateString  = "SET {{name}}={{value}}"
 )
+
+func detectDOS() bool {
+	// this function is not reliable
+	if runtime.GOOS != "windows" {
+		return false
+	}
+	shell := os.Getenv("SHELL")
+	if strings.Contains(shell, "bash") ||
+		strings.Contains(shell, "zsh") ||
+		strings.Contains(shell, "fish") ||
+		strings.Contains(shell, "csh") ||
+		strings.Contains(shell, "ksh") ||
+		strings.Contains(shell, "ash") {
+		return false
+	}
+	return true
+}
 
 func envAction(c *cli.Context) error {
 	port := strconv.Itoa(c.Int("port"))
 	tmplString := c.String("template")
 	if tmplString == "" {
-		tmplString = defaultBashEnvTemplateString
+		if detectDOS() {
+			tmplString = defaultDOSEnvTemplateString
+		} else {
+			tmplString = defaultBashEnvTemplateString
+		}
 	}
 
 	tmpl, err := mustache.ParseString(tmplString)
 	if err != nil {
 		return newCliError(err)
 	}
-	fmt.Println(tmpl)
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
