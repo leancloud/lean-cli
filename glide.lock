@@ -1,5 +1,5 @@
-hash: 3d9da2c3c8d1f8344bb7024bd46dffb24213689759177afbd247f11da029fee9
-updated: 2017-07-11T16:11:43.993715828+08:00
+hash: 124fea22f7cfca48dcb7203f794f72cd113abea08f0f3af1aa6ce46e5d221259
+updated: 2017-07-14T15:39:04.06233183+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: ba42ddae458c0def2bc25a414ff03a6cc449752d
@@ -11,6 +11,8 @@ imports:
   version: 45b1b4b542137d8db63c3d462d63a9917471f923
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
+- name: github.com/cbroglie/mustache
+  version: 6857e4b493bdb8d4b1931446eb41704aeb4c28cb
 - name: github.com/certifi/gocertifi
   version: a61bf5eafa3aee233ec8043e9da052447e5463dd
 - name: github.com/cheggaaa/pb
