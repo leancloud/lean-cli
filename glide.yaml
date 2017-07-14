@@ -25,3 +25,4 @@ import:
 - package: github.com/pkg/browser
 - package: github.com/leancloud/go-upload
 - package: github.com/facebookgo/symwalk
+- package: github.com/cbroglie/mustache
