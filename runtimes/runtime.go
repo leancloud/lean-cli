@@ -162,6 +162,10 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
 		bar.Successed()
+		if utils.IsFileExists(filepath.Join("src", "main", "resources", "application.properties")){
+			chrysanthemum.Printf("检测到 Java Spring Boot 运行时\r\n")
+			return newSpringRuntime(projectPath)
+		}
 		chrysanthemum.Printf("检测到 Java 运行时\r\n")
 		return newJavaRuntime(projectPath)
 	}
@@ -294,6 +298,18 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 		Name:        "java",
 		Exec:        "mvn",
 		Args:        []string{"jetty:run"},
+		Envs:        os.Environ(),
+		Errors:      make(chan error),
+	}, nil
+}
+
+func newSpringRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		ProjectPath: projectPath,
+		Name:        "java",
+		Exec:        "mvn",
+		Args:        []string{"spring-boot:run"},
+		WatchFiles:  []string{"."},
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
