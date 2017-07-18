@@ -239,7 +239,7 @@ func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	response, err := client.get("/1.1/functions/_ops/engine", opts)
+	response, err := client.get("/1.1/engine", opts)
 	if err != nil {
 		return nil, err
 	}
