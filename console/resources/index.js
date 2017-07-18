@@ -269,6 +269,9 @@ $(document).ready(function() {
         this.cloudFunctions = cloudFunctions;
         this.hookClasses = hookClasses;
 
+        if (this.hookClasses.length === 0) {
+          return [];
+        }
         var className = this.hookClasses[this.selectedClass].name;
         return getHookFunctions(className);
       }).bind(this)).then((function(hookFunctions) {
