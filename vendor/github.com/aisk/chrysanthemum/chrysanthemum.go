@@ -2,10 +2,12 @@ package chrysanthemum
 
 import (
 	"fmt"
+	"os"
+	"runtime"
+	"time"
+
 	"github.com/fatih/color"
 	"github.com/mattn/go-isatty"
-	"os"
-	"time"
 )
 
 var isTerminal = isatty.IsTerminal(os.Stdout.Fd())
@@ -23,23 +25,35 @@ var Fail string
 type Chrysanthemum struct {
 	stop    chan bool
 	stopped bool
+	text    string
 }
 
 func init() {
-	Frames = []string{
-		color.MagentaString("⠋"),
-		color.MagentaString("⠙"),
-		color.MagentaString("⠹"),
-		color.MagentaString("⠸"),
-		color.MagentaString("⠼"),
-		color.MagentaString("⠴"),
-		color.MagentaString("⠦"),
-		color.MagentaString("⠧"),
-		color.MagentaString("⠇"),
-		color.MagentaString("⠏"),
+	if runtime.GOOS == "windows" {
+		Frames = []string{
+			"-",
+			"\\",
+			"|",
+			"/",
+		}
+		Success = " "
+		Fail = color.RedString("x")
+	} else {
+		Frames = []string{
+			color.MagentaString("⠋"),
+			color.MagentaString("⠙"),
+			color.MagentaString("⠹"),
+			color.MagentaString("⠸"),
+			color.MagentaString("⠼"),
+			color.MagentaString("⠴"),
+			color.MagentaString("⠦"),
+			color.MagentaString("⠧"),
+			color.MagentaString("⠇"),
+			color.MagentaString("⠏"),
+		}
+		Success = color.GreenString("✓")
+		Fail = color.RedString("✗")
 	}
-	Success = color.GreenString("✓")
-	Fail = color.RedString("✗")
 }
 
 // New create a spinner instance
@@ -47,11 +61,12 @@ func New(text string) *Chrysanthemum {
 	if !isTerminal {
 		fmt.Fprint(color.Output, text)
 	} else {
-		fmt.Fprint(color.Output, "   "+text)
+		fmt.Fprint(color.Output, text+"  ")
 	}
 	return &Chrysanthemum{
 		stop:    make(chan bool),
 		stopped: false,
+		text:    text,
 	}
 }
 
@@ -69,7 +84,7 @@ func (c *Chrysanthemum) Start() *Chrysanthemum {
 			if i == len(Frames) {
 				i = 0
 			}
-			fmt.Fprintf(color.Output, "\r %s ", Frames[i])
+			fmt.Fprintf(color.Output, "\r%s %s", c.text, Frames[i])
 			i++
 			select {
 			case <-c.stop:
@@ -95,7 +110,7 @@ func (c *Chrysanthemum) end(flag string) {
 	c.stop <- true
 	c.stopped = true
 	// fmt.Printf("\033[?25h") // show cursor
-	fmt.Fprintf(color.Output, "\r %s \n", flag)
+	fmt.Fprintf(color.Output, "\r%s %s\n", c.text, flag)
 }
 
 func (c *Chrysanthemum) Successed() {
@@ -110,16 +125,16 @@ func (c *Chrysanthemum) End() {
 	c.Successed()
 }
 
-func Printf(format string, args ...interface{}) {
+func Successed(args ...interface{}) {
 	if isTerminal {
-		format = " " + Success + " " + format
+		args = append(args, Success)
 	}
-	fmt.Fprintf(color.Output, format, args...)
+	fmt.Fprintln(color.Output, args...)
 }
 
-func Println(args ...interface{}) {
+func Failed(args ...interface{}) {
 	if isTerminal {
-		args = append([]interface{}{" " + Success}, args...)
+		args = append(args, Fail)
 	}
 	fmt.Fprintln(color.Output, args...)
 }
