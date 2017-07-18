@@ -5,7 +5,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aisk/chrysanthemum"
 	"github.com/cheggaaa/pb"
 	"github.com/leancloud/go-upload"
 	"mime"
@@ -49,7 +48,7 @@ func UploadFile(appID string, filePath string) (*upload.File, error) {
 		return nil, err
 	}
 	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
-	bar.Prefix(" " + chrysanthemum.Success + " " + "上传应用文件")
+	bar.Prefix("上传应用文件")
 	bar.Start()
 
 	// qiniu want a io.ReadSeeker to get file's size

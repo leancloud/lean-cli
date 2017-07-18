@@ -1,9 +1,11 @@
 package api
 
 import (
-	"github.com/aisk/chrysanthemum"
 	"strings"
 	"time"
+
+	"github.com/aisk/chrysanthemum"
+	"github.com/fatih/color"
 )
 
 type deployEvent struct {
@@ -35,7 +37,7 @@ func PollEvents(appID string, tok string) (bool, error) {
 	retryCount := 0
 	var spinner *chrysanthemum.Chrysanthemum
 	for {
-		time.Sleep(1 * time.Second)
+		time.Sleep(700 * time.Millisecond)
 		url := "/1.1/engine/events/poll/" + tok
 		if from != "" {
 			url = url + "?from=" + from
@@ -64,7 +66,7 @@ func PollEvents(appID string, tok string) (bool, error) {
 				}
 			}
 
-			spinner = chrysanthemum.New("[REMOTE] " + e.Content).Start()
+			spinner = chrysanthemum.New(color.YellowString("[REMOTE] ") + e.Content).Start()
 			from = e.Time
 			ok = strings.ToLower(e.Level) != "error"
 		}

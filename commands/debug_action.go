@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/aisk/chrysanthemum"
@@ -31,7 +32,7 @@ func debugAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	bar.Successed()
-	chrysanthemum.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
+	fmt.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	cons := &console.Server{
 		AppID:       appInfo.AppID,

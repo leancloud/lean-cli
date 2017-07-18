@@ -58,7 +58,7 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 		return nil, errors.New("在 ./target 目录没有找到 war 文件")
 	}
 
-	chrysanthemum.Println("找到默认的 war 文件：", warPath)
+	chrysanthemum.Successed("找到默认的 war 文件：", warPath)
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
@@ -173,10 +173,10 @@ func deployAction(c *cli.Context) error {
 
 	prod := 0
 	if engineInfo.Mode == "prod" {
-		chrysanthemum.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 预备环境\r\n", appInfo.AppName, appID, region, groupName)
+		fmt.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 预备环境\r\n", appInfo.AppName, appID, region, groupName)
 	} else if engineInfo.Mode == "free" {
 		prod = 1
-		chrysanthemum.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
+		fmt.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 	} else {
 		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
 	}
