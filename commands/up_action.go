@@ -75,7 +75,7 @@ func upAction(c *cli.Context) error {
 		return newCliError(err)
 	}
 	bar.Successed()
-	chrysanthemum.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
+	fmt.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
@@ -106,7 +106,7 @@ func upAction(c *cli.Context) error {
 	}
 
 	for k, v := range groupInfo.Environments {
-		chrysanthemum.Println("从服务器导出自定义环境变量:", k)
+		chrysanthemum.Successed("从服务器导出自定义环境变量:", k)
 		rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
 	}
 

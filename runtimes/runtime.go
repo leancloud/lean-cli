@@ -53,8 +53,8 @@ func (runtime *Runtime) Run() {
 			runtime.command.Env = append(runtime.command.Env, env)
 		}
 
-		chrysanthemum.Printf("使用 %s 启动项目\r\n", runtime.command.Args)
-		chrysanthemum.Printf("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
+		fmt.Printf("使用 %s 启动项目\r\n", runtime.command.Args)
+		fmt.Printf("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
 		err := runtime.command.Run()
 		if err != nil {
 			runtime.Errors <- err
@@ -120,7 +120,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 	bar := chrysanthemum.New("正在检测运行时").Start()
 	// order is important
 	if utils.IsFileExists(filepath.Join(projectPath, "cloud", "main.js")) {
-		chrysanthemum.Printf("检测到 cloudcode 运行时\r\n")
+		fmt.Printf("检测到 cloudcode 运行时\r\n")
 		bar.Successed()
 		return &Runtime{
 			Name: "cloudcode",
@@ -129,7 +129,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 	packageFilePath := filepath.Join(projectPath, "package.json")
 	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(packageFilePath) {
 		bar.Successed()
-		chrysanthemum.Printf("检测到 node.js 运行时\r\n")
+		fmt.Printf("检测到 node.js 运行时\r\n")
 		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists(packageFilePath) {
@@ -144,7 +144,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 			if err = json.Unmarshal(data, &result); err == nil {
 				if result.Scripts.Start != "" {
 					bar.Successed()
-					chrysanthemum.Printf("检测到 node.js 运行时\r\n")
+					fmt.Printf("检测到 node.js 运行时\r\n")
 					return newNodeRuntime(projectPath)
 				}
 			}
@@ -152,17 +152,17 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "requirements.txt")) && utils.IsFileExists(filepath.Join(projectPath, "wsgi.py")) {
 		bar.Successed()
-		chrysanthemum.Printf("检测到 Python 运行时\r\n")
+		fmt.Printf("检测到 Python 运行时\r\n")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "composer.json")) && utils.IsFileExists(filepath.Join("public", "index.php")) {
 		bar.Successed()
-		chrysanthemum.Printf("检测到 PHP 运行时\r\n")
+		fmt.Printf("检测到 PHP 运行时\r\n")
 		return newPhpRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
 		bar.Successed()
-		chrysanthemum.Printf("检测到 Java 运行时\r\n")
+		fmt.Printf("检测到 Java 运行时\r\n")
 		return newJavaRuntime(projectPath)
 	}
 	bar.Failed()
@@ -174,9 +174,9 @@ func lookupBin(fallbacks []string) (string, error) {
 		binPath, err := exec.LookPath(bin)
 		if err == nil { // found
 			if i == 0 {
-				chrysanthemum.Printf("找到运行文件 `%s`\r\n", binPath)
+				fmt.Printf("找到运行文件 `%s`\r\n", binPath)
 			} else {
-				chrysanthemum.Printf("没有找到命令 `%s`，使用 `%s` 代替 \r\n", fallbacks[i-1], fallbacks[i])
+				fmt.Printf("没有找到命令 `%s`，使用 `%s` 代替 \r\n", fallbacks[i-1], fallbacks[i])
 			}
 			return bin, nil
 		}
@@ -229,7 +229,7 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 	if !(strings.HasPrefix(pythonVersion, "2.") || strings.HasPrefix(pythonVersion, "3.")) {
 		return nil, errors.New("错误的 pyenv 版本，目前云引擎只支持 CPython，请检查 .python-version 文件确认")
 	}
-	chrysanthemum.Println("检测到项目使用 pyenv，请确保当前环境 pyenv 已正确设置")
+	fmt.Println("检测到项目使用 pyenv，请确保当前环境 pyenv 已正确设置")
 
 	return &Runtime{
 		ProjectPath: projectPath,

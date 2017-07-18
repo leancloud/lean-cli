@@ -137,7 +137,7 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 	}
 	spinner.Successed()
 
-	chrysanthemum.Printf("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
+	chrysanthemum.Successed("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
 
 	return appID, nil
 }

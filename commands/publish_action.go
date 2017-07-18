@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"fmt"
+
 	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
@@ -48,7 +50,7 @@ func publishAction(c *cli.Context) error {
 		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
 	}
 
-	chrysanthemum.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
+	fmt.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 
 	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag)
 	ok, err := api.PollEvents(appID, tok)

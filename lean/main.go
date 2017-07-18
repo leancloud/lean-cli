@@ -7,7 +7,6 @@ import (
 	"runtime"
 
 	"github.com/aisk/chrysanthemum"
-	"github.com/fatih/color"
 	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/commands"
 	"github.com/leancloud/lean-cli/stats"
@@ -51,16 +50,7 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	if runtime.GOOS == "windows" {
-		chrysanthemum.Frames = []string{
-			"-",
-			"\\",
-			"|",
-			"/",
-		}
-		chrysanthemum.Success = ">"
-		chrysanthemum.Fail = color.RedString("x")
-	}
+	chrysanthemum.Success = " "
 }
 
 func main() {

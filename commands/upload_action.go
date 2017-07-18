@@ -5,20 +5,19 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/aisk/chrysanthemum"
 	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 )
 
 func uploadFile(appID string, filePath string) error {
-	chrysanthemum.Println("上传文件:", filePath)
+	fmt.Println("上传文件: " + filePath)
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
 		fmt.Println(err)
 		return err
 	}
-	fmt.Printf(" %s 上传成功，文件 URL：%s\r\n", chrysanthemum.Success, file.URL)
+	fmt.Printf("上传成功，文件 URL：%s\r\n", file.URL)
 	return nil
 }
 
