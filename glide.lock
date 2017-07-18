@@ -4,7 +4,7 @@ imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: ba42ddae458c0def2bc25a414ff03a6cc449752d
 - name: github.com/aisk/chrysanthemum
-  version: 80f3bf4d1cc3347e13da0334807c5be16d3db652
+  version: 028390cd71553634bb2f66ed0104bf6201ddc3a4
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
 - name: github.com/aisk/wizard
