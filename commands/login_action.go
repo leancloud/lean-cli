@@ -5,8 +5,8 @@ import (
 	"strings"
 
 	"github.com/aisk/wizard"
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
+	"github.com/urfave/cli"
 )
 
 func inputAccountInfo() (string, string, error) {

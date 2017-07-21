@@ -7,11 +7,11 @@ import (
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/chrysanthemum"
 	"github.com/aisk/wizard"
-	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 )
 
 func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*api.GetAppListResult, error) {

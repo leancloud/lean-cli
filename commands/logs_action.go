@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 )
 
 func extractDateParams(c *cli.Context) (*time.Time, *time.Time, error) {

@@ -3,10 +3,10 @@ package commands
 import (
 	"fmt"
 
-	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/runtimes"
+	"github.com/urfave/cli"
 )
 
 // newCliError create a *cli.ExitError from given error interface, and the new error's content is human readable

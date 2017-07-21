@@ -5,11 +5,11 @@ import (
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/wizard"
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/boilerplate"
+	"github.com/urfave/cli"
 )
 
 func selectApp(appList []*api.GetAppListResult) (*api.GetAppListResult, error) {

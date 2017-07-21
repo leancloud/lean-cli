@@ -6,10 +6,10 @@ import (
 	"os/exec"
 	"strings"
 
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/logo"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/pkg/browser"
+	"github.com/urfave/cli"
 )
 
 // Run the command line

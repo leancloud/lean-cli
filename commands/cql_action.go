@@ -11,10 +11,10 @@ import (
 	"text/tabwriter"
 
 	"github.com/chzyer/readline"
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/utils"
+	"github.com/urfave/cli"
 )
 
 const (
