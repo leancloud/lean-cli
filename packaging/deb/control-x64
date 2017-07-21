@@ -1,6 +1,6 @@
 Package: lean-cli
 Section: devel
-Version: 0.10.0
+Version: 0.11.0
 Priority: optional
 Architecture: amd64
 Maintainer: asaka <lan@leancloud.rocks>
