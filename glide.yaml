@@ -1,7 +1,6 @@
 package: github.com/leancloud/lean-cli
 import:
 - package: github.com/aisk/wizard
-- package: github.com/codegangsta/cli
 - package: github.com/levigross/grequests
 - package: github.com/bitly/go-simplejson
 - package: github.com/ahmetalpbalkan/go-linq
@@ -26,3 +25,5 @@ import:
 - package: github.com/leancloud/go-upload
 - package: github.com/facebookgo/symwalk
 - package: github.com/cbroglie/mustache
+- package: github.com/urfave/cli
+  version: ^1.19.1

@@ -1,5 +1,5 @@
-hash: 124fea22f7cfca48dcb7203f794f72cd113abea08f0f3af1aa6ce46e5d221259
-updated: 2017-07-14T15:39:04.06233183+08:00
+hash: 41324c60706ccfe239296ad173d547d4e787df2da9e2057c8b6bc1a3b356e2c5
+updated: 2017-07-21T17:54:13.447554424+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: ba42ddae458c0def2bc25a414ff03a6cc449752d
@@ -69,6 +69,8 @@ imports:
   version: 30c22466d920a7dc0e1f79d048f44af85ac04ee6
 - name: github.com/tj/go-debug
   version: ff4a55a20a86994118644bbddc6a216da193cc13
+- name: github.com/urfave/cli
+  version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: golang.org/x/net
   version: 45e771701b814666a7eb299e6c7a57d0b1799e91
   subpackages:

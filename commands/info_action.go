@@ -4,10 +4,10 @@ import (
 	"fmt"
 
 	"github.com/aisk/chrysanthemum"
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 )
 
 func infoAction(c *cli.Context) error {

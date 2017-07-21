@@ -10,9 +10,9 @@ import (
 
 	"github.com/aisk/chrysanthemum"
 	"github.com/cbroglie/mustache"
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 )
 
 var (

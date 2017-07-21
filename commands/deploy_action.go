@@ -9,12 +9,12 @@ import (
 	"time"
 
 	"github.com/aisk/chrysanthemum"
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/runtimes"
 	"github.com/leancloud/lean-cli/utils"
+	"github.com/urfave/cli"
 )
 
 func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {

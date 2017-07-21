@@ -5,11 +5,11 @@ import (
 	"strconv"
 
 	"github.com/aisk/chrysanthemum"
-	"github.com/codegangsta/cli"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/console"
+	"github.com/urfave/cli"
 )
 
 func debugAction(c *cli.Context) error {

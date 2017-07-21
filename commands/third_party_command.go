@@ -5,9 +5,9 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/codegangsta/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 )
 
 func thirdPartyCommand(c *cli.Context, _cmdName string) {
