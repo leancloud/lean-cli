@@ -16,6 +16,20 @@ func (r Region) String() string {
 	}
 }
 
+// Description is region's readable description
+func (r Region) Description() string {
+	switch r {
+	case CN:
+		return "国内"
+	case US:
+		return "美国"
+	case TAB:
+		return "TAB"
+	default:
+		return "invalid"
+	}
+}
+
 // APIServerURL returns this region's API Server URL
 func (r Region) APIServerURL() string {
 	switch r {
