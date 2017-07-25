@@ -91,34 +91,25 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	return selectBoil, err
 }
 
-func selectRegion() (regions.Region, error) {
+func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
 	region := regions.Invalid
-	err := wizard.Ask([]wizard.Question{
-		{
-			Content: "请选择应用节点",
-			Answers: []wizard.Answer{
-				{
-					Content: "国内",
-					Handler: func() {
-						region = regions.CN
-					},
-				},
-				{
-					Content: "美国",
-					Handler: func() {
-						region = regions.US
-					},
-				},
-				{
-					Content: "TAB",
-					Handler: func() {
-						region = regions.TAB
-					},
-				},
-			},
-		},
-	})
+	question := wizard.Question{
+		Content: "请选择应用节点",
+		Answers: []wizard.Answer{},
+	}
 
+	for _, r := range loginedRegions {
+		answer := wizard.Answer{
+			Content: r.Description(),
+		}
+		func(r regions.Region) {
+			answer.Handler = func() {
+				region = r
+			}
+		}(r)
+		question.Answers = append(question.Answers, answer)
+	}
+	err := wizard.Ask([]wizard.Question{question})
 	return region, err
 }
 
@@ -134,9 +125,19 @@ func initAction(c *cli.Context) error {
 	case "tab", "TAB":
 		region = regions.TAB
 	case "":
-		region, err = selectRegion()
+		loginedRegions, err := api.GetLoginedRegion()
 		if err != nil {
 			return newCliError(err)
+		}
+		if len(loginedRegions) == 0 {
+			return cli.NewExitError("没有登录", 1)
+		} else if len(loginedRegions) == 1 {
+			region = loginedRegions[0]
+		} else {
+			region, err = selectRegion(loginedRegions)
+			if err != nil {
+				return newCliError(err)
+			}
 		}
 	default:
 		return cli.NewExitError("invalid region", 1)

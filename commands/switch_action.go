@@ -112,17 +112,27 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	var region regions.Region
 	var err error
 	switch regionString {
-	case "":
-		region, err = selectRegion()
-		if err != nil {
-			return newCliError(err)
-		}
 	case "tab", "TAB":
 		region = regions.TAB
 	case "cn", "CN":
 		region = regions.CN
 	case "us", "US":
 		region = regions.US
+	case "":
+		loginedRegions, err := api.GetLoginedRegion()
+		if err != nil {
+			return newCliError(err)
+		}
+		if len(loginedRegions) == 0 {
+
+		} else if len(loginedRegions) == 1 {
+			region = loginedRegions[0]
+		} else {
+			region, err = selectRegion(loginedRegions)
+			if err != nil {
+				return newCliError(err)
+			}
+		}
 	default:
 		return cli.NewExitError("错误的 region 参数", 1)
 	}
