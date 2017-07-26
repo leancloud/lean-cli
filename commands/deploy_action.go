@@ -14,6 +14,7 @@ import (
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/runtimes"
 	"github.com/leancloud/lean-cli/utils"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -135,6 +136,7 @@ func deployFromGit(revision string, opts *deployOptions) error {
 }
 
 func deployAction(c *cli.Context) error {
+	version.PrintCurrentVersion()
 	isDeployFromGit := c.Bool("g")
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
