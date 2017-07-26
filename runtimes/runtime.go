@@ -13,6 +13,7 @@ import (
 	"github.com/aisk/chrysanthemum"
 	"github.com/facebookgo/parseignore"
 	"github.com/facebookgo/symwalk"
+	"github.com/leancloud/lean-cli/logger"
 	"github.com/leancloud/lean-cli/utils"
 )
 
@@ -271,8 +272,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 			if strings.HasPrefix(sdkVersion, "0.") ||
 				strings.HasPrefix(sdkVersion, "~0.") ||
 				strings.HasPrefix(sdkVersion, "^0.") {
-				s := "当前使用 leanengine SDK 版本过低，本地云函数调试功能将会不能正常启用。建议参考 http://url.leanapp.cn/Og1cVia 尽快升级。"
-				fmt.Fprintf(os.Stderr, " %s [WARNING] %s\r\n", chrysanthemum.Fail, s)
+				logger.Warn("当前使用 leanengine SDK 版本过低，本地云函数调试功能将会不能正常启用。建议参考 http://url.leanapp.cn/Og1cVia 尽快升级")
 			}
 		}
 
