@@ -4,8 +4,8 @@ import (
 	"testing"
 )
 
-func TestGetBoilerplateList(t *testing.T) {
-	_, err := GetBoilerplateList()
+func TestGetBoilerplates(t *testing.T) {
+	_, err := GetBoilerplates()
 	if err != nil {
 		t.Error(err)
 	}

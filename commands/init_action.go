@@ -60,35 +60,47 @@ func selectGroup(groupList []*api.GetGroupsResult) (*api.GetGroupsResult, error)
 }
 
 func selectBoilerplate() (*boilerplate.Boilerplate, error) {
-	var selectBoil *boilerplate.Boilerplate
-	boils, err := boilerplate.GetBoilerplateList()
+	var selectedBoilerplate boilerplate.Boilerplate
+	var selectedCategory boilerplate.Category
+	categories, err := boilerplate.GetBoilerplates()
 	if err != nil {
 		return nil, err
 	}
 
-	orderedBoils := []*boilerplate.Boilerplate{}
-	linq.From(boils).OrderBy(func(in interface{}) interface{} {
-		return in.(*boilerplate.Boilerplate).Name[0]
-	}).ToSlice(&orderedBoils)
-
 	question := wizard.Question{
+		Content: "请选择需要创建应用的编程语言",
+		Answers: []wizard.Answer{},
+	}
+	for _, category := range categories {
+		answer := wizard.Answer{
+			Content: category.Name,
+		}
+		func(category boilerplate.Category) {
+			answer.Handler = func() {
+				selectedCategory = category
+			}
+		}(category)
+		question.Answers = append(question.Answers, answer)
+	}
+	err = wizard.Ask([]wizard.Question{question})
+
+	question = wizard.Question{
 		Content: "请选择需要创建的应用模版",
 		Answers: []wizard.Answer{},
 	}
-	for _, boil := range orderedBoils {
+	for _, boil := range selectedCategory.Boilerplates {
 		answer := wizard.Answer{
 			Content: boil.Name,
 		}
-		// for scope problem
-		func(boil *boilerplate.Boilerplate) {
+		func(boil boilerplate.Boilerplate) {
 			answer.Handler = func() {
-				selectBoil = boil
+				selectedBoilerplate = boil
 			}
 		}(boil)
 		question.Answers = append(question.Answers, answer)
 	}
 	err = wizard.Ask([]wizard.Question{question})
-	return selectBoil, err
+	return &selectedBoilerplate, err
 }
 
 func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
