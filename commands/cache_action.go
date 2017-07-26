@@ -113,11 +113,11 @@ func enterLeanCacheREPL(appID string, instance string, db int) error {
 		if e, ok := err.(api.Error); ok {
 			fmt.Println(e.Content)
 		} else if err != nil {
-			return newCliError(err)
+			return err
 		} else {
 			err = printCacheReult(result)
 			if err != nil {
-				return newCliError(err)
+				return err
 			}
 		}
 	}
@@ -140,12 +140,12 @@ func cacheAction(c *cli.Context) error {
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	caches, err := api.GetCacheList(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	if len(caches) == 0 {
@@ -155,7 +155,7 @@ func cacheAction(c *cli.Context) error {
 	if instanceName == "" {
 		cache, err := selectCache(caches)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		instanceName = cache.Instance
 	}
@@ -163,14 +163,14 @@ func cacheAction(c *cli.Context) error {
 	if db == -1 {
 		db, err = selectDb()
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	}
 
 	if command == "" {
 		err = enterLeanCacheREPL(appID, instanceName, db)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	} else {
 		result, err := api.ExecuteCacheCommand(appID, instanceName, db, command)
@@ -178,11 +178,11 @@ func cacheAction(c *cli.Context) error {
 			fmt.Println(e.Content)
 			return cli.NewExitError("", 1)
 		} else if err != nil {
-			return newCliError(err)
+			return err
 		} else {
 			err = printCacheReult(result)
 			if err != nil {
-				return newCliError(err)
+				return err
 			}
 		}
 	}

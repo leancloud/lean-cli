@@ -15,34 +15,34 @@ func publishAction(c *cli.Context) error {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	spinner := chrysanthemum.New("获取应用信息").Start()
 	region, err := api.GetAppRegion(appID)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	group, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	spinner.Successed()
 

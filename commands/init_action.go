@@ -127,7 +127,7 @@ func initAction(c *cli.Context) error {
 	case "":
 		loginedRegions, err := api.GetLoginedRegion()
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("没有登录", 1)
@@ -136,7 +136,7 @@ func initAction(c *cli.Context) error {
 		} else {
 			region, err = selectRegion(loginedRegions)
 			if err != nil {
-				return newCliError(err)
+				return err
 			}
 		}
 	default:
@@ -145,7 +145,7 @@ func initAction(c *cli.Context) error {
 
 	appList, err := api.GetAppList(region)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	var orderedAppList []*api.GetAppListResult
@@ -155,17 +155,17 @@ func initAction(c *cli.Context) error {
 
 	app, err := selectApp(orderedAppList)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	groupList, err := api.GetGroups(app.AppID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	if groupName == "" {
 		group, err := selectGroup(groupList)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		groupName = group.GroupName
 	} else {
@@ -178,29 +178,29 @@ func initAction(c *cli.Context) error {
 			return errors.New("找不到分组 " + groupName)
 		}()
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	}
 
 	boil, err := selectBoilerplate()
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	appName := app.AppName
 
 	if err = boilerplate.FetchRepo(boil, appName, app.AppID); err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	err = apps.LinkApp(app.AppName, app.AppID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	err = apps.LinkGroup(app.AppName, groupName)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	return nil

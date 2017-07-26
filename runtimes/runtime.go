@@ -17,7 +17,7 @@ import (
 )
 
 // ErrInvalidRuntime means the project's structure is not a valid LeanEngine project
-var ErrInvalidRuntime = errors.New("invalid runtime")
+var ErrInvalidRuntime = errors.New("错误的项目目录结构，请确保当前运行目录是正确的云引擎项目")
 
 type filesPattern struct {
 	Includes []string

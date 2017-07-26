@@ -50,22 +50,22 @@ func envAction(c *cli.Context) error {
 
 	tmpl, err := mustache.ParseString(tmplString)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	region, err := api.GetAppRegion(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	envs := []map[string]string{
@@ -86,11 +86,11 @@ func envAction(c *cli.Context) error {
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	for name, value := range groupInfo.Environments {
@@ -100,7 +100,7 @@ func envAction(c *cli.Context) error {
 	for _, env := range envs {
 		result, err := tmpl.Render(env)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		fmt.Println(result)
 	}
@@ -117,24 +117,24 @@ func envSetAction(c *cli.Context) error {
 	envValue := c.Args()[1]
 
 	if strings.HasPrefix(strings.ToUpper(envName), "LEANCLOUD") {
-		return newCliError(errors.New("请不要设置 `LEANCLOUD` 开头的环境变量"))
+		return errors.New("请不要设置 `LEANCLOUD` 开头的环境变量")
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	bar := chrysanthemum.New("获取云引擎信息").Start()
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	group, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	bar.Successed()
 
@@ -144,7 +144,7 @@ func envSetAction(c *cli.Context) error {
 	err = api.PutEnvironments(appID, group, envs)
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	bar.Successed()
 	return nil
@@ -158,24 +158,24 @@ func envUnsetAction(c *cli.Context) error {
 	env := c.Args()[0]
 
 	if strings.HasPrefix(strings.ToUpper(env), "LEANCLOUD") {
-		return newCliError(errors.New("请不要移除 `LEANCLOUD` 开头的环境变量"))
+		return errors.New("请不要移除 `LEANCLOUD` 开头的环境变量")
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	bar := chrysanthemum.New("获取云引擎信息").Start()
 	group, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	bar.Successed()
 
@@ -186,7 +186,7 @@ func envUnsetAction(c *cli.Context) error {
 	err = api.PutEnvironments(appID, group, envs)
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	bar.Successed()
 	return nil

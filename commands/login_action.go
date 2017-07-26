@@ -37,12 +37,12 @@ func loginWithPassword(username string, password string, region string) (*api.Ge
 		var err error
 		username, password, err = inputAccountInfo()
 		if err != nil {
-			return nil, newCliError(err)
+			return nil, err
 		}
 	}
 	info, err := api.Login(username, password)
 	if err != nil {
-		return nil, newCliError(err)
+		return nil, err
 	}
 
 	if region == "CN" {
@@ -51,7 +51,7 @@ func loginWithPassword(username string, password string, region string) (*api.Ge
 
 	err = api.LoginUSRegion()
 	if err != nil {
-		return nil, newCliError(err)
+		return nil, err
 	}
 
 	return info, err
@@ -89,12 +89,12 @@ func loginAction(c *cli.Context) error {
 		password := c.String("password")
 		userInfo, err = loginWithPassword(username, password, region)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	case "TAB":
 		userInfo, err = loginWithSessionToken()
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	default:
 		cli.ShowCommandHelp(c, "login")

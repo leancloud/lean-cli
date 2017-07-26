@@ -30,7 +30,7 @@ func Run(args []string) {
 		{
 			Name:      "login",
 			Usage:     "登录 LeanCloud 账户",
-			Action:    loginAction,
+			Action:    wrapAction(loginAction),
 			ArgsUsage: "[-u username -p password (--region <CN> | <US> | <TAB>)]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -51,12 +51,12 @@ func Run(args []string) {
 		{
 			Name:   "info",
 			Usage:  "查看当前登录用户以及应用信息",
-			Action: infoAction,
+			Action: wrapAction(infoAction),
 		},
 		{
 			Name:   "up",
 			Usage:  "本地启动云引擎应用",
-			Action: upAction,
+			Action: wrapAction(upAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "watch",
@@ -80,7 +80,7 @@ func Run(args []string) {
 		{
 			Name:   "init",
 			Usage:  "初始化云引擎项目",
-			Action: initAction,
+			Action: wrapAction(initAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
@@ -95,7 +95,7 @@ func Run(args []string) {
 		{
 			Name:      "switch",
 			Usage:     "切换当前项目关联的 LeanCloud 应用",
-			Action:    switchAction,
+			Action:    wrapAction(switchAction),
 			ArgsUsage: "[appID | appName]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
@@ -111,7 +111,7 @@ func Run(args []string) {
 		{
 			Name:      "checkout",
 			Usage:     "切换当前项目关联的 LeanCloud 应用",
-			Action:    checkOutAction,
+			Action:    wrapAction(checkOutAction),
 			ArgsUsage: "[appID | appName]",
 			Hidden:    true,
 			Flags: []cli.Flag{
@@ -128,7 +128,7 @@ func Run(args []string) {
 		{
 			Name:   "deploy",
 			Usage:  "部署云引擎项目到服务器",
-			Action: deployAction,
+			Action: wrapAction(deployAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "g",
@@ -165,7 +165,7 @@ func Run(args []string) {
 		{
 			Name:   "publish",
 			Usage:  "部署当前预备环境的代码至生产环境",
-			Action: publishAction,
+			Action: wrapAction(publishAction),
 		},
 		{
 			Name:      "upload",
@@ -176,7 +176,7 @@ func Run(args []string) {
 		{
 			Name:   "logs",
 			Usage:  "查看 LeanEngine 产生的日志",
-			Action: logsAction,
+			Action: wrapAction(logsAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "f",
@@ -210,7 +210,7 @@ func Run(args []string) {
 		{
 			Name:   "debug",
 			Usage:  "不运行项目，直接启动云函数调试服务",
-			Action: debugAction,
+			Action: wrapAction(debugAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "remote,r",
@@ -231,7 +231,7 @@ func Run(args []string) {
 		{
 			Name:   "env",
 			Usage:  "输出运行当前云引擎应用所需要的环境变量",
-			Action: envAction,
+			Action: wrapAction(envAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "port,p",
@@ -247,13 +247,13 @@ func Run(args []string) {
 				{
 					Name:      "set",
 					Usage:     "设置新的环境变量",
-					Action:    envSetAction,
+					Action:    wrapAction(envSetAction),
 					ArgsUsage: "[env-name] [env-value]",
 				},
 				{
 					Name:      "unset",
 					Usage:     "删除环境变量",
-					Action:    envUnsetAction,
+					Action:    wrapAction(envUnsetAction),
 					ArgsUsage: "[env-name]",
 				},
 			},
@@ -261,7 +261,7 @@ func Run(args []string) {
 		{
 			Name:   "cache",
 			Usage:  "LeanCache 管理相关功能",
-			Action: cacheAction,
+			Action: wrapAction(cacheAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "db",
@@ -281,14 +281,14 @@ func Run(args []string) {
 				{
 					Name:   "list",
 					Usage:  "列出当前应用关联的所有 LeanCache",
-					Action: cacheListAction,
+					Action: wrapAction(cacheListAction),
 				},
 			},
 		},
 		{
 			Name:   "cql",
 			Usage:  "进入 CQL 交互查询",
-			Action: cqlAction,
+			Action: wrapAction(cqlAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{Name: "format,f",
 					Usage: "指定 CQL 结果展示格式",

@@ -29,18 +29,18 @@ func uploadAction(c *cli.Context) error {
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	for _, filePath := range c.Args() {
 		f, err := os.Open(filePath)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		defer f.Close()
 		stat, err := f.Stat()
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		if stat.IsDir() {
 			err := filepath.Walk(filePath, func(path string, info os.FileInfo, err error) error {
@@ -53,12 +53,12 @@ func uploadAction(c *cli.Context) error {
 				return uploadFile(appID, path)
 			})
 			if err != nil {
-				return newCliError(err)
+				return err
 			}
 		} else {
 			err := uploadFile(appID, filePath)
 			if err != nil {
-				return newCliError(err)
+				return err
 			}
 		}
 	}
