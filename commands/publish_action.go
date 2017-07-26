@@ -6,10 +6,12 @@ import (
 	"github.com/aisk/chrysanthemum"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
 func publishAction(c *cli.Context) error {
+	version.PrintCurrentVersion()
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
