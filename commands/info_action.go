@@ -15,7 +15,7 @@ func infoAction(c *cli.Context) error {
 
 	loginedRegions, err := api.GetLoginedRegion()
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	if len(loginedRegions) == 0 {

@@ -21,7 +21,7 @@ func debugAction(c *cli.Context) error {
 		var err error
 		appID, err = apps.GetCurrentAppID(".")
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	}
 
@@ -29,7 +29,7 @@ func debugAction(c *cli.Context) error {
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	bar.Successed()
 	fmt.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)

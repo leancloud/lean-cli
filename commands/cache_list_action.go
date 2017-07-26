@@ -13,12 +13,12 @@ import (
 func cacheListAction(c *cli.Context) error {
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	caches, err := api.GetCacheList(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	if len(caches) == 0 {

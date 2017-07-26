@@ -121,7 +121,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	case "":
 		loginedRegions, err := api.GetLoginedRegion()
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		if len(loginedRegions) == 0 {
 
@@ -130,7 +130,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 		} else {
 			region, err = selectRegion(loginedRegions)
 			if err != nil {
-				return newCliError(err)
+				return err
 			}
 		}
 	default:
@@ -141,7 +141,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	appList, err := api.GetAppList(region)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	spinner.Successed()
 
@@ -153,25 +153,25 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	currentAppID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		if err != apps.ErrNoAppLinked {
-			return newCliError(err)
+			return err
 		}
 	}
 
 	app, err := selectCheckOutApp(sortedAppList, currentAppID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	groupList, err := api.GetGroups(app.AppID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	var group *api.GetGroupsResult
 	if groupName == "" {
 		group, err = selectGroup(groupList)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	} else {
 		err = func() error {
@@ -191,11 +191,11 @@ func checkOutWithWizard(regionString string, groupName string) error {
 
 	err = apps.LinkApp(".", app.AppID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	err = apps.LinkGroup(".", group.GroupName)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	return nil
 }
@@ -207,7 +207,7 @@ func switchAction(c *cli.Context) error {
 		arg := c.Args()[0]
 		err := checkOutWithAppInfo(arg, region, group)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		return nil
 	}

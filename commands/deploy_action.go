@@ -145,29 +145,29 @@ func deployAction(c *cli.Context) error {
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	spinner := chrysanthemum.New("获取应用信息").Start()
 	region, err := api.GetAppRegion(appID)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	spinner.Successed()
 
@@ -192,12 +192,12 @@ func deployAction(c *cli.Context) error {
 	if isDeployFromGit {
 		err = deployFromGit(revision, opts)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	} else {
 		err = deployFromLocal(isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	}
 	return nil

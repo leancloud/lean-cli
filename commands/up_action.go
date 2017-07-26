@@ -39,17 +39,17 @@ func upAction(c *cli.Context) error {
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	region, err := api.GetAppRegion(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	rtm, err := runtimes.DetectRuntime("")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	rtm.Port = strconv.Itoa(rtmPort)
 	rtm.Args = append(rtm.Args, customArgs...)
@@ -72,20 +72,20 @@ func upAction(c *cli.Context) error {
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		bar.Failed()
-		return newCliError(err)
+		return err
 	}
 	bar.Successed()
 	fmt.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	spinner := chrysanthemum.New("获取运引擎分组 " + groupName + " 信息").Start()
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		spinner.Failed()
-		return newCliError(err)
+		return err
 	}
 	spinner.Successed()
 

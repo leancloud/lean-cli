@@ -43,12 +43,12 @@ func logsAction(c *cli.Context) error {
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	from, to, err := extractDateParams(c)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	if env == "staging" || env == "stag" {
@@ -64,11 +64,11 @@ func logsAction(c *cli.Context) error {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	info, err := api.GetAppInfo(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	var printer api.LogReceiver

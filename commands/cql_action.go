@@ -178,21 +178,21 @@ func cqlAction(c *cli.Context) error {
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
-		return newCliError(err)
+		return err
 	}
 
 	if eval != "" {
 		region, err := api.GetAppRegion(appInfo.AppID)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		result, err := api.ExecuteCQL(appInfo.AppID, appInfo.MasterKey, region, eval)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 		if format == printCQLResultFormatJSON {
 			printJSONCQLResult(result)
@@ -202,7 +202,7 @@ func cqlAction(c *cli.Context) error {
 	} else {
 		err = enterCQLREPL(appInfo, format)
 		if err != nil {
-			return newCliError(err)
+			return err
 		}
 	}
 	return nil
