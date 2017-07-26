@@ -94,30 +94,28 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	return nil
 }
 
-// Boilerplate is GetBoilerplateList's result type
-type Boilerplate struct {
-	Name string
-	URL  string
+type Category struct {
+	Name         string        `json:"name"`
+	Boilerplates []Boilerplate `json:"boilerplates"`
 }
 
-// GetBoilerplateList returns all the boilerplate with name and url
-func GetBoilerplateList() ([]*Boilerplate, error) {
-	resp, err := grequests.Get("https://lcinternal-cloud-code-update.leanapp.cn/", &grequests.RequestOptions{
+type Boilerplate struct {
+	Name     string `json:"name"`
+	Homepage string `json:"homepage"`
+	URL      string `json:"url"`
+}
+
+// GetBoilerplates returns all the boilerplate with name and url
+func GetBoilerplates() ([]Category, error) {
+	resp, err := grequests.Get("https://lcinternal-cloud-code-update.leanapp.cn/boilerplates.json", &grequests.RequestOptions{
 		UserAgent: "LeanCloud-CLI/" + version.Version,
 	})
 	if err != nil {
 		return nil, err
 	}
-	result := make(map[string]*Boilerplate)
+	var result []Category
 	err = resp.JSON(&result)
-	if err != nil {
-		return nil, err
-	}
-	var boils []*Boilerplate
-	for _, boil := range result {
-		boils = append(boils, boil)
-	}
-	return boils, nil
+	return result, err
 }
 
 // DownloadToFile allows you to download the contents of the response to a file
