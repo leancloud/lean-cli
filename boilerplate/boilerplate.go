@@ -9,8 +9,9 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/aisk/chrysanthemum"
 	"github.com/cheggaaa/pb"
+	"github.com/fatih/color"
+	"github.com/leancloud/lean-cli/logger"
 	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
@@ -76,7 +77,7 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 		return err
 	}
 
-	spinner := chrysanthemum.New("正在创建项目...").Start()
+	logger.Info("正在创建项目...")
 
 	zipFile, err := zip.OpenReader(zipFilePath)
 	utils.CheckError(err)
@@ -84,13 +85,11 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	for _, f := range zipFile.File {
 		err := extractAndWriteFile(f, appName)
 		if err != nil {
-			spinner.Failed()
 			return err
 		}
 	}
 
-	spinner.Successed()
-
+	logger.Info("创建", boil.Name, "项目成功，更多关于", boil.Name, "的文档请参考官网：", boil.Homepage)
 	return nil
 }
 
@@ -136,7 +135,7 @@ func DownloadToFile(r *grequests.Response, fileName string) error {
 
 	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
 		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
-		bar.Prefix(" " + chrysanthemum.Success + " 下载模版文件")
+		bar.Prefix(color.GreenString("[INFO]") + " 下载模版文件")
 		bar.Start()
 		defer bar.Finish()
 		reader := bar.NewProxyReader(r)
