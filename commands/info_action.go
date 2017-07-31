@@ -1,9 +1,7 @@
 package commands
 
 import (
-	"fmt"
-
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
@@ -19,68 +17,61 @@ func infoAction(c *cli.Context) error {
 	}
 
 	if len(loginedRegions) == 0 {
-		fmt.Println("未登录")
+		logp.Error("未登录")
 		return nil
 	}
 
 	for _, loginedRegion := range loginedRegions {
-		bar := chrysanthemum.New(fmt.Sprintf("获取 %s 节点用户信息", loginedRegion)).Start()
+		logp.Infof("获取 %s 节点用户信息\r\n", loginedRegion)
 		userInfo, err := api.GetUserInfo(loginedRegion)
 		if err != nil {
-			bar.Failed()
 			callbacks = append(callbacks, func() {
-				fmt.Printf("获取 %s 节点用户信息失败: %v\r\n", loginedRegion, err)
+				logp.Errorf("获取 %s 节点用户信息失败: %v\r\n", loginedRegion, err)
 			})
 		} else {
-			bar.Successed()
 			func(loginedRegion regions.Region) {
 				callbacks = append(callbacks, func() {
-					fmt.Printf("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
+					logp.Infof("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
 				})
 			}(loginedRegion)
 		}
 	}
 
-	bar := chrysanthemum.New("获取应用信息").Start()
+	logp.Info("获取应用信息")
 	appID, err := apps.GetCurrentAppID(".")
 
 	if err == apps.ErrNoAppLinked {
-		bar.Failed()
 		callbacks = append(callbacks, func() {
-			fmt.Println("当前目录没有关联任何 LeanCloud 应用")
+			logp.Warn("当前目录没有关联任何 LeanCloud 应用")
 		})
 	} else if err != nil {
-		bar.Failed()
 		callbacks = append(callbacks, func() {
-			fmt.Println("获取当前目录关联应用失败：", err)
+			logp.Error("获取当前目录关联应用失败：", err)
 		})
 	} else {
 		appInfo, err := api.GetAppInfo(appID)
 		if err != nil {
-			bar.Failed()
 			callbacks = append(callbacks, func() {
-				fmt.Println("获取应用信息失败：", err)
+				logp.Error("获取应用信息失败：", err)
 			})
 		} else {
-			bar.Successed()
 			region, err := api.GetAppRegion(appID)
 			if err != nil {
-				bar.Failed()
 				callbacks = append(callbacks, func() {
-					fmt.Println("获取应用节点信息失败：", err)
+					logp.Error("获取应用节点信息失败：", err)
 				})
 			} else {
 				callbacks = append(callbacks, func() {
-					fmt.Printf("当前目录关联 %s 节点应用：%s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
+					logp.Infof("当前目录关联 %s 节点应用：%s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
 				})
 				group, err := apps.GetCurrentGroup(".")
 				if err != nil {
 					callbacks = append(callbacks, func() {
-						fmt.Println("获取关联分组信息失败：", err)
+						logp.Error("获取关联分组信息失败：", err)
 					})
 				} else {
 					callbacks = append(callbacks, func() {
-						fmt.Printf("当前目录关联分组：%s\r\n", group)
+						logp.Infof("当前目录关联分组：%s\r\n", group)
 					})
 				}
 			}
