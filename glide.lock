@@ -1,5 +1,5 @@
-hash: 41324c60706ccfe239296ad173d547d4e787df2da9e2057c8b6bc1a3b356e2c5
-updated: 2017-07-21T17:54:13.447554424+08:00
+hash: d35d04292bee6d6cbe7f5e3839e3e2d836a570e64eba8fbfe9e887ba94d33630
+updated: 2017-07-31T13:47:18.984682269+08:00
 imports:
 - name: github.com/ahmetalpbalkan/go-linq
   version: ba42ddae458c0def2bc25a414ff03a6cc449752d
@@ -7,6 +7,8 @@ imports:
   version: 028390cd71553634bb2f66ed0104bf6201ddc3a4
 - name: github.com/aisk/cookieparser
   version: 9726074b6bda13c32d81e5d618ff0ed02734aa2e
+- name: github.com/aisk/logp
+  version: af23a256979e2f46179456571d31f99429135f53
 - name: github.com/aisk/wizard
   version: 45b1b4b542137d8db63c3d462d63a9917471f923
 - name: github.com/bitly/go-simplejson
@@ -19,8 +21,6 @@ imports:
   version: f6ccf2184de4dd34495277e38dc19b6e7fbe0ea2
 - name: github.com/chzyer/readline
   version: c914be64f07d9998f52bf0d598ec26d457168c0f
-- name: github.com/codegangsta/cli
-  version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: github.com/coreos/go-semver
   version: 8ab6407b697782a06568d4b7f1db25550ec2e4c6
   subpackages:

@@ -27,3 +27,4 @@ import:
 - package: github.com/cbroglie/mustache
 - package: github.com/urfave/cli
   version: ^1.19.1
+- package: github.com/aisk/logp
