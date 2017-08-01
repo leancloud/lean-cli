@@ -8,5 +8,5 @@ import (
 const Version = "0.12.0"
 
 func PrintCurrentVersion() {
-	logger.Info("当前版本：", Version)
+	logger.Info("当前命令行工具版本：", Version)
 }

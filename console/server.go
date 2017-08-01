@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
+	"github.com/aisk/logp"
 	"github.com/gorilla/mux"
 	"github.com/levigross/grequests"
 )
@@ -216,7 +217,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/{resourceName}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort
-	fmt.Println("云函数调试服务已启动，请使用浏览器访问：http://" + addr)
+	logp.Info("云函数调试服务已启动，请使用浏览器访问：http://" + addr)
 
 	go func() {
 		server.Errors <- http.ListenAndServe(addr, router)

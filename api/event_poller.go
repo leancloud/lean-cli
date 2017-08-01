@@ -1,11 +1,12 @@
 package api
 
 import (
+	"fmt"
 	"strings"
 	"time"
 
-	"github.com/aisk/chrysanthemum"
 	"github.com/fatih/color"
+	"github.com/mattn/go-colorable"
 )
 
 type deployEvent struct {
@@ -35,7 +36,6 @@ func PollEvents(appID string, tok string) (bool, error) {
 	from := ""
 	ok := true
 	retryCount := 0
-	var spinner *chrysanthemum.Chrysanthemum
 	for {
 		time.Sleep(700 * time.Millisecond)
 		url := "/1.1/engine/events/poll/" + tok
@@ -57,25 +57,17 @@ func PollEvents(appID string, tok string) (bool, error) {
 		}
 		for i := len(event.Events) - 1; i >= 0; i-- {
 			e := event.Events[i]
-
-			if spinner != nil {
-				if ok {
-					spinner.Successed()
-				} else {
-					spinner.Failed()
-				}
-			}
-
-			spinner = chrysanthemum.New(color.YellowString("[REMOTE] ") + e.Content).Start()
-			from = e.Time
 			ok = strings.ToLower(e.Level) != "error"
+			from = e.Time
+			if ok {
+				fmt.Fprintf(colorable.NewColorableStderr(), color.YellowString("[REMOTE] ")+e.Content+"\r\n")
+			} else {
+				fmt.Fprintf(colorable.NewColorableStderr(), color.YellowString("[REMOTE] ")+color.RedString("[ERROR] ")+e.Content+"\r\n")
+			}
 		}
 		if !event.MoreEvent {
 			break
 		}
-	}
-	if spinner != nil {
-		spinner.End()
 	}
 	return ok, nil
 }

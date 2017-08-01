@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/ahmetalpbalkan/go-linq"
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
@@ -137,13 +137,11 @@ func checkOutWithWizard(regionString string, groupName string) error {
 		return cli.NewExitError("错误的 region 参数", 1)
 	}
 
-	spinner := chrysanthemum.New("获取应用列表").Start()
+	logp.Info("获取应用列表 ...")
 	appList, err := api.GetAppList(region)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
-	spinner.Successed()
 
 	var sortedAppList []*api.GetAppListResult
 	linq.From(appList).OrderBy(func(in interface{}) interface{} {
@@ -215,6 +213,6 @@ func switchAction(c *cli.Context) error {
 }
 
 func checkOutAction(c *cli.Context) error {
-	fmt.Printf(" %s [WARNNING] lean checkout 被标记为废弃，请使用 lean switch 代替此命令。\r\n", chrysanthemum.Fail)
+	logp.Warn("lean checkout 被标记为废弃，请使用 lean switch 代替此命令")
 	return switchAction(c)
 }

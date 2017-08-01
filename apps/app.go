@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 )
 
 var (
@@ -128,26 +128,21 @@ func migrateLegencyProjectConfig(projectPath string) (string, error) {
 		return "", err
 	}
 
-	spinner := chrysanthemum.New("检测到旧版命令行工具项目配置，正在迁移").Start()
-
+	logp.Warn("检测到旧版命令行工具项目配置，正在迁移 ...")
 	err = LinkApp(projectPath, appID)
 	if err != nil {
-		spinner.Failed()
 		return "", err
 	}
-	spinner.Successed()
 
-	chrysanthemum.Successed("> 迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
+	logp.Warnf("迁移完毕，`%s`可进行删除\r\n", filepath.Join(projectPath, ".avoscloud"))
 
 	return appID, nil
 }
 
 func migrateLegencyGroupProjectConfig(projectPath string) (string, error) {
-	spinner := chrysanthemum.New("检测到当前项目没有关联分组，正在迁移项目至默认分组(web)").Start()
+	logp.Warn("检测到当前项目没有关联分组，迁移项目至默认分组(web)")
 	if err := ioutil.WriteFile(currentGroupFilePath(projectPath), []byte("web"), 0644); err != nil {
-		spinner.Failed()
 		return "", err
 	}
-	spinner.Successed()
 	return "web", nil
 }
