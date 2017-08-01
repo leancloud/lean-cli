@@ -33,7 +33,9 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 	path := filepath.Join(dest, f.Name)
 
 	if isDir(f.Name) {
-		os.MkdirAll(path, f.Mode())
+		if err := os.MkdirAll(path, f.Mode()); err != nil {
+			return err
+		}
 	} else {
 		// Use os.Create() since Zip don't store file permissions.
 		f, err := os.Create(path)
@@ -52,12 +54,16 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 
 // FetchRepo will download the boilerplate from remote and extract to ${appName}/folder
 func FetchRepo(boil *Boilerplate, appName string, appID string) error {
-	utils.CheckError(os.Mkdir(appName, 0775))
+	if err := os.Mkdir(appName, 0775); err != nil {
+		return err
+	}
 
 	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn" + boil.URL
 
 	dir, err := ioutil.TempDir("", "leanengine")
-	utils.CheckError(err)
+	if err != nil {
+		return err
+	}
 	defer os.RemoveAll(dir)
 
 	resp, err := grequests.Get(repoURL, &grequests.RequestOptions{
@@ -80,7 +86,9 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	logger.Info("正在创建项目...")
 
 	zipFile, err := zip.OpenReader(zipFilePath)
-	utils.CheckError(err)
+	if err != nil {
+		return err
+	}
 	defer zipFile.Close()
 	for _, f := range zipFile.File {
 		err := extractAndWriteFile(f, appName)
