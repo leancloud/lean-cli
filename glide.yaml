@@ -20,7 +20,6 @@ import:
 - package: github.com/getsentry/raven-go
 - package: github.com/facebookgo/parseignore
 - package: github.com/juju/persistent-cookiejar
-- package: github.com/aisk/chrysanthemum
 - package: github.com/pkg/browser
 - package: github.com/leancloud/go-upload
 - package: github.com/facebookgo/symwalk
