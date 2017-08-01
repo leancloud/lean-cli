@@ -6,9 +6,8 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
-	"time"
 
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
@@ -59,7 +58,7 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 		return nil, errors.New("在 ./target 目录没有找到 war 文件")
 	}
 
-	chrysanthemum.Successed("找到默认的 war 文件：", warPath)
+	logp.Info("找到默认的 war 文件：", warPath)
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
@@ -88,20 +87,14 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		if err != nil {
 			return err
 		}
-		spinner := chrysanthemum.New("等待文件同步").Start()
-		// wait for qiniu file sync.
-		time.Sleep(1 * time.Second)
-		spinner.Successed()
 	}
 
 	if !keepFile {
 		defer func() {
-			spinner := chrysanthemum.New("删除临时文件").Start()
+			logp.Info("删除临时文件")
 			err := api.DeleteFile(opts.appID, file.ObjectID)
 			if err != nil {
-				spinner.Failed()
-			} else {
-				spinner.Successed()
+				logp.Error(err)
 			}
 		}()
 	}
@@ -155,30 +148,26 @@ func deployAction(c *cli.Context) error {
 		return err
 	}
 
-	spinner := chrysanthemum.New("获取应用信息").Start()
+	logp.Info("获取应用信息 ...")
 	region, err := api.GetAppRegion(appID)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
-	spinner.Successed()
 
 	prod := 0
 	if engineInfo.Mode == "prod" {
-		fmt.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 预备环境\r\n", appInfo.AppName, appID, region, groupName)
+		logp.Infof("准备部署应用 %s(%s) 到 %s 节点分组 %s 预备环境\r\n", appInfo.AppName, appID, region, groupName)
 	} else if engineInfo.Mode == "free" {
 		prod = 1
-		fmt.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
+		logp.Infof("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 	} else {
 		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
 	}

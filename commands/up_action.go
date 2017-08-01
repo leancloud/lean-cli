@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
@@ -68,26 +68,21 @@ func upAction(c *cli.Context) error {
 		return errDoNotSupportCloudCode
 	}
 
-	bar := chrysanthemum.New("获取应用信息").Start()
+	logp.Info("获取应用信息 ...")
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
-		bar.Failed()
 		return err
 	}
-	bar.Successed()
-	fmt.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
+	logp.Infof("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		return err
 	}
-	spinner := chrysanthemum.New("获取运引擎分组 " + groupName + " 信息").Start()
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
-	spinner.Successed()
 
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
@@ -116,7 +111,7 @@ func upAction(c *cli.Context) error {
 	}
 
 	for k, v := range groupInfo.Environments {
-		chrysanthemum.Successed("从服务器导出自定义环境变量:", k)
+		logp.Info("从服务器导出自定义环境变量:", k)
 		rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
 	}
 
@@ -148,17 +143,13 @@ func upAction(c *cli.Context) error {
 }
 
 func printDeprecatedWatchWarning(rtm *runtimes.Runtime) {
-	fmt.Fprintf(
-		color.Output,
-		" %s [WARNING] --watch 选项不再被支持，请使用项目代码本身实现此功能\r\n",
-		chrysanthemum.Fail,
-	)
+	logp.Warn("--watch 选项不再被支持，请使用项目代码本身实现此功能")
 	if rtm.Name == "python" {
-		fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
-		fmt.Println("   [WARNING] https://github.com/leancloud/python-getting-started/pull/12/files")
+		logp.Warn("可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+		logp.Warn("https://github.com/leancloud/python-getting-started/pull/12/files")
 	}
 	if rtm.Name == "node.js" {
-		fmt.Println("   [WARNING] 可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
-		fmt.Println("   [WARNING] https://github.com/leancloud/node-js-getting-started/pull/26/files")
+		logp.Warn("可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+		logp.Warn("https://github.com/leancloud/node-js-getting-started/pull/26/files")
 	}
 }

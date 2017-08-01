@@ -1,9 +1,9 @@
 package commands
 
 import (
-	"fmt"
+	"errors"
 
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/version"
@@ -25,34 +25,29 @@ func publishAction(c *cli.Context) error {
 		return err
 	}
 
-	spinner := chrysanthemum.New("获取应用信息").Start()
+	logp.Info("获取应用信息 ...")
 	region, err := api.GetAppRegion(appID)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
 	group, err := api.GetGroup(appID, groupName)
 	if err != nil {
-		spinner.Failed()
 		return err
 	}
-	spinner.Successed()
 
 	if engineInfo.Mode != "prod" {
-		return cli.NewExitError("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令。", 1)
+		return errors.New("免费版应用使用 lean deploy 即可将代码部署到生产环境，无需使用此命令")
 	}
 
-	fmt.Printf("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
+	logp.Infof("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 
 	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag)
 	ok, err := api.PollEvents(appID, tok)
@@ -60,7 +55,7 @@ func publishAction(c *cli.Context) error {
 		return err
 	}
 	if !ok {
-		return cli.NewExitError("部署失败", 1)
+		return errors.New("部署失败")
 	}
 	return nil
 }

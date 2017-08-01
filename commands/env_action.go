@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/cbroglie/mustache"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
@@ -139,29 +139,20 @@ func envSetAction(c *cli.Context) error {
 		return err
 	}
 
-	bar := chrysanthemum.New("获取云引擎信息").Start()
+	logp.Info("获取云引擎信息 ...")
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
-		bar.Failed()
 		return err
 	}
 	group, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		bar.Failed()
 		return err
 	}
-	bar.Successed()
 
 	envs := engineInfo.Environments
 	envs[envName] = envValue
-	bar = chrysanthemum.New("更新云引擎 " + group + " 分组环境变量").Start()
-	err = api.PutEnvironments(appID, group, envs)
-	if err != nil {
-		bar.Failed()
-		return err
-	}
-	bar.Successed()
-	return nil
+	logp.Info("更新云引擎 " + group + " 分组环境变量")
+	return api.PutEnvironments(appID, group, envs)
 }
 
 func envUnsetAction(c *cli.Context) error {
@@ -184,28 +175,19 @@ func envUnsetAction(c *cli.Context) error {
 		return err
 	}
 
-	bar := chrysanthemum.New("获取云引擎信息").Start()
+	logp.Info("获取云引擎信息 ...")
 	group, err := apps.GetCurrentGroup(".")
 	if err != nil {
-		bar.Failed()
 		return err
 	}
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
-		bar.Failed()
 		return err
 	}
-	bar.Successed()
 
 	envs := engineInfo.Environments
 	delete(envs, env)
 
-	bar = chrysanthemum.New("更新云引擎 " + group + " 分组环境变量").Start()
-	err = api.PutEnvironments(appID, group, envs)
-	if err != nil {
-		bar.Failed()
-		return err
-	}
-	bar.Successed()
-	return nil
+	logp.Info("更新云引擎 " + group + " 分组环境变量")
+	return api.PutEnvironments(appID, group, envs)
 }

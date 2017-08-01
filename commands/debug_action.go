@@ -1,10 +1,9 @@
 package commands
 
 import (
-	"fmt"
 	"strconv"
 
-	"github.com/aisk/chrysanthemum"
+	"github.com/aisk/logp"
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
@@ -25,14 +24,12 @@ func debugAction(c *cli.Context) error {
 		}
 	}
 
-	bar := chrysanthemum.New("获取应用信息").Start()
+	logp.Info("获取应用信息 ...")
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
-		bar.Failed()
 		return err
 	}
-	bar.Successed()
-	fmt.Printf("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
+	logp.Infof("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	cons := &console.Server{
 		AppID:       appInfo.AppID,

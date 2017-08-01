@@ -6,7 +6,6 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/aisk/chrysanthemum"
 	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/commands"
 	"github.com/leancloud/lean-cli/stats"
@@ -50,7 +49,6 @@ func init() {
 	if err != nil {
 		panic(err)
 	}
-	chrysanthemum.Success = " "
 }
 
 func main() {
