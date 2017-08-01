@@ -89,6 +89,15 @@ func upAction(c *cli.Context) error {
 	}
 	spinner.Successed()
 
+	engineInfo, err := api.GetEngineInfo(appID)
+	if err != nil {
+		return err
+	}
+	haveStaging := "false"
+	if engineInfo.Mode == "prod" {
+		haveStaging = "true"
+	}
+
 	rtm.Envs = []string{
 		"LC_APP_ID=" + appInfo.AppID,
 		"LC_APP_KEY=" + appInfo.AppKey,
@@ -103,6 +112,7 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_API_SERVER=" + region.APIServerURL(),
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
+		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
 	}
 
 	for k, v := range groupInfo.Environments {
