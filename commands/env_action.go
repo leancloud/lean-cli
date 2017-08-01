@@ -68,6 +68,15 @@ func envAction(c *cli.Context) error {
 		return err
 	}
 
+	engineInfo, err := api.GetEngineInfo(appID)
+	if err != nil {
+		return err
+	}
+	haveStaging := "false"
+	if engineInfo.Mode == "prod" {
+		haveStaging = "true"
+	}
+
 	envs := []map[string]string{
 		map[string]string{"name": "LC_APP_ID", "value": appInfo.AppID},
 		map[string]string{"name": "LC_APP_KEY", "value": appInfo.AppKey},
@@ -82,6 +91,7 @@ func envAction(c *cli.Context) error {
 		map[string]string{"name": "LEANCLOUD_API_SERVER", "value": region.APIServerURL()},
 		map[string]string{"name": "LEANCLOUD_APP_ENV", "value": "development"},
 		map[string]string{"name": "LEANCLOUD_REGION", "value": region.String()},
+		map[string]string{"name": "LEAN_CLI_HAVE_STAGING", "value": haveStaging},
 	}
 
 	groupName, err := apps.GetCurrentGroup(".")
@@ -118,6 +128,10 @@ func envSetAction(c *cli.Context) error {
 
 	if strings.HasPrefix(strings.ToUpper(envName), "LEANCLOUD") {
 		return errors.New("请不要设置 `LEANCLOUD` 开头的环境变量")
+	}
+
+	if strings.HasPrefix(strings.ToUpper(envName), "LEAN_CLI") {
+		return errors.New("请不要设置 `LEAN_CLI` 开头的环境变量")
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
@@ -159,6 +173,10 @@ func envUnsetAction(c *cli.Context) error {
 
 	if strings.HasPrefix(strings.ToUpper(env), "LEANCLOUD") {
 		return errors.New("请不要移除 `LEANCLOUD` 开头的环境变量")
+	}
+
+	if strings.HasPrefix(strings.ToUpper(env), "LEAN_CLI") {
+		return errors.New("请不要移除 `LEAN_CLI` 开头的环境变量")
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
