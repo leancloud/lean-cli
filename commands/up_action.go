@@ -14,6 +14,7 @@ import (
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/console"
 	"github.com/leancloud/lean-cli/runtimes"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -28,6 +29,7 @@ func getConsolePort(runtimePort int) int {
 }
 
 func upAction(c *cli.Context) error {
+	version.PrintCurrentVersion()
 	customArgs := c.Args()
 	watchChanges := c.Bool("watch")
 	customCommand := c.String("cmd")
