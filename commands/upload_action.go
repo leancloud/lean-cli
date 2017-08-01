@@ -1,23 +1,22 @@
 package commands
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 
+	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/urfave/cli"
 )
 
 func uploadFile(appID string, filePath string) error {
-	fmt.Println("上传文件: " + filePath)
+	logp.Info("上传文件: " + filePath)
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
-	fmt.Printf("上传成功，文件 URL：%s\r\n", file.URL)
+	logp.Infof("上传成功，文件 URL：%s\r\n", file.URL)
 	return nil
 }
 
