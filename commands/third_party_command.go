@@ -14,15 +14,20 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 	cmdName := "lean-" + _cmdName
 
 	// executeble not found:
-	execPath, err := exec.LookPath(cmdName)
-	if e, ok := err.(*exec.Error); ok {
-		if e.Err == exec.ErrNotFound {
-			cli.ShowAppHelp(c)
-			return
+
+	execPath, err := exec.LookPath("bin/"+cmdName)
+
+	if err != nil{
+		execPath, err = exec.LookPath(cmdName)
+		if e, ok := err.(*exec.Error); ok {
+			if e.Err == exec.ErrNotFound {
+				cli.ShowAppHelp(c)
+				return
+			}
+			log.Fatal(err)
+		} else if err != nil {
+			log.Fatal(err)
 		}
-		log.Fatal(err)
-	} else if err != nil {
-		log.Fatal(err)
 	}
 
 	cmd := exec.Command(execPath, c.Args()[1:]...)
