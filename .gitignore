@@ -3,3 +3,4 @@ lean/lean.exe
 _build/
 __pycache__/
 coverage.txt
+.idea/
