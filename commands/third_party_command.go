@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
@@ -15,7 +16,7 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 
 	// executeble not found:
 
-	execPath, err := exec.LookPath("bin/"+cmdName)
+	execPath, err := exec.LookPath(filepath.Join(".leancloud","bin",cmdName))
 
 	if err != nil{
 		execPath, err = exec.LookPath(cmdName)
