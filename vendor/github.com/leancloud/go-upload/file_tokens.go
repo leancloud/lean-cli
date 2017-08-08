@@ -11,12 +11,15 @@ import (
 	"time"
 )
 
-const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
 const (
 	letterIdxBits = 6                    // 6 bits to represent a letter index
 	letterIdxMask = 1<<letterIdxBits - 1 // All 1-bits, as many as letterIdxBits
+	letterBytes   = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 )
+
+var client = &http.Client{
+	Timeout: 14*time.Second + 1*time.Second,
+}
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
