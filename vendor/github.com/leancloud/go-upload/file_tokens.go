@@ -1,11 +1,14 @@
 package upload
 
 import (
+	"bytes"
+	"encoding/json"
+	"errors"
+	"io/ioutil"
 	"math/rand"
+	"net/http"
 	"path/filepath"
 	"time"
-
-	"github.com/levigross/grequests"
 )
 
 const letterBytes = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -45,29 +48,47 @@ type fileTokens struct {
 
 func getFileTokens(name string, mime string, size int64, opts *Options) (*fileTokens, error) {
 	key := getFileKey(name)
-	reqOpts := &grequests.RequestOptions{
-		Headers: map[string]string{
-			"X-LC-Id":  opts.AppID,
-			"X-LC-Key": opts.AppKey,
-		},
-		JSON: map[string]interface{}{
-			"name":      name,
-			"key":       key,
-			"mime_type": mime,
-			"metaData": map[string]interface{}{
-				"owner": "unknown",
-				"size":  size,
-			},
+	data := map[string]interface{}{
+		"name":      name,
+		"key":       key,
+		"mime_type": mime,
+		"metaData": map[string]interface{}{
+			"owner": "unknown",
+			"size":  size,
 		},
 	}
-	resp, err := grequests.Post(opts.serverURL()+"/1.1/fileTokens", reqOpts)
+
+	body, err := json.Marshal(data)
 	if err != nil {
 		return nil, err
 	}
-	result := new(fileTokens)
-	err = resp.JSON(result)
-	if err == nil {
-		result.Key = key
+
+	url := opts.serverURL() + "/1.1/fileTokens"
+	request, err := http.NewRequest("POST", url, bytes.NewReader(body))
+	if err != nil {
+		return nil, err
 	}
+	request.Header.Set("X-LC-Id", opts.AppID)
+	request.Header.Set("X-LC-Key", opts.AppKey)
+	request.Header.Set("User-Agent", "LeanCloud-Go-Upload/"+version)
+	request.Header.Set("Content-Type", "Application/JSON")
+
+	response, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+	body, err = ioutil.ReadAll(response.Body)
+
+	if response.StatusCode != 201 {
+		return nil, errors.New(string(body))
+	}
+
+	result := new(fileTokens)
+	err = json.Unmarshal(body, result)
+	if err != nil {
+		return nil, err
+	}
+	result.Key = key // key is not in Server response
 	return result, err
 }
