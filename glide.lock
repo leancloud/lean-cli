@@ -46,7 +46,7 @@ imports:
 - name: github.com/juju/persistent-cookiejar
   version: 5243747bf8f2d0897f6c7a52799327dc97d585e8
 - name: github.com/leancloud/go-upload
-  version: e3c153366b054c53a8832bb23676661d2cd73fe2
+  version: de0235ac46cfb1a026e447a0eb03c70cc07bcab7
 - name: github.com/levigross/grequests
   version: 14e4175cc49ce3783f0848f90b0527ba09e1d209
 - name: github.com/mattn/go-colorable
@@ -58,15 +58,6 @@ imports:
   version: 737072b4e32b7a5018b4a7125da8d12de90e8045
 - name: github.com/pkg/browser
   version: 9302be274faad99162b9d48ec97b24306872ebb0
-- name: github.com/qiniu/api.v6
-  version: 705d485512bab38d44f792b1d401b70b4e15a092
-  subpackages:
-  - conf
-  - io
-- name: github.com/qiniu/rpc
-  version: 30c22466d920a7dc0e1f79d048f44af85ac04ee6
-- name: github.com/tj/go-debug
-  version: ff4a55a20a86994118644bbddc6a216da193cc13
 - name: github.com/urfave/cli
   version: 0bdeddeeb0f650497d603c4ad7b20cfe685682f6
 - name: golang.org/x/net
