@@ -10,12 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
 )
-
-var client = &http.Client{
-	Timeout: 14*time.Second + 1*time.Second,
-}
 
 func getSeekerSize(seeker io.Seeker) (int64, error) {
 	size, err := seeker.Seek(0, io.SeekEnd)
@@ -89,7 +84,7 @@ func uploadToQiniu(name string, mimeType string, reader io.ReadSeeker, opts *Opt
 		return nil, err
 	}
 
-	response, err := client.Do(request)
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
@@ -124,7 +119,7 @@ func uploadViaLeanCloud(name string, mimeType string, reader io.ReadSeeker, opts
 	request.Header.Set("X-LC-Key", opts.AppKey)
 	request.Header.Set("User-Agent", "LeanCloud-Go-Upload/"+version)
 
-	response, err := client.Do(request)
+	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
