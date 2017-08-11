@@ -7,10 +7,6 @@ all: binaries msi deb
 
 binaries: $(SRC)
 	GOOS=darwin GOARCH=amd64 POSTFIX= make $(OUTPUT)/lean-darwin-amd64
-	GOOS=windows GOARCH=386 POSTFIX=.exe make $(OUTPUT)/lean-windows-386.exe
-	GOOS=windows GOARCH=amd64 POSTFIX=.exe make $(OUTPUT)/lean-windows-amd64.exe
-	GOOS=linux GOARCH=amd64 POSTFIX= make $(OUTPUT)/lean-linux-amd64
-	GOOS=linux GOARCH=386 POSTFIX= make $(OUTPUT)/lean-linux-386
 
 msi:
 	wixl -a x86 packaging/msi/lean-cli-x86.wxs -o $(OUTPUT)/lean-cli-setup-x86.msi

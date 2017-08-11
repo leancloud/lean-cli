@@ -49,6 +49,21 @@ func Run(args []string) {
 			},
 		},
 		{
+			Name:   "status",
+			Usage:  "测试",
+			Action: wrapAction(statusAction),
+			Flags:  []cli.Flag{
+				cli.StringFlag{
+					Name:  "from",
+					Usage: "开始时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+				},
+				cli.StringFlag{
+					Name:  "to",
+					Usage: "结束时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+				},
+			},
+		},
+		{
 			Name:   "info",
 			Usage:  "查看当前登录用户以及应用信息",
 			Action: wrapAction(infoAction),
