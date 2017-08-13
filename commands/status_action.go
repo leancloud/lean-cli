@@ -2,13 +2,29 @@ package commands
 
 import (
 	"time"
+	"text/tabwriter"
 
 	"github.com/urfave/cli"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
-	"encoding/json"
 	"os"
+	"fmt"
 )
+
+func statusPrinter(status api.Status){
+	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', tabwriter.AlignRight)
+	// fmt.Fprintln(w, "日期\t最大工作线程数\t平均工作线程数\t超限请求数\t最大 QPS\t平均响应时间\t80% 响应时间\t95% 响应时间\t")
+	fmt.Fprintln(w, "Date\tMax Concurrent\tMean Concureent\tExceed Time\tMax QPS\tMean Duration Time\t80% Duration Time\t95% Duration Time\t")
+	for _, item := range status{
+		fmt.Fprintln(w, fmt.Sprintf(
+			"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+			item.Date, item.MaxConcurrent, item.MeanConcurrent,
+			item.ExceedTimes, item.MaxQPS, item.MeanDurationTime,
+			item.P80DurationTime, item.P95DurationTime),
+		)
+	}
+	w.Flush()
+}
 
 func statusAction(c *cli.Context) error {
 	fromPtr, toPtr, err := extractDateParams(c)
@@ -29,12 +45,11 @@ func statusAction(c *cli.Context) error {
 	}
 	ReqStats , err := api.FetchReqStat(appID, fromPtr.Format("20060102"), toPtr.Format("20060102"))
 	if err != nil{
+		if err == api.ErrNoEnoughData{
+			return cli.NewExitError("没有足够的数据。",1)
+		}
 		return err
 	}
-	content, err := json.Marshal(ReqStats)
-	if err != nil {
-		return err
-	}
-	os.Stdout.Write(content)
+	statusPrinter(ReqStats)
 	return nil
 }
