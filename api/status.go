@@ -6,6 +6,8 @@ import (
 	"strings"
 	"sort"
 	"errors"
+
+	"github.com/aisk/logp"
 )
 
 var(
@@ -52,10 +54,15 @@ func FetchReqStat(appID string, from string, to string)(Status, error){
 	if err != nil{
 		panic(err)
 	}
+	appInfo, err := GetAppInfo(appID)
+	if err != nil{
+		panic(err)
+	}
+	logp.Info(fmt.Sprintf("正在获取 %s 储存报告。", appInfo.AppName))
 	client := NewClient(region)
 	resp, err := client.get("/1.1/clients/self/apps/"+appID+"/reqStats"+queryString, nil)
 	if err != nil{
-		return nil, errors.New("没有足够的数据。")
+		return nil, err
 	}
 	convertMap := map[string]string{
 		"maxDurationTime":     "max_duration_ms",
