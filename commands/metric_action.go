@@ -22,7 +22,7 @@ func parseDate(d string) string {
 }
 
 func jsonMetricPrinter(status api.Status) error {
-	content, err := json.Marshal(status)
+	content, err := json.MarshalIndent(status, "", "  ")
 	if err != nil {
 		return err
 	}
