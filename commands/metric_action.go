@@ -1,39 +1,38 @@
 package commands
 
 import (
-	"time"
 	"text/tabwriter"
+	"time"
 
-	"github.com/urfave/cli"
+	"encoding/json"
+	"fmt"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 	"os"
-	"fmt"
-	"strings"
-	"encoding/json"
 	"strconv"
+	"strings"
 )
 
 type metricPrinter func(api.Status) error
 
-func parseDate (d string) string{
-	tmp, _ := time.Parse("20060102",d)
+func parseDate(d string) string {
+	tmp, _ := time.Parse("20060102", d)
 	return tmp.Format("2006-01-02")
 }
 
-func jsonMetricPrinter(status api.Status) error{
+func jsonMetricPrinter(status api.Status) error {
 	content, err := json.Marshal(status)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	os.Stdout.Write(content)
 	return nil
 }
 
-func statusPrinter(status api.Status) error{
+func statusPrinter(status api.Status) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	if status.Len() > 8 {
-		// fmt.Fprintln(w, "日期\t最大工作线程数\t平均工作线程数\t超限请求数\t最大 QPS\t平均响应时间\t80% 响应时间\t95% 响应时间\t")
 		fmt.Fprintln(w, "Date\tMax Concurrent\tMean Concurrent\tExceed Time\tMax QPS\tMean Duration Time\t80% Duration Time\t95% Duration Time\t")
 		for _, item := range status {
 			fmt.Fprintln(w, fmt.Sprintf(
@@ -44,9 +43,9 @@ func statusPrinter(status api.Status) error{
 			)
 		}
 	} else {
-		formatString := strings.Repeat("%v\t",status.Len()+1)
+		formatString := strings.Repeat("%v\t", status.Len()+1)
 		fieldTitle := []string{
-			"Date","Max Concurrent","Mean Concurrent","Exceed Time","Max QPS","Mean Duration Time",
+			"Date", "Max Concurrent", "Mean Concurrent", "Exceed Time", "Max QPS", "Mean Duration Time",
 			"80% Duration Time", "95% Duration Time",
 		}
 		for _, field := range fieldTitle {
@@ -81,14 +80,14 @@ func statusPrinter(status api.Status) error{
 
 func statusAction(c *cli.Context) error {
 	fromPtr, toPtr, err := extractDateParams(c)
-	if err != nil{
+	if err != nil {
 		return err
 	}
-	if fromPtr == nil{
-		from := time.Now().Add(time.Duration(-1*7*24*time.Hour))
+	if fromPtr == nil {
+		from := time.Now().Add(time.Duration(-1 * 7 * 24 * time.Hour))
 		fromPtr = &from
 	}
-	if toPtr == nil{
+	if toPtr == nil {
 		to := time.Now()
 		toPtr = &to
 	}
@@ -96,8 +95,8 @@ func statusAction(c *cli.Context) error {
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
-	ReqStats , err := api.FetchReqStat(appID, fromPtr.Format("20060102"), toPtr.Format("20060102"))
-	if err != nil{
+	ReqStats, err := api.FetchReqStat(appID, fromPtr.Format("20060102"), toPtr.Format("20060102"))
+	if err != nil {
 		return err
 	}
 	var p metricPrinter
@@ -110,7 +109,7 @@ func statusAction(c *cli.Context) error {
 		p = jsonMetricPrinter
 	}
 	err = p(ReqStats)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 	return nil
