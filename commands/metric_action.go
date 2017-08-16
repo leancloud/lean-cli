@@ -26,7 +26,7 @@ func jsonMetricPrinter(status api.Status) error {
 	if err != nil {
 		return err
 	}
-	os.Stdout.Write(content)
+	fmt.Println(string(content))
 	return nil
 }
 
