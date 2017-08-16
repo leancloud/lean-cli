@@ -10,28 +10,41 @@ import (
 	"os"
 	"fmt"
 	"strings"
+	"encoding/json"
+	"strconv"
 )
+
+type Printer func(api.Status) error
 
 func ParseDate (d string) string{
 	tmp, _ := time.Parse("20060102",d)
 	return tmp.Format("2006-01-02")
 }
 
-func statusPrinter(status api.Status){
+func jsonPrinter(status api.Status) error{
+	content, err := json.Marshal(status)
+	if err != nil{
+		return err
+	}
+	os.Stdout.Write(content)
+	return nil
+}
+
+func statusPrinter(status api.Status) error{
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	if status.Len() > 8 {
 		// fmt.Fprintln(w, "日期\t最大工作线程数\t平均工作线程数\t超限请求数\t最大 QPS\t平均响应时间\t80% 响应时间\t95% 响应时间\t")
 		fmt.Fprintln(w, "Date\tMax Concurrent\tMean Concurrent\tExceed Time\tMax QPS\tMean Duration Time\t80% Duration Time\t95% Duration Time\t")
 		for _, item := range status {
 			fmt.Fprintln(w, fmt.Sprintf(
-				"%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t",
+				"%v\t%v\t%v\t%v\t%v\t%vms\t%vms\t%vms\t",
 				ParseDate(item.Date), item.MaxConcurrent, item.MeanConcurrent,
-				item.ExceedTimes, item.MaxQPS, item.MeanDurationTime+"ms",
-				item.P80DurationTime+"ms", item.P95DurationTime+"ms"),
+				item.ExceedTimes, item.MaxQPS, item.MeanDurationTime,
+				item.P80DurationTime, item.P95DurationTime),
 			)
 		}
 	} else {
-		formatString := strings.Repeat("%s\t",status.Len()+1)
+		formatString := strings.Repeat("%v\t",status.Len()+1)
 		fieldTitle := []string{
 			"Date","Max Concurrent","Mean Concurrent","Exceed Time","Max QPS","Mean Duration Time",
 			"80% Duration Time", "95% Duration Time",
@@ -52,17 +65,18 @@ func statusPrinter(status api.Status){
 				case "Max QPS":
 					printString = append(printString, item.MaxQPS)
 				case "Mean Duration Time":
-					printString = append(printString, item.MeanDurationTime+"ms")
+					printString = append(printString, strconv.Itoa(item.MeanDurationTime)+"ms")
 				case "80% Duration Time":
-					printString = append(printString, item.P80DurationTime+"ms")
+					printString = append(printString, strconv.Itoa(item.P80DurationTime)+"ms")
 				case "95% Duration Time":
-					printString = append(printString, item.P95DurationTime+"ms")
+					printString = append(printString, strconv.Itoa(item.P95DurationTime)+"ms")
 				}
 			}
 			fmt.Fprintln(w, fmt.Sprintf(formatString, printString...))
 		}
 	}
 	w.Flush()
+	return nil
 }
 
 func statusAction(c *cli.Context) error {
@@ -71,7 +85,7 @@ func statusAction(c *cli.Context) error {
 		return err
 	}
 	if fromPtr == nil{
-		from := time.Now().Add(time.Duration(-1*7*24*60*60*1000*1000*1000))
+		from := time.Now().Add(time.Duration(-1*7*24*time.Hour))
 		fromPtr = &from
 	}
 	if toPtr == nil{
@@ -89,6 +103,18 @@ func statusAction(c *cli.Context) error {
 		}
 		return err
 	}
-	statusPrinter(ReqStats)
+	var p Printer
+	switch c.String("format") {
+	case "":
+		fallthrough
+	case "default":
+		p = statusPrinter
+	case "json":
+		p = jsonPrinter
+	}
+	err = p(ReqStats)
+	if err != nil{
+		return err
+	}
 	return nil
 }

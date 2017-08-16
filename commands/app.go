@@ -49,9 +49,10 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "status",
-			Usage:  "测试",
+			Name:   "metrix",
+			Usage:  "获取当前项目云存储的性能总览",
 			Action: wrapAction(statusAction),
+			ArgsUsage: "[--from fromTime --to toTime --format default|json]",
 			Flags:  []cli.Flag{
 				cli.StringFlag{
 					Name:  "from",
@@ -60,6 +61,10 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "to",
 					Usage: "结束时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+				},
+				cli.StringFlag{
+					Name: "format",
+					Usage: "输出格式，默认为 default，可选 json",
 				},
 			},
 		},
