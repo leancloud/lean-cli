@@ -156,6 +156,7 @@ func GetAppInfo(appID string) (*GetAppInfoResult, error) {
 type GetGroupsResult struct {
 	GroupName  string `json:"groupName"`
 	Repository string `json:"repository"`
+	Domain     string `json:"domain"`
 	Instances  []struct {
 		Name  string `json:"name"`
 		Quota int    `json:"quota"`

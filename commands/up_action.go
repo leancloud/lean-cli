@@ -109,6 +109,7 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_API_SERVER=" + region.APIServerURL(),
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
+		"LEANCLOUD_APP_DOMAIN=" + groupInfo.Domain,
 		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
 	}
 

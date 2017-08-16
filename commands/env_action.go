@@ -20,8 +20,8 @@ var (
 	defaultDOSEnvTemplateString  = "SET {{name}}={{value}}"
 )
 
+// this function is not reliable
 func detectDOS() bool {
-	// this function is not reliable
 	if runtime.GOOS != "windows" {
 		return false
 	}
@@ -77,6 +77,15 @@ func envAction(c *cli.Context) error {
 		haveStaging = "true"
 	}
 
+	groupName, err := apps.GetCurrentGroup(".")
+	if err != nil {
+		return err
+	}
+	groupInfo, err := api.GetGroup(appID, groupName)
+	if err != nil {
+		return err
+	}
+
 	envs := []map[string]string{
 		map[string]string{"name": "LC_APP_ID", "value": appInfo.AppID},
 		map[string]string{"name": "LC_APP_KEY", "value": appInfo.AppKey},
@@ -91,16 +100,8 @@ func envAction(c *cli.Context) error {
 		map[string]string{"name": "LEANCLOUD_API_SERVER", "value": region.APIServerURL()},
 		map[string]string{"name": "LEANCLOUD_APP_ENV", "value": "development"},
 		map[string]string{"name": "LEANCLOUD_REGION", "value": region.String()},
+		map[string]string{"name": "LEANCLOUD_APP_DOMAIN", "value": groupInfo.Domain},
 		map[string]string{"name": "LEAN_CLI_HAVE_STAGING", "value": haveStaging},
-	}
-
-	groupName, err := apps.GetCurrentGroup(".")
-	if err != nil {
-		return err
-	}
-	groupInfo, err := api.GetGroup(appID, groupName)
-	if err != nil {
-		return err
 	}
 
 	for name, value := range groupInfo.Environments {
