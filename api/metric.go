@@ -10,7 +10,7 @@ import (
 )
 
 var(
-	ErrNoEnoughData = errors.New("the project has no enough data in this day.")
+	ErrNoEnoughData = errors.New("没有足够的数据")
 )
 
 type ReqStat struct {
@@ -80,6 +80,5 @@ func FetchReqStat(appID string, from string, to string)(Status, error){
 		status = append(status, item)
 	}
 	sort.Sort(status)
-	fmt.Printf("%#v\n",status)
 	return status, nil
 }

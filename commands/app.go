@@ -49,7 +49,7 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "metrix",
+			Name:   "metric",
 			Usage:  "获取当前项目云存储的性能总览",
 			Action: wrapAction(statusAction),
 			ArgsUsage: "[--from fromTime --to toTime --format default|json]",

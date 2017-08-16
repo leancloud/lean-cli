@@ -14,14 +14,14 @@ import (
 	"strconv"
 )
 
-type Printer func(api.Status) error
+type metricPrinter func(api.Status) error
 
-func ParseDate (d string) string{
+func parseDate (d string) string{
 	tmp, _ := time.Parse("20060102",d)
 	return tmp.Format("2006-01-02")
 }
 
-func jsonPrinter(status api.Status) error{
+func jsonMetricPrinter(status api.Status) error{
 	content, err := json.Marshal(status)
 	if err != nil{
 		return err
@@ -38,7 +38,7 @@ func statusPrinter(status api.Status) error{
 		for _, item := range status {
 			fmt.Fprintln(w, fmt.Sprintf(
 				"%v\t%v\t%v\t%v\t%v\t%vms\t%vms\t%vms\t",
-				ParseDate(item.Date), item.MaxConcurrent, item.MeanConcurrent,
+				parseDate(item.Date), item.MaxConcurrent, item.MeanConcurrent,
 				item.ExceedTimes, item.MaxQPS, item.MeanDurationTime,
 				item.P80DurationTime, item.P95DurationTime),
 			)
@@ -55,7 +55,7 @@ func statusPrinter(status api.Status) error{
 			for _, item := range status {
 				switch field {
 				case "Date":
-					printString = append(printString, ParseDate(item.Date))
+					printString = append(printString, parseDate(item.Date))
 				case "Max Concurrent":
 					printString = append(printString, item.MaxConcurrent)
 				case "Mean Concurrent":
@@ -98,19 +98,16 @@ func statusAction(c *cli.Context) error {
 	}
 	ReqStats , err := api.FetchReqStat(appID, fromPtr.Format("20060102"), toPtr.Format("20060102"))
 	if err != nil{
-		if err == api.ErrNoEnoughData{
-			return cli.NewExitError("没有足够的数据。",1)
-		}
 		return err
 	}
-	var p Printer
+	var p metricPrinter
 	switch c.String("format") {
 	case "":
 		fallthrough
 	case "default":
 		p = statusPrinter
 	case "json":
-		p = jsonPrinter
+		p = jsonMetricPrinter
 	}
 	err = p(ReqStats)
 	if err != nil{
