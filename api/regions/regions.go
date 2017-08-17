@@ -38,7 +38,7 @@ func (r Region) APIServerURL() string {
 	case US:
 		return "https://us-api.leancloud.cn"
 	case TAB:
-		return "https://e1-api.leancloud.cn"
+		return "https://tab.leancloud.cn"
 	default:
 		return ""
 	}

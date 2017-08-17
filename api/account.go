@@ -1,7 +1,6 @@
 package api
 
 import (
-	"net/url"
 	"os"
 	"path/filepath"
 	"time"
@@ -14,7 +13,7 @@ import (
 )
 
 // Login LeanCloud account
-func Login(email string, password string) (*GetUserInfoResult, error) {
+func Login(email string, password string, region regions.Region) (*GetUserInfoResult, error) {
 	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
 	jar, err := cookiejar.New(&cookiejar.Options{
 		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
@@ -32,7 +31,7 @@ func Login(email string, password string) (*GetUserInfoResult, error) {
 		UseCookieJar: true,
 		UserAgent:    "LeanCloud-CLI/" + version.Version,
 	}
-	resp, err := grequests.Post("https://leancloud.cn/1/signin", options)
+	resp, err := grequests.Post(region.APIServerURL()+"/1/signin", options)
 	if err != nil {
 		return nil, err
 	}
@@ -57,19 +56,6 @@ func LoginUSRegion() error {
 		return err
 	}
 	return nil
-}
-
-// LoginTABRegion will use qrcode to login TAB Region
-func LoginTABRegion(token string) (*GetUserInfoResult, error) {
-	client := NewClient(regions.TAB)
-	token = url.QueryEscape(token)
-	resp, err := client.post("/1.1/signinByToken?token="+token, nil, nil)
-	if err != nil {
-		return nil, err
-	}
-	result := new(GetUserInfoResult)
-	err = resp.JSON(result)
-	return result, err
 }
 
 // GetUserInfoResult is the return type of GetUserInfo
