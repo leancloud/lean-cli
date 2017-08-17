@@ -34,7 +34,7 @@ func (r Region) Description() string {
 func (r Region) APIServerURL() string {
 	switch r {
 	case CN:
-		return "https://api.leancloud.cn"
+		return "https://leancloud.cn"
 	case US:
 		return "https://us-api.leancloud.cn"
 	case TAB:
