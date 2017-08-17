@@ -16,9 +16,9 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 
 	// executeble not found:
 
-	execPath, err := exec.LookPath(filepath.Join(".leancloud","bin",cmdName))
+	execPath, err := exec.LookPath(filepath.Join(".leancloud", "bin", cmdName))
 
-	if err != nil{
+	if err != nil {
 		execPath, err = exec.LookPath(cmdName)
 		if e, ok := err.(*exec.Error); ok {
 			if e.Err == exec.ErrNotFound {
