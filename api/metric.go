@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/aisk/logp"
+	"time"
 )
 
 var (
@@ -27,6 +28,7 @@ type ReqStat struct {
 	MaxQPS          int    `json:"max_qps"`
 	P80DurationTime int    `json:"p80_duration_ms"`
 	Error           string `json:"error"`
+	ApiReqCount		int    `json:"apiReqCount"`
 }
 
 type Status []ReqStat
@@ -47,8 +49,8 @@ func (S Status) Less(i, j int) bool {
 	return true
 }
 
-func FetchReqStat(appID string, from string, to string) (Status, error) {
-	queryString := "?from=" + from + "&to=" + to
+func FetchReqStat(appID string, from *time.Time, to *time.Time) (Status, error) {
+	queryString := "?from=" + from.Format("20060102") + "&to=" + to.Format("20060102")
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return nil, err
@@ -80,5 +82,25 @@ func FetchReqStat(appID string, from string, to string) (Status, error) {
 		status = append(status, item)
 	}
 	sort.Sort(status)
+	options, err := client.options()
+	if err != nil{
+		return nil, err
+	}
+	options.Headers["x-avoscloud-application-id"] = appInfo.AppID
+	options.Headers["x-avoscloud-application-key"] = appInfo.AppKey
+	resp, err = client.get("/1/statistics/details"+queryString, options)
+	if err != nil{
+		return nil, err
+	}
+	var jsapi struct {
+		Results []int `json:"results"`
+	}
+	err = resp.JSON(&jsapi)
+	if err != nil{
+		return nil, err
+	}
+	for index, value := range jsapi.Results{
+		status[index].ApiReqCount = value
+	}
 	return status, nil
 }
