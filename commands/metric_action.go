@@ -33,11 +33,11 @@ func jsonMetricPrinter(status api.Status) error {
 func statusPrinter(status api.Status) error {
 	w := tabwriter.NewWriter(os.Stdout, 0, 0, 3, ' ', 0)
 	if status.Len() > 8 {
-		fmt.Fprintln(w, "Date\tMax Concurrent\tMean Concurrent\tExceed Time\tMax QPS\tMean Duration Time\t80% Duration Time\t95% Duration Time\t")
+		fmt.Fprintln(w, "Date\tAPI Requests\tMax Concurrent\tMean Concurrent\tExceed Time\tMax QPS\tMean Duration Time\t80% Duration Time\t95% Duration Time\t")
 		for _, item := range status {
 			fmt.Fprintln(w, fmt.Sprintf(
-				"%v\t%v\t%v\t%v\t%v\t%vms\t%vms\t%vms\t",
-				parseDate(item.Date), item.MaxConcurrent, item.MeanConcurrent,
+				"%v\t%v\t%v\t%v\t%v\t%v\t%vms\t%vms\t%vms\t",
+				parseDate(item.Date), item.ApiReqCount, item.MaxConcurrent, item.MeanConcurrent,
 				item.ExceedTimes, item.MaxQPS, item.MeanDurationTime,
 				item.P80DurationTime, item.P95DurationTime),
 			)
@@ -45,7 +45,7 @@ func statusPrinter(status api.Status) error {
 	} else {
 		formatString := strings.Repeat("%v\t", status.Len()+1)
 		fieldTitle := []string{
-			"Date", "Max Concurrent", "Mean Concurrent", "Exceed Time", "Max QPS", "Mean Duration Time",
+			"Date", "API Requests", "Max Concurrent", "Mean Concurrent", "Exceed Time", "Max QPS", "Mean Duration Time",
 			"80% Duration Time", "95% Duration Time",
 		}
 		for _, field := range fieldTitle {
@@ -69,6 +69,8 @@ func statusPrinter(status api.Status) error {
 					printString = append(printString, strconv.Itoa(item.P80DurationTime)+"ms")
 				case "95% Duration Time":
 					printString = append(printString, strconv.Itoa(item.P95DurationTime)+"ms")
+				case "API Requests":
+					printString = append(printString, item.ApiReqCount)
 				}
 			}
 			fmt.Fprintln(w, fmt.Sprintf(formatString, printString...))
@@ -95,9 +97,19 @@ func statusAction(c *cli.Context) error {
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
-	ReqStats, err := api.FetchReqStat(appID, fromPtr.Format("20060102"), toPtr.Format("20060102"))
-	if err != nil {
-		return err
+	retryCount := 0
+	var ReqStats api.Status
+	for {
+		ReqStats, err = api.FetchReqStat(appID, fromPtr, toPtr)
+		if err != nil {
+			if retryCount >= 3{
+				return err
+			}
+			time.Sleep(1123 * time.Millisecond)
+			retryCount++
+			continue
+		}
+		break
 	}
 	var p metricPrinter
 	switch c.String("format") {
