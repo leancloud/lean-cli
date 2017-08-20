@@ -27,7 +27,7 @@ type ReqStat struct {
 	MeanConcurrent  int    `json:"mean_concurrent"`
 	MaxQPS          int    `json:"max_qps"`
 	P80DurationTime int    `json:"p80_duration_ms"`
-	Error           string `json:"error"`
+	Error           string `json:"error,omitempty"`
 	ApiReqCount		int    `json:"apiReqCount"`
 }
 
