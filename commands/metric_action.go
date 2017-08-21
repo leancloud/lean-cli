@@ -3,15 +3,15 @@ package commands
 import (
 	"text/tabwriter"
 	"time"
-
 	"encoding/json"
 	"fmt"
-	"github.com/leancloud/lean-cli/api"
-	"github.com/leancloud/lean-cli/apps"
-	"github.com/urfave/cli"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/leancloud/lean-cli/api"
+	"github.com/leancloud/lean-cli/apps"
+	"github.com/urfave/cli"
 )
 
 type metricPrinter func(api.Status) error
@@ -97,19 +97,9 @@ func statusAction(c *cli.Context) error {
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
-	retryCount := 0
-	var ReqStats api.Status
-	for {
-		ReqStats, err = api.FetchReqStat(appID, fromPtr, toPtr)
-		if err != nil {
-			if retryCount >= 3{
-				return err
-			}
-			time.Sleep(1123 * time.Millisecond)
-			retryCount++
-			continue
-		}
-		break
+	ReqStats, err := api.FetchReqStat(appID, *fromPtr, *toPtr)
+	if err != nil {
+		return err
 	}
 	var p metricPrinter
 	switch c.String("format") {
