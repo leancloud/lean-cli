@@ -9,9 +9,9 @@ import (
 	"path/filepath"
 	"strconv"
 
+	"github.com/aisk/logp"
 	"github.com/cheggaaa/pb"
 	"github.com/fatih/color"
-	"github.com/leancloud/lean-cli/logger"
 	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
@@ -84,7 +84,7 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 		return err
 	}
 
-	logger.Info("正在创建项目...")
+	logp.Info("正在创建项目...")
 
 	zipFile, err := zip.OpenReader(zipFilePath)
 	if err != nil {
@@ -98,7 +98,7 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 		}
 	}
 
-	logger.Info("创建", boil.Name, "项目成功，更多关于", boil.Name, "的文档请参考官网：", boil.Homepage)
+	logp.Info("创建", boil.Name, "项目成功，更多关于", boil.Name, "的文档请参考官网：", boil.Homepage)
 	return nil
 }
 

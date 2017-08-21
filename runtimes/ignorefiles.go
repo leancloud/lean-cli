@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/aisk/logp"
 	"github.com/facebookgo/parseignore"
-	"github.com/leancloud/lean-cli/logger"
 	"github.com/leancloud/lean-cli/utils"
 )
 
@@ -57,7 +57,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 
 func (runtime *Runtime) readIgnore(ignoreFilePath string) (parseignore.Matcher, error) {
 	if ignoreFilePath == ".leanignore" && !utils.IsFileExists(filepath.Join(runtime.ProjectPath, ".leanignore")) {
-		logger.Warn("没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件")
+		logp.Warn("没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件")
 		content := strings.Join(runtime.defaultIgnorePatterns(), "\r\n")
 		err := ioutil.WriteFile(filepath.Join(runtime.ProjectPath, ".leanignore"), []byte(content), 0644)
 		if err != nil {
