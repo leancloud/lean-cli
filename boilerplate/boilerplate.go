@@ -15,6 +15,7 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
+	"github.com/mattn/go-colorable"
 )
 
 // don't know why archive/zip.Reader.File[0].FileInfo().IsDir() always return true,
@@ -143,6 +144,7 @@ func DownloadToFile(r *grequests.Response, fileName string) error {
 
 	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
 		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+		bar.Output = colorable.NewColorableStderr()
 		bar.Prefix(color.GreenString("[INFO]") + " 下载模版文件")
 		bar.Start()
 		defer bar.Finish()
