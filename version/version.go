@@ -1,12 +1,12 @@
 package version
 
 import (
-	"github.com/leancloud/lean-cli/logger"
+	"github.com/aisk/logp"
 )
 
 // Version is lean-cli's version.
 const Version = "0.13.0"
 
 func PrintCurrentVersion() {
-	logger.Info("当前命令行工具版本：", Version)
+	logp.Info("当前命令行工具版本：", Version)
 }
