@@ -41,7 +41,12 @@ func loginWithPassword(username string, password string, region regions.Region) 
 			return nil, err
 		}
 	}
-	info, err := api.Login(username, password, region)
+	r := region
+	if r == regions.US {
+		r = regions.CN
+	}
+	// US 节点登录时，需要先用用户名／密码登录 CN 节点，然后调用 api.LoginUSRegion 进行登录。
+	info, err := api.Login(username, password, r)
 	if err != nil {
 		return nil, err
 	}
