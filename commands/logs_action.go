@@ -12,26 +12,30 @@ import (
 	"github.com/urfave/cli"
 )
 
-func extractDateParams(c *cli.Context) (*time.Time, *time.Time, error) {
+func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	var fromPtr *time.Time
 	if c.String("from") != "" {
 		from, err := time.Parse("2006-01-02", c.String("from"))
 		if err != nil {
 			err = fmt.Errorf("from 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("from"))
-			return nil, nil, err
+			return api.NilTime, api.NilTime, err
 		}
 		fromPtr = &from
+	} else {
+		fromPtr = &api.NilTime
 	}
 	var toPtr *time.Time
 	if c.String("to") != "" {
 		to, err := time.Parse("2006-01-02", c.String("to"))
 		if err != nil {
 			err = fmt.Errorf("to 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("to"))
-			return nil, nil, err
+			return api.NilTime, api.NilTime, err
 		}
 		toPtr = &to
+	} else {
+		toPtr = &api.NilTime
 	}
-	return fromPtr, toPtr, nil
+	return *fromPtr, *toPtr, nil
 }
 
 func logsAction(c *cli.Context) error {
@@ -80,7 +84,7 @@ func logsAction(c *cli.Context) error {
 		return cli.NewExitError("错误的 format 参数，必须为 json / default 其中之一。", 1)
 	}
 
-	if from != nil {
+	if from != api.NilTime {
 		return api.ReceiveLogsByRange(printer, info.AppID, info.MasterKey, isProd, groupName, from, to)
 	}
 	return api.ReceiveLogsByLimit(printer, info.AppID, info.MasterKey, isProd, groupName, limit, follow)

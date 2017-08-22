@@ -22,6 +22,10 @@ type Log struct {
 	Instance     string `json:"instance"`
 }
 
+var(
+	NilTime = time.Date(2000,1,1,0,0,0,0, time.UTC)
+)
+
 // LogReceiver is print func interface to PrintLogs
 type LogReceiver func(*Log) error
 
@@ -68,7 +72,7 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 }
 
 // ReceiveLogsByRange will poll the leanengine's log and print it to the giver io.Writer
-func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from *time.Time, to *time.Time) error {
+func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from time.Time, to time.Time) error {
 	params := map[string]string{
 		"ascend":     "true",
 		"since":      from.Format("2006-01-02T15:04:05.000000000Z"),
@@ -92,7 +96,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 			if err != nil {
 				return err
 			}
-			if to != nil && logTime.After(*to) {
+			if to != NilTime && logTime.After(to) {
 				// reached the end
 				return nil
 			}
