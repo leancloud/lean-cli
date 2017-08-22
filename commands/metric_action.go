@@ -86,10 +86,10 @@ func statusAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	if from == nilTime {
+	if from == (time.Time{}) {
 		from = time.Now().Add(time.Duration(-1 * 7 * 24 * time.Hour))
 	}
-	if to == nilTime {
+	if to == (time.Time{}) {
 		to = time.Now()
 	}
 	appID, err := apps.GetCurrentAppID("./")

@@ -9,7 +9,6 @@ import (
 	"github.com/levigross/grequests"
 )
 
-var nilTime = time.Time{}
 
 // Log is EngineLogs's type structure
 type Log struct {
@@ -94,7 +93,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 			if err != nil {
 				return err
 			}
-			if to != nilTime && logTime.After(to) {
+			if to != (time.Time{}) && logTime.After(to) {
 				// reached the end
 				return nil
 			}
