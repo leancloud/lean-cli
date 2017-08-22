@@ -20,7 +20,7 @@ func fakeHome(t *testing.T) func() {
 	}
 }
 
-func TestLoginCN(t *testing.T) {
+func TestLogin(t *testing.T) {
 	defer fakeHome(t)()
 
 	_, err := Login("hife@amail.club", "A12345678", regions.CN)
@@ -31,12 +31,16 @@ func TestLoginCN(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	}
+	err = LoginUSRegion()
+	if err != nil {
+		t.Error(err)
+	}
 
 	loginedRegions, err := GetLoginedRegion()
 	if err != nil {
 		t.Fatal(err)
 	}
-	if len(loginedRegions) != 2 {
+	if len(loginedRegions) != 3 {
 		t.Error()
 	}
 }
