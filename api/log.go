@@ -9,6 +9,8 @@ import (
 	"github.com/levigross/grequests"
 )
 
+var nilTime = time.Time{}
+
 // Log is EngineLogs's type structure
 type Log struct {
 	InstanceName string `json:"instanceName"`
@@ -21,10 +23,6 @@ type Log struct {
 	Level        string `json:"level"`
 	Instance     string `json:"instance"`
 }
-
-var(
-	NilTime = time.Date(2000,1,1,0,0,0,0, time.UTC)
-)
 
 // LogReceiver is print func interface to PrintLogs
 type LogReceiver func(*Log) error
@@ -96,7 +94,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 			if err != nil {
 				return err
 			}
-			if to != NilTime && logTime.After(to) {
+			if to != nilTime && logTime.After(to) {
 				// reached the end
 				return nil
 			}

@@ -14,6 +14,7 @@ import (
 	"github.com/urfave/cli"
 )
 
+
 type metricPrinter func(api.Status) error
 
 func parseDate(d string) string {
@@ -85,24 +86,17 @@ func statusAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	var fromPtr, toPtr *time.Time
-	if from == api.NilTime {
-		from := time.Now().Add(time.Duration(-1 * 7 * 24 * time.Hour))
-		fromPtr = &from
-	} else {
-		fromPtr = &from
+	if from == nilTime {
+		from = time.Now().Add(time.Duration(-1 * 7 * 24 * time.Hour))
 	}
-	if to == api.NilTime {
-		to := time.Now()
-		toPtr = &to
-	} else {
-		toPtr = &to
+	if to == nilTime {
+		to = time.Now()
 	}
 	appID, err := apps.GetCurrentAppID("./")
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
 	}
-	ReqStats, err := api.FetchReqStat(appID, *fromPtr, *toPtr)
+	ReqStats, err := api.FetchReqStat(appID, from, to)
 	if err != nil {
 		return err
 	}
