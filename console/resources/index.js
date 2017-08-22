@@ -187,15 +187,16 @@ function addToHistoryOperations(operations, operation) {
       // operation already exists, just remove the old one and add new one to top.
       operations.splice(i, 1);
       operations.unshift(operation);
+      window.localStorage.leanCliOpHistory = JSON.stringify(operations);
       return;
     }
   }
 
   operations.unshift(operation);
-
   if (operations.length > 30) {
     operations.pop();
   }
+  window.localStorage.leanCliOpHistory = JSON.stringify(operations);
 }
 
 $(document).ready(function() {
@@ -225,7 +226,7 @@ $(document).ready(function() {
 
       // history related:
       showHistoryPanel: false,
-      historyOperations: [],
+      historyOperations: window.localStorage.leanCliOpHistory ? JSON.parse(window.localStorage.leanCliOpHistory) : [],
     },
     methods: {
       executeCloudFunction: function() {
