@@ -81,16 +81,21 @@ func statusPrinter(status api.Status) error {
 }
 
 func statusAction(c *cli.Context) error {
-	fromPtr, toPtr, err := extractDateParams(c)
+	from, to, err := extractDateParams(c)
 	if err != nil {
 		return err
 	}
-	if fromPtr == nil {
+	var fromPtr, toPtr *time.Time
+	if from == api.NilTime {
 		from := time.Now().Add(time.Duration(-1 * 7 * 24 * time.Hour))
 		fromPtr = &from
+	} else {
+		fromPtr = &from
 	}
-	if toPtr == nil {
+	if to == api.NilTime {
 		to := time.Now()
+		toPtr = &to
+	} else {
 		toPtr = &to
 	}
 	appID, err := apps.GetCurrentAppID("./")
