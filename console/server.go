@@ -10,6 +10,7 @@ import (
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/logp"
 	"github.com/gorilla/mux"
+	"github.com/leancloud/lean-cli/api"
 	"github.com/levigross/grequests"
 )
 
@@ -46,6 +47,10 @@ func (server *Server) getFunctions() ([]string, error) {
 		return nil, err
 	}
 
+	if !response.Ok {
+		return nil, api.NewErrorFromResponse(response)
+	}
+
 	result := new(struct {
 		Result []string `json:"result"`
 	})
@@ -73,15 +78,21 @@ func (server *Server) resourcesHandler(w http.ResponseWriter, req *http.Request)
 }
 
 func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
-	optionsURL := fmt.Sprintf("%s/1.1/functions/_ops/metadatas", server.RemoteURL)
-	optionsResponse, err := grequests.Options(optionsURL, &grequests.RequestOptions{})
+	url := fmt.Sprintf("%s/1.1/functions/_ops/metadatas", server.RemoteURL)
+	response, err := grequests.Options(url, &grequests.RequestOptions{})
+	if err != nil {
+		panic(err)
+	}
+	if !response.Ok {
+		panic(api.NewErrorFromResponse(response))
+	}
 
 	content, err := json.Marshal(map[string]interface{}{
 		"appId":       server.AppID,
 		"appKey":      server.AppKey,
 		"masterKey":   server.MasterKey,
 		"hookKey":     server.HookKey,
-		"sendHookKey": strings.Contains(optionsResponse.Header.Get("Access-Control-Allow-Headers"), "X-LC-Hook-Key"),
+		"sendHookKey": strings.Contains(response.Header.Get("Access-Control-Allow-Headers"), "X-LC-Hook-Key"),
 		"remoteUrl":   server.RemoteURL,
 		"warnings":    []string{},
 	})
