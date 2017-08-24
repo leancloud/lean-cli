@@ -158,9 +158,9 @@ function callCloudHook(appInfo, hookInfo, obj, user) {
 
   if (!appInfo.sendHookKey) {
     if (hookInfo.action.match(/^before/)) {
-      data.__before = hookInfo.sign;
+      data.object.__before = hookInfo.sign;
     } else if (hookInfo.action.match(/^after/)) {
-      data.__after = hookInfo.sign;
+      data.object.__after = hookInfo.sign;
     } else {
       data.__sign = hookInfo.sign;
     }
