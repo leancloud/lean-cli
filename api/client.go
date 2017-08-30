@@ -5,8 +5,10 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
+	"github.com/aisk/wizard"
 	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/utils"
@@ -18,6 +20,24 @@ const (
 	hostCN  = "https://leancloud.cn"
 	hostUS  = "https://us.leancloud.cn"
 	hostTAB = "https://tab.leancloud.cn"
+)
+
+var (
+	// Get2FACode is the function to get the user's two-factor-authentication code.
+	// You can override it with your custom function.
+	Get2FACode = func() (int, error) {
+		result := new(string)
+		wizard.Ask([]wizard.Question{
+			{
+				Content: "请输入二步登录验证码",
+				Input: &wizard.Input{
+					Result: result,
+					Hidden: false,
+				},
+			},
+		})
+		return strconv.Atoi(*result)
+	}
 )
 
 // Client info
@@ -107,6 +127,12 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	if err != nil {
 		return nil, err
 	}
+
+	resp, err = client.checkAndDo2FA(resp)
+	if err != nil {
+		return nil, err
+	}
+
 	if !resp.Ok {
 		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
 			return nil, NewErrorFromResponse(resp)
@@ -119,7 +145,43 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	}
 
 	return resp, nil
+}
 
+// check if the requests need two-factor-authentication and then do it.
+func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Response, error) {
+	if resp.StatusCode != 401 {
+		// don't need 2FA
+		return resp, nil
+	}
+	var result struct {
+		Token string `json:"token"`
+	}
+	err := resp.JSON(&result)
+	if err != nil {
+		return nil, err
+	}
+	token := result.Token
+	code, err := Get2FACode()
+	if err != nil {
+		return nil, err
+	}
+
+	resp, err = grequests.Post(client.baseURL()+"/1.1/do2fa", &grequests.RequestOptions{
+		JSON: map[string]interface{}{
+			"token": token,
+			"code":  code,
+		},
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !resp.Ok {
+		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
+			return nil, NewErrorFromResponse(resp)
+		}
+		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, "POST", "/do2fa")
+	}
+	return resp, nil
 }
 
 func (client *Client) get(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
