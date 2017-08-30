@@ -35,6 +35,12 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	if err != nil {
 		return nil, err
 	}
+	client := NewClient(region)
+	resp, err = client.checkAndDo2FA(resp)
+	if err != nil {
+		return nil, err
+	}
+
 	if !resp.Ok {
 		return nil, NewErrorFromResponse(resp)
 	}
