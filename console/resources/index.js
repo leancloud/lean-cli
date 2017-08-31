@@ -30,6 +30,7 @@ Vue.component('select2', {
     },
     options: function (options) {
       // update options
+      $(this.$el).select2('destroy').empty();
       $(this.$el).select2({ data: options });
     }
   },
