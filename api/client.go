@@ -1,6 +1,7 @@
 package api
 
 import (
+	"errors"
 	"fmt"
 	"net/url"
 	"os"
@@ -29,14 +30,18 @@ var (
 		result := new(string)
 		wizard.Ask([]wizard.Question{
 			{
-				Content: "请输入二步登录验证码",
+				Content: "请输入二次认证验证码",
 				Input: &wizard.Input{
 					Result: result,
 					Hidden: false,
 				},
 			},
 		})
-		return strconv.Atoi(*result)
+		code, err := strconv.Atoi(*result)
+		if err != nil {
+			return 0, errors.New("二次认证验证码应该为数字")
+		}
+		return code, nil
 	}
 )
 
