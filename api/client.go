@@ -146,7 +146,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	}
 
 	if err = client.CookieJar.Save(); err != nil {
-		return resp, err
+		return nil, err
 	}
 
 	return resp, nil
@@ -171,11 +171,19 @@ func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Respon
 		return nil, err
 	}
 
+	jar, err := cookiejar.New(&cookiejar.Options{
+		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
+	})
+	if err != nil {
+		return nil, err
+	}
+
 	resp, err = grequests.Post(client.baseURL()+"/1.1/do2fa", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"token": token,
 			"code":  code,
 		},
+		CookieJar: jar,
 	})
 	if err != nil {
 		return nil, err
@@ -186,6 +194,11 @@ func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Respon
 		}
 		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, "POST", "/do2fa")
 	}
+
+	if err := jar.Save(); err != nil {
+		return nil, err
+	}
+
 	return resp, nil
 }
 
