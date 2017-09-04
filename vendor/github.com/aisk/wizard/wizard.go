@@ -84,9 +84,9 @@ func printQuestion(qustion Question) {
 }
 
 func printAnswers(question Question) {
-	blue := color.New(color.FgBlue).SprintFunc()
+	green := color.New(color.FgGreen).SprintFunc()
 	for i, answer := range question.Answers {
-		fmt.Fprintf(color.Output, " %s) %s\n", blue(i+1), answer.Content)
+		fmt.Fprintf(color.Output, " %s) %s\n", green(i+1), answer.Content)
 	}
 }
 
