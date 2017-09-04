@@ -8,7 +8,7 @@ imports:
 - name: github.com/aisk/logp
   version: af23a256979e2f46179456571d31f99429135f53
 - name: github.com/aisk/wizard
-  version: 45b1b4b542137d8db63c3d462d63a9917471f923
+  version: 348bc51880163889be60e064bf144337be9b56d6
 - name: github.com/bitly/go-simplejson
   version: aabad6e819789e569bd6aabf444c935aa9ba1e44
 - name: github.com/cbroglie/mustache
