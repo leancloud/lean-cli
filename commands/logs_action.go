@@ -12,7 +12,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-
 func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	from := time.Time{}
 	var err error
