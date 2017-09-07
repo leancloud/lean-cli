@@ -48,8 +48,7 @@ function isRtmFunction(funcName) {
 
 function getAppInfo() {
   return $.getJSON("/__engine/1/appInfo").then(function(info) {
-    AV._initialize(info.appId, info.appKey, info.masterKey);
-    AV._useMasterKey = true;
+    AV.init({ appId: info.appId, appKey: info.appKey });
     return info;
   });
 }
@@ -88,7 +87,7 @@ function getHookClasses() {
 
 function getUser(uid) {
   if (!uid || uid.trim() === '') {
-    return AV.Promise.as(null);
+    return AV.Promise.resolve(null);
   }
   var user = AV.Object.createWithoutData("_User", uid);
   return user.fetch();
@@ -245,9 +244,9 @@ $(document).ready(function() {
             this.cloudFunctionParams,
             user,
             this.isCall);
-        }).bind(this)).done((function(result) {
+        }).bind(this)).then((function(result) {
           this.result = result;
-        }).bind(this)).fail((function(err) {
+        }).bind(this)).catch((function(err) {
           this.result = err.responseText || err.message;
         }).bind(this));
       },
@@ -266,7 +265,7 @@ $(document).ready(function() {
         } else if (this.hookObjectContent !== null && this.hookObjectContent.trim() !== "") {
           getObject = (function() { return getHookObjectByContent(this.hookObjectContent); }).bind(this);
         } else {
-          getObject = function() { return AV.Promise.as({}); };
+          getObject = function() { return AV.Promise.resolve({}); };
         }
         addToHistoryOperations(this.historyOperations, {
           type: 'cloudHook',
@@ -293,9 +292,9 @@ $(document).ready(function() {
             }
           }
           return callCloudHook(this.appInfo, hookInfo, obj, user);
-        }).bind(this)).done((function(result) {
+        }).bind(this)).then((function(result) {
           this.result = result;
-        }).bind(this)).fail((function(err) {
+        }).bind(this)).catch((function(err) {
           this.result = err.responseText || err.message;
         }).bind(this));
       },
