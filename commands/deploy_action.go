@@ -128,6 +128,9 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
 	tokenCh <- eventTok
 	signal.Notify(signalCh, os.Interrupt)
+	defer func(){
+		signal.Stop(signalCh)
+	}()
 	go monitorInterrupt(opts.appID)
 	if err != nil {
 		return err
@@ -136,7 +139,6 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	if err != nil {
 		return err
 	}
-	signal.Stop(signalCh)
 	if !ok {
 		return cli.NewExitError("部署失败", 1)
 	}
@@ -147,6 +149,9 @@ func deployFromGit(revision string, opts *deployOptions) error {
 	eventTok, err := api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache)
 	tokenCh <- eventTok
 	signal.Notify(signalCh, os.Interrupt)
+	defer func(){
+		signal.Stop(signalCh)
+	}()
 	go monitorInterrupt(opts.appID)
 	if err != nil {
 		return err
@@ -155,7 +160,6 @@ func deployFromGit(revision string, opts *deployOptions) error {
 	if err != nil {
 		return err
 	}
-	signal.Stop(signalCh)
 	if !ok {
 		return cli.NewExitError("部署失败", 1)
 	}

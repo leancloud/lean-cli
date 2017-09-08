@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/levigross/grequests"
@@ -17,9 +16,6 @@ type GetAppListResult struct {
 	AppDomain string `json:"app_domain"`
 }
 
-// GetAppList returns the current user's all LeanCloud application
-// this will also update the app router cache
-
 func CancelDeployByToken(appId string, token string) error {
 	region, err := GetAppRegion(appId)
 	if err != nil {
@@ -31,10 +27,13 @@ func CancelDeployByToken(appId string, token string) error {
 		return err
 	}
 	if !resp.Ok {
-		return errors.New(fmt.Sprintf("Server returns a %d http error.", resp.StatusCode))
+		return NewErrorFromResponse(resp)
 	}
 	return nil
 }
+
+// GetAppList returns the current user's all LeanCloud application
+// this will also update the app router cache
 
 func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	client := NewClient(region)
