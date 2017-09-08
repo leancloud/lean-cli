@@ -29,11 +29,13 @@ func monitorInterrupt(appId string) {
 		<-signalCh
 		switch i {
 		case 0:
-			logp.Warn("Cancel deploying from server,please wait...")
+			logp.Warn("正在取消部署...")
 			go func() {
 				err := api.CancelDeployByToken(appId, <-tokenCh)
 				if err != nil {
 					logp.Error(err)
+				} else {
+					logp.Info("取消部署成功")
 				}
 				os.Exit(0)
 			}()
@@ -128,9 +130,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
 	tokenCh <- eventTok
 	signal.Notify(signalCh, os.Interrupt)
-	defer func(){
-		signal.Stop(signalCh)
-	}()
+	defer signal.Stop(signalCh)
 	go monitorInterrupt(opts.appID)
 	if err != nil {
 		return err
@@ -218,6 +218,7 @@ func deployAction(c *cli.Context) error {
 		prod:        prod,
 	}
 	signal.Notify(signalCh, os.Interrupt)
+	defer signal.Stop(signalCh)
 	go monitorInterrupt(opts.appID)
 	if isDeployFromGit {
 		err = deployFromGit(revision, opts)
@@ -230,7 +231,6 @@ func deployAction(c *cli.Context) error {
 			return err
 		}
 	}
-	signal.Stop(signalCh)
 	return nil
 }
 
