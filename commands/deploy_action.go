@@ -133,6 +133,7 @@ func deployFromGit(revision string, opts *deployOptions) (string, error) {
 
 func pollEvents(appID, eventTok string) error{
 	signalCh := make(chan os.Signal)
+	signal.Notify(signalCh)
 	go monitorInterrupt(appID, eventTok, signalCh)
 	defer func(){
 		signal.Stop(signalCh)
