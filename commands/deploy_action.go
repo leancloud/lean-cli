@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
 
@@ -16,6 +18,30 @@ import (
 	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
+
+func monitorInterrupt(appId, eventTok string, signalCh chan os.Signal) {
+	for i := 0; i < 2; i++ {
+		_, ok := <-signalCh
+		if !ok{
+			return
+		}
+		switch i {
+		case 0:
+			logp.Warn("正在取消部署...")
+			go func() {
+				err := api.CancelDeployByToken(appId, eventTok)
+				if err != nil {
+					logp.Error(err)
+				} else {
+					logp.Info("取消部署成功")
+				}
+				os.Exit(0)
+			}()
+		case 1:
+			os.Exit(0)
+		}
+	}
+}
 
 func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -77,7 +103,7 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 	return api.UploadFile(appID, archivePath)
 }
 
-func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) error {
+func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) (string, error) {
 	var file *upload.File
 	var err error
 	if isDeployFromJavaWar {
@@ -85,7 +111,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	} else {
 		file, err = uploadProject(opts.appID, ".", ignoreFilePath)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
@@ -98,27 +124,22 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 			}
 		}()
 	}
-
-	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
-	if err != nil {
-		return err
-	}
-	ok, err := api.PollEvents(opts.appID, eventTok)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return cli.NewExitError("部署失败", 1)
-	}
-	return nil
+	return api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
 }
 
-func deployFromGit(revision string, opts *deployOptions) error {
-	eventTok, err := api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache)
-	if err != nil {
-		return err
-	}
-	ok, err := api.PollEvents(opts.appID, eventTok)
+func deployFromGit(revision string, opts *deployOptions) (string, error) {
+	return api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache)
+}
+
+func pollEvents(appID, eventTok string) error{
+	signalCh := make(chan os.Signal)
+	signal.Notify(signalCh)
+	go monitorInterrupt(appID, eventTok, signalCh)
+	defer func(){
+		signal.Stop(signalCh)
+		close(signalCh)
+	}()
+	ok, err := api.PollEvents(appID, eventTok)
 	if err != nil {
 		return err
 	}
@@ -179,19 +200,19 @@ func deployAction(c *cli.Context) error {
 		noDepsCache: noDepsCache,
 		prod:        prod,
 	}
-
+	var eventTok string
 	if isDeployFromGit {
-		err = deployFromGit(revision, opts)
+		eventTok, err = deployFromGit(revision, opts)
 		if err != nil {
 			return err
 		}
 	} else {
-		err = deployFromLocal(isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
+		eventTok, err = deployFromLocal(isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
 			return err
 		}
 	}
-	return nil
+	return pollEvents(opts.appID, eventTok)
 }
 
 type deployOptions struct {

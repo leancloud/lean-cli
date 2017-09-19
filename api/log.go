@@ -9,7 +9,6 @@ import (
 	"github.com/levigross/grequests"
 )
 
-
 // Log is EngineLogs's type structure
 type Log struct {
 	InstanceName string `json:"instanceName"`

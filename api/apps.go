@@ -16,8 +16,25 @@ type GetAppListResult struct {
 	AppDomain string `json:"app_domain"`
 }
 
+func CancelDeployByToken(appId string, token string) error {
+	region, err := GetAppRegion(appId)
+	if err != nil {
+		return err
+	}
+	client := NewClient(region)
+	resp, err := client.post("/1.1/engine/events/cancel"+token, nil, nil)
+	if err != nil {
+		return err
+	}
+	if !resp.Ok {
+		return NewErrorFromResponse(resp)
+	}
+	return nil
+}
+
 // GetAppList returns the current user's all LeanCloud application
 // this will also update the app router cache
+
 func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	client := NewClient(region)
 

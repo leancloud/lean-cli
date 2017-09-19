@@ -1,19 +1,18 @@
 package commands
 
 import (
-	"text/tabwriter"
-	"time"
 	"encoding/json"
 	"fmt"
 	"os"
 	"strconv"
 	"strings"
+	"text/tabwriter"
+	"time"
 
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/urfave/cli"
 )
-
 
 type metricPrinter func(api.Status) error
 
