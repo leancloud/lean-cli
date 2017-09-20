@@ -172,7 +172,12 @@ func lookupBin(fallbacks []string) (string, error) {
 }
 
 func newPythonRuntime(projectPath string) (*Runtime, error) {
-
+	// TODO: reafactor this shit
+	if config, err := getEngineConfig(projectPath); err == nil {
+		if config.CMD != "" {
+			return newPythonRuntimeFromEngineConfig(projectPath, config)
+		}
+	}
 	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".python-version"))
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -227,6 +232,19 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 	}, nil
 }
 
+func newPythonRuntimeFromEngineConfig(projectPath string, config *engineConfig) (*Runtime, error) {
+	exec, args := config.parseCMD()
+	return &Runtime{
+		ProjectPath: projectPath,
+		Name:        "python",
+		Exec:        exec,
+		Args:        args,
+		Envs:        os.Environ(),
+		Errors:      make(chan error),
+	}, nil
+
+}
+
 func newNodeRuntime(projectPath string) (*Runtime, error) {
 	execName := "node"
 	args := []string{"server.js"}
@@ -274,11 +292,18 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 }
 
 func newJavaRuntime(projectPath string) (*Runtime, error) {
+	exec := "mvn"
+	args := []string{"jetty:run"}
+	if config, err := getEngineConfig(projectPath); err != nil {
+		if config.CMD != "" {
+			exec, args = config.parseCMD()
+		}
+	}
 	return &Runtime{
 		ProjectPath: projectPath,
 		Name:        "java",
-		Exec:        "mvn",
-		Args:        []string{"jetty:run"},
+		Exec:        exec,
+		Args:        args,
 		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
