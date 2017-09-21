@@ -8,6 +8,7 @@ Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 
 - via `go get`: `$ go get github.com/leancloud/lean-cli/lean`
 - via `homebrew`: `$ brew install lean-cli`
+- via if your connection with GitHub cracked, click this:`https://releases.leanapp.cn/#/leancloud/lean-cli/releases`
 
 ## Develop
 
