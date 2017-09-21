@@ -32,6 +32,11 @@ func UploadFile(appID string, filePath string) (*upload.File, error) {
 		return nil, err
 	}
 
+	return UploadFileEx(appInfo.AppID, appInfo.AppKey, filePath)
+}
+
+// UploadFileEx upload specific file to LeanCloud
+func UploadFileEx(appID string, appKey string, filePath string) (*upload.File, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return nil, err
@@ -61,8 +66,8 @@ func UploadFile(appID string, filePath string) (*upload.File, error) {
 	}
 
 	file, err := upload.Upload(fileName, mimeType, readSeeker, &upload.Options{
-		AppID:     appInfo.AppID,
-		AppKey:    appInfo.MasterKey + ",master",
+		AppID:     appID,
+		AppKey:    appKey,
 		ServerURL: NewClient(region).baseURL(),
 	})
 	if err != nil {
@@ -82,22 +87,27 @@ func UploadFile(appID string, filePath string) (*upload.File, error) {
 
 // DeleteFile will delete the specific file
 func DeleteFile(appID string, objectID string) error {
+	appInfo, err := GetAppInfo(appID)
+	if err != nil {
+		return err
+	}
+	return DeleteFileEx(appInfo.AppID, appInfo.AppKey, objectID)
+}
+
+// DeleteFileEx will delete the specific file
+func DeleteFileEx(appID string, appKey string, objectID string) error {
 	region, err := GetAppRegion(appID)
 	if err != nil {
 		return nil
 	}
 
-	appInfo, err := GetAppInfo(appID)
-	if err != nil {
-		return err
-	}
 	client := NewClient(region)
 	opts, err := client.options()
 	if err != nil {
 		return err
 	}
-	opts.Headers["X-LC-Id"] = appInfo.AppID
-	opts.Headers["X-LC-Key"] = appInfo.MasterKey + ",master"
+	opts.Headers["X-LC-Id"] = appID
+	opts.Headers["X-LC-Key"] = appKey
 	_, err = client.delete("/1.1/files/"+objectID, opts)
 	return err
 }
