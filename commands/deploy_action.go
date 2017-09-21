@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"path/filepath"
 	"strings"
+	//"syscall"
 
 	"github.com/aisk/logp"
 	"github.com/leancloud/go-upload"
@@ -19,29 +20,29 @@ import (
 	"github.com/urfave/cli"
 )
 
-func monitorInterrupt(appId, eventTok string, signalCh chan os.Signal) {
-	for i := 0; i < 2; i++ {
-		_, ok := <-signalCh
-		if !ok{
-			return
-		}
-		switch i {
-		case 0:
-			logp.Warn("正在取消部署...")
-			go func() {
-				err := api.CancelDeployByToken(appId, eventTok)
-				if err != nil {
-					logp.Error(err)
-				} else {
-					logp.Info("取消部署成功")
-				}
-				os.Exit(0)
-			}()
-		case 1:
-			os.Exit(0)
-		}
-	}
-}
+//func monitorInterrupt(appId, eventTok string, signalCh <-chan os.Signal) {
+//	for i := 0;; i++ {
+//		s, ok := <-signalCh
+//		fmt.Printf("%v\n",s)
+//		if !ok{
+//			return
+//		}
+//		switch i {
+//		case 0:
+//			logp.Warn("正在取消部署...")
+//			go func() {
+//				err := api.CancelDeployByToken(appId, eventTok)
+//				if err != nil {
+//					logp.Error(err)
+//				} else {
+//					logp.Info("取消部署成功")
+//				}
+//			}()
+//		//case 1:
+//		//	os.Exit(0)
+//		}
+//	}
+//}
 
 func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -132,12 +133,27 @@ func deployFromGit(revision string, opts *deployOptions) (string, error) {
 }
 
 func pollEvents(appID, eventTok string) error{
-	signalCh := make(chan os.Signal)
-	signal.Notify(signalCh)
-	go monitorInterrupt(appID, eventTok, signalCh)
-	defer func(){
-		signal.Stop(signalCh)
-		close(signalCh)
+	ch := make(chan os.Signal, 100)
+	signal.Notify(ch, os.Interrupt)
+	defer signal.Stop(ch)
+	defer close(ch)
+	go func(){
+		s, ok := <-ch
+		if !ok{
+			return
+		}
+		fmt.Printf("%v\n", s)
+		go func() {
+			err := api.CancelDeployByToken(appID, eventTok)
+			if err != nil {
+				logp.Error(err)
+			} else {
+				logp.Info("取消部署成功")
+			}
+			os.Exit(0)
+		}()
+		<- ch
+		os.Exit(0)
 	}()
 	ok, err := api.PollEvents(appID, eventTok)
 	if err != nil {
@@ -146,6 +162,7 @@ func pollEvents(appID, eventTok string) error{
 	if !ok {
 		return cli.NewExitError("部署失败", 1)
 	}
+	signal.Stop(ch)
 	return nil
 }
 
