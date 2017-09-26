@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -142,6 +143,27 @@ func deployAction(c *cli.Context) error {
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
+
+	if message == "" {
+		_, err := exec.LookPath("git")
+
+		if err == nil {
+			messageBuf, err := exec.Command("git", "log", "-1", "--no-color", "--pretty=%B").CombinedOutput()
+			messageStr := string(messageBuf)
+
+			if err != nil && strings.Contains(messageStr, "Not a git repository") {
+				// Ignore
+			} else if err != nil {
+				logp.Error(err)
+			} else {
+				message = "WIP on:" + messageStr
+			}
+		}
+	}
+
+	if message == "" {
+		message = "从命令行工具构建"
+	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
