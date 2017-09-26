@@ -98,9 +98,10 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "init",
-			Usage:  "初始化云引擎项目",
-			Action: wrapAction(initAction),
+			Name:      "init",
+			Usage:     "初始化云引擎项目",
+			Action:    wrapAction(initAction),
+			ArgsUsage: "[dest]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
