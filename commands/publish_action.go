@@ -49,7 +49,15 @@ func publishAction(c *cli.Context) error {
 
 	logp.Infof("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
 
-	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag)
+	var deployMode string
+
+	if c.Bool("atomic") {
+		deployMode = api.DEPLOY_SMOOTHLY
+	} else {
+		deployMode = api.DEPLOY_SMOOTHLY
+	}
+
+	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag, deployMode)
 	ok, err := api.PollEvents(appID, tok)
 	if err != nil {
 		return err

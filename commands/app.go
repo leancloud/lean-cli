@@ -175,6 +175,9 @@ func Run(args []string) {
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
 				},
+				cli.BoolFlag{
+					Name: "atomic",
+				},
 				cli.StringFlag{
 					Name:  "revision,r",
 					Usage: "git 的版本号或分支，仅对从 git 仓库部署有效",
@@ -186,6 +189,11 @@ func Run(args []string) {
 			Name:   "publish",
 			Usage:  "部署当前预备环境的代码至生产环境",
 			Action: wrapAction(publishAction),
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name: "atomic",
+				},
+			},
 		},
 		{
 			Name:      "upload",

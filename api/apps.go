@@ -16,6 +16,11 @@ type GetAppListResult struct {
 	AppDomain string `json:"app_domain"`
 }
 
+const (
+	DEPLOY_SMOOTHLY = "smoothly"
+	DEPLOY_ATOMIC   = "atomic"
+)
+
 // GetAppList returns the current user's all LeanCloud application
 // this will also update the app router cache
 func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
@@ -69,11 +74,14 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 }
 
 // DeployImage will deploy the engine group with specify image tag
-func DeployImage(appID string, group string, prod int, imageTag string) (string, error) {
+func DeployImage(appID string, group string, prod int, imageTag string, mode string) (string, error) {
 	params := map[string]interface{}{
 		"imageTag": imageTag,
 		"async":    true,
 	}
+
+	params[mode] = true
+
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
 		return "", err
@@ -87,12 +95,15 @@ func DeployImage(appID string, group string, prod int, imageTag string) (string,
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(appID string, group string, prod int, revision string, noDepsCache bool) (string, error) {
+func DeployAppFromGit(appID string, group string, prod int, revision string, noDepsCache bool, mode string) (string, error) {
 	params := map[string]interface{}{
 		"noDependenciesCache": noDepsCache,
 		"async":               true,
 		"gitTag":              revision,
 	}
+
+	params[mode] = true
+
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
 		return "", err
@@ -106,13 +117,16 @@ func DeployAppFromGit(appID string, group string, prod int, revision string, noD
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(appID string, group string, prod int, fileURL string, message string, noDepsCache bool) (string, error) {
+func DeployAppFromFile(appID string, group string, prod int, fileURL string, message string, noDepsCache bool, mode string) (string, error) {
 	params := map[string]interface{}{
 		"zipUrl":              fileURL,
 		"comment":             message,
 		"noDependenciesCache": noDepsCache,
 		"async":               true,
 	}
+
+	params[mode] = true
+
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
 		return "", err
