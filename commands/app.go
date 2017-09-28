@@ -98,9 +98,10 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "init",
-			Usage:  "初始化云引擎项目",
-			Action: wrapAction(initAction),
+			Name:      "init",
+			Usage:     "初始化云引擎项目",
+			Action:    wrapAction(initAction),
+			ArgsUsage: "[dest]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
@@ -170,10 +171,12 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "message,m",
 					Usage: "本次部署备注，仅对从本地文件部署项目有效",
-					Value: "从命令行工具构建",
 				},
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
+				},
+				cli.BoolFlag{
+					Name: "atomic",
 				},
 				cli.StringFlag{
 					Name:  "revision,r",
@@ -186,6 +189,11 @@ func Run(args []string) {
 			Name:   "publish",
 			Usage:  "部署当前预备环境的代码至生产环境",
 			Action: wrapAction(publishAction),
+			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name: "atomic",
+				},
+			},
 		},
 		{
 			Name:      "upload",

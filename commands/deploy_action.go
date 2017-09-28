@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"os/exec"
 	"path/filepath"
 	"strings"
 
@@ -104,7 +105,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		}()
 	}
 
-	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache)
+	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache, opts.mode)
 	if err != nil {
 		return err
 	}
@@ -119,7 +120,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 }
 
 func deployFromGit(revision string, opts *deployOptions) error {
-	eventTok, err := api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache)
+	eventTok, err := api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache, opts.mode)
 	if err != nil {
 		return err
 	}
@@ -142,6 +143,27 @@ func deployAction(c *cli.Context) error {
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
+
+	if message == "" {
+		_, err := exec.LookPath("git")
+
+		if err == nil {
+			messageBuf, err := exec.Command("git", "log", "-1", "--no-color", "--pretty=%B").CombinedOutput()
+			messageStr := string(messageBuf)
+
+			if err != nil && strings.Contains(messageStr, "Not a git repository") {
+				// Ignore
+			} else if err != nil {
+				logp.Error(err)
+			} else {
+				message = "WIP on:" + messageStr
+			}
+		}
+	}
+
+	if message == "" {
+		message = "从命令行工具构建"
+	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -177,12 +199,21 @@ func deployAction(c *cli.Context) error {
 		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
 	}
 
+	var deployMode string
+
+	if c.Bool("atomic") {
+		deployMode = api.DEPLOY_ATOMIC
+	} else {
+		deployMode = api.DEPLOY_SMOOTHLY
+	}
+
 	opts := &deployOptions{
 		appID:       appID,
 		groupName:   groupName,
 		message:     message,
 		noDepsCache: noDepsCache,
 		prod:        prod,
+		mode:        deployMode,
 	}
 
 	if isDeployFromGit {
@@ -205,4 +236,5 @@ type deployOptions struct {
 	message     string
 	noDepsCache bool
 	prod        int
+	mode        string
 }

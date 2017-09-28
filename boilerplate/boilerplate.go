@@ -53,9 +53,9 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 	return nil
 }
 
-// FetchRepo will download the boilerplate from remote and extract to ${appName}/folder
-func FetchRepo(boil *Boilerplate, appName string, appID string) error {
-	if err := os.Mkdir(appName, 0775); err != nil {
+// FetchRepo will download the boilerplate from remote and extract to ${dest}/folder
+func FetchRepo(boil *Boilerplate, dest string, appID string) error {
+	if err := os.Mkdir(dest, 0775); err != nil {
 		return err
 	}
 
@@ -92,7 +92,7 @@ func FetchRepo(boil *Boilerplate, appName string, appID string) error {
 	}
 	defer zipFile.Close()
 	for _, f := range zipFile.File {
-		err := extractAndWriteFile(f, appName)
+		err := extractAndWriteFile(f, dest)
 		if err != nil {
 			return err
 		}

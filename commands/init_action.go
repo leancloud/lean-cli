@@ -199,18 +199,24 @@ func initAction(c *cli.Context) error {
 		return err
 	}
 
-	appName := app.AppName
+	var dest string
 
-	if err = boilerplate.FetchRepo(boil, appName, app.AppID); err != nil {
+	if c.NArg() > 0 {
+		dest = c.Args()[0]
+	} else {
+		dest = app.AppName
+	}
+
+	if err = boilerplate.FetchRepo(boil, dest, app.AppID); err != nil {
 		return err
 	}
 
-	err = apps.LinkApp(app.AppName, app.AppID)
+	err = apps.LinkApp(dest, app.AppID)
 	if err != nil {
 		return err
 	}
 
-	err = apps.LinkGroup(app.AppName, groupName)
+	err = apps.LinkGroup(dest, groupName)
 	if err != nil {
 		return err
 	}
