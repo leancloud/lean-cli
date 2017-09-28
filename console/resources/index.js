@@ -48,7 +48,9 @@ function isRtmFunction(funcName) {
 
 function getAppInfo() {
   return $.getJSON("/__engine/1/appInfo").then(function(info) {
-    AV.init({ appId: info.appId, appKey: info.appKey });
+    AV.init({ appId: info.appId, appKey: info.appKey, masterKey: info.masterKey});
+    // TODO: don't use private function
+    AV._config.useMasterKey = true;
     return info;
   });
 }
