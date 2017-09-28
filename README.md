@@ -15,7 +15,6 @@ Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 Install the dependences first:
 
 - [go](https://golang.org)
-- [glide](https://glide.sh)
 
 Clone this repo to your `${GOPATH}/src/github.com/leancloud/lean-cli`, then have a look at `Makefile`.
 
@@ -25,7 +24,7 @@ Ensure all codes is formated by [gofmt](https://golang.org/cmd/gofmt/). Commit m
 
 Install this dependences:
 
-- [msitool](https://wiki.gnome.org/msitools)
+- [msitools](https://wiki.gnome.org/msitools)
 - [dpkg](https://wiki.debian.org/Teams/Dpkg)
 
 > You can install them via homebrew

@@ -5,7 +5,7 @@ import (
 )
 
 // Version is lean-cli's version.
-const Version = "0.15.0"
+const Version = "0.16.0"
 
 func PrintCurrentVersion() {
 	logp.Info("当前命令行工具版本：", Version)
