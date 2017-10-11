@@ -294,7 +294,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 func newJavaRuntime(projectPath string) (*Runtime, error) {
 	exec := "mvn"
 	args := []string{"jetty:run"}
-	if config, err := getEngineConfig(projectPath); err != nil {
+	if config, err := getEngineConfig(projectPath); err == nil {
 		if config.CMD != "" {
 			exec, args = config.parseCMD()
 		}
