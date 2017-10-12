@@ -12,28 +12,18 @@ Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 
 ## Develop
 
-Install the dependences first:
+Install the toolchains:
 
 - [go](https://golang.org)
-
-Clone this repo to your `${GOPATH}/src/github.com/leancloud/lean-cli`, then have a look at `Makefile`.
-
-Ensure all codes is formated by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
-
-## Packaging
-
-Install this dependences:
-
+- [dep](https://github.com/golang/dep)
 - [msitools](https://wiki.gnome.org/msitools)
 - [dpkg](https://wiki.debian.org/Teams/Dpkg)
 
 > You can install them via homebrew
 
-and
+Clone this repo to your `${GOPATH}/src/github.com/leancloud/lean-cli`, then have a look at `Makefile`, Then run `make all` to build releases.
 
-```bash
-$ make all
-```
+Ensure all codes is formated by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
 
 ## Release
 
