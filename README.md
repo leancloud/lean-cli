@@ -31,4 +31,6 @@ Tag the current commit with version name, and create a [release](https://github.
 
 The homebrew guys will update the home brew [formula](https://github.com/Homebrew/homebrew-core/blob/master/Formula/lean-cli.rb). If not, or we are in a hurry, just make a pull request to them.
 
-Update the [pack-scaffold](https://github.com/leancloud/pack-scaffold/) repo to update the latest release version (after homebrew formula has been updated). CLI will check update from here.
+<del>Update the [pack-scaffold](https://github.com/leancloud/pack-scaffold/) repo to update the latest release version (after homebrew formula has been updated). CLI will check update from here.</del>
+
+[Releases](https://releases.leanapp.cn) will fetch from GitHub automatically. If not, or we are in a hurry, just execute cloud function `updateRepo` with argument `{"repo": "leancloud/lean-cli"}` to update.
