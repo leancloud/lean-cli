@@ -11,7 +11,7 @@ import (
 	"github.com/levigross/grequests"
 )
 
-const checkUpdateURL = "https://lcinternal-cloud-code-update.leanapp.cn/cli-version.json"
+const checkUpdateURL = "https://releases.leanapp.cn/leancloud/lean-cli/version.json"
 
 var pkgType = "go"
 
