@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/coreos/go-semver/semver"
 	"github.com/fatih/color"
@@ -49,7 +50,7 @@ func checkUpdate() error {
 	}
 
 	current := semver.New(version.Version)
-	latest := semver.New(result.Version)
+	latest := semver.New(strings.TrimPrefix(result.Version, "v"))
 
 	if current.LessThan(*latest) {
 		color.Green("发现新版本 %s，变更如下：\r\n%s \r\n您可以通过以下方式升级：%s", result.Version, result.Message, updateCommand())
