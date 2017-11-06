@@ -46,6 +46,7 @@ type fileTokens struct {
 	Provider  string `json:"provider"`
 	UploadURL string `json:"upload_url"`
 	Token     string `json:"token"`
+	MimeType  string `json:"mime_type"`
 	Key       string
 }
 

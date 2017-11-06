@@ -28,8 +28,11 @@ func getSeekerSize(seeker io.Seeker) (int64, error) {
 func Upload(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
 	if opts.serverURL() == "https://api.leancloud.cn" || opts.serverURL() == "https://leancloud.cn" {
 		return uploadToQiniu(name, mimeType, reader, opts)
+	} else if opts.serverURL() == "https://us-api.leancloud.cn" || opts.serverURL() == "https://us.leancloud.cn" {
+		return uploadToS3(name, mimeType, reader, opts)
+	} else {
+		return uploadViaLeanCloud(name, mimeType, reader, opts)
 	}
-	return uploadViaLeanCloud(name, mimeType, reader, opts)
 }
 
 func uploadToQiniu(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
@@ -100,6 +103,46 @@ func uploadToQiniu(name string, mimeType string, reader io.ReadSeeker, opts *Opt
 	}
 	if response.StatusCode != 200 {
 		return nil, errors.New(string(content))
+	}
+
+	return &File{
+		ObjectID: tokens.ObjectID,
+		URL:      tokens.URL,
+	}, nil
+}
+
+func uploadToS3(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
+	size, err := getSeekerSize(reader)
+	if err != nil {
+		return nil, err
+	}
+
+	tokens, err := getFileTokens(name, mimeType, size, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	request, err := http.NewRequest("PUT", tokens.UploadURL, reader)
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header.Set("Content-Type", tokens.MimeType)
+	request.Header.Set("Cache-Control", "public, max-age=31536000")
+	request.ContentLength = size
+
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return nil, err
+	}
+	defer response.Body.Close()
+
+	body, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != 200 {
+		return nil, errors.New(string(body))
 	}
 
 	return &File{
