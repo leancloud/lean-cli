@@ -156,7 +156,7 @@ func deployAction(c *cli.Context) error {
 			} else if err != nil {
 				logp.Error(err)
 			} else {
-				message = "WIP on:" + messageStr
+				message = "WIP on: " + strings.TrimSpace(messageStr)
 			}
 		}
 	}
