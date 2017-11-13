@@ -101,7 +101,7 @@ func FetchReqStat(appID string, from time.Time, to time.Time) (Status, error) {
 	}
 	index := 0
 	for _, value := range jsapi.Results {
-		if value == 0{
+		if value == 0 {
 			continue
 		}
 		status[index].ApiReqCount = value
