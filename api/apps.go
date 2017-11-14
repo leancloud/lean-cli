@@ -53,7 +53,7 @@ func CancelDeployByToken(appId string, token string) error {
 		return err
 	}
 	client := NewClient(region)
-	resp, err := client.post("/1.1/engine/events/cancel"+token, nil, nil)
+	resp, err := client.post("/1.1/engine/events/cancel/"+token, nil, nil)
 	if err != nil {
 		return err
 	}

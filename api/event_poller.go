@@ -18,6 +18,12 @@ var (
 	ch = make(chan os.Signal)
 )
 
+func exitWithChannel(){
+	signal.Stop(ch)
+	close(ch)
+	os.Exit(0)
+}
+
 type deployEvent struct {
 	MoreEvent bool `json:"moreEvent"`
 	Events    []struct {
@@ -47,11 +53,10 @@ func monitorInterrupt(appId, eventTok string) {
 					logp.Info("取消部署成功！")
 				}
 				m.Unlock()
+				exitWithChannel()
 			}()
 		case 1:
-			signal.Stop(ch)
-			close(ch)
-			os.Exit(1)
+			exitWithChannel()
 		}
 	}
 }
@@ -60,10 +65,7 @@ func monitorInterrupt(appId, eventTok string) {
 func PollEvents(appID string, tok string) (bool, error) {
 	signal.Notify(ch, os.Interrupt)
 
-	defer func() {
-		signal.Stop(ch)
-		close(ch)
-	}()
+	defer exitWithChannel()
 
 	go monitorInterrupt(appID, tok)
 
