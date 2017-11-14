@@ -3,14 +3,14 @@ package api
 import (
 	"fmt"
 	"os"
+	"os/signal"
 	"strings"
 	"time"
+	"sync"
 
 	"github.com/aisk/logp"
 	"github.com/fatih/color"
 	"github.com/mattn/go-colorable"
-	"os/signal"
-	"sync"
 )
 
 var (
