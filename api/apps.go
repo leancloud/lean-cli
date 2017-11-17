@@ -47,6 +47,22 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	return result, nil
 }
 
+func CancelDeployByToken(appId string, token string) error {
+	region, err := GetAppRegion(appId)
+	if err != nil {
+		return err
+	}
+	client := NewClient(region)
+	resp, err := client.post("/1.1/engine/events/cancel/"+token, nil, nil)
+	if err != nil {
+		return err
+	}
+	if !resp.Ok {
+		return NewErrorFromResponse(resp)
+	}
+	return nil
+}
+
 func deploy(appID string, group string, prod int, params map[string]interface{}) (*grequests.Response, error) {
 	region, err := GetAppRegion(appID)
 	if err != nil {
