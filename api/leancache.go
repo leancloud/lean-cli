@@ -20,11 +20,7 @@ func GetCacheList(appID string) ([]*GetCacheListResult, error) {
 		return nil, err
 	}
 
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil, err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	opts, err := client.options()
 	if err != nil {
@@ -57,11 +53,7 @@ func ExecuteCacheCommand(appID string, instance string, db int, command string) 
 		return nil, err
 	}
 
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil, err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	opts, err := client.options()
 	if err != nil {

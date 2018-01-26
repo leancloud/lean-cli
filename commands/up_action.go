@@ -50,6 +50,8 @@ func upAction(c *cli.Context) error {
 		return err
 	}
 
+	apiServer := api.NewClientByApp(appId).baseURL()
+
 	rtm, err := runtimes.DetectRuntime("")
 	if err != nil {
 		return err
@@ -101,13 +103,13 @@ func upAction(c *cli.Context) error {
 		"LC_APP_KEY=" + appInfo.AppKey,
 		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
 		"LC_APP_PORT=" + strconv.Itoa(rtmPort),
-		"LC_API_SERVER=" + region.APIServerURL(),
+		"LC_API_SERVER=" + apiServer,
 		"LEANCLOUD_APP_ID=" + appInfo.AppID,
 		"LEANCLOUD_APP_KEY=" + appInfo.AppKey,
 		"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
 		"LEANCLOUD_APP_HOOK_KEY=" + appInfo.HookKey,
 		"LEANCLOUD_APP_PORT=" + strconv.Itoa(rtmPort),
-		"LEANCLOUD_API_SERVER=" + region.APIServerURL(),
+		"LEANCLOUD_API_SERVER=" + apiServer,
 		"LEANCLOUD_APP_ENV=" + "development",
 		"LEANCLOUD_REGION=" + region.String(),
 		"LEANCLOUD_APP_DOMAIN=" + groupInfo.Domain,

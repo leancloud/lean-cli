@@ -24,7 +24,7 @@ const (
 // GetAppList returns the current user's all LeanCloud application
 // this will also update the app router cache
 func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
-	client := NewClient(region)
+	client := NewClientByRegion(region)
 
 	resp, err := client.get("/1/clients/self/apps", nil)
 	if err != nil {
@@ -48,11 +48,7 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 }
 
 func deploy(appID string, group string, prod int, params map[string]interface{}) (*grequests.Response, error) {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil, err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	opts, err := client.options()
 	if err != nil {
@@ -151,11 +147,7 @@ type GetAppInfoResult struct {
 
 // GetAppInfo returns the application's detail info
 func GetAppInfo(appID string) (*GetAppInfoResult, error) {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil, err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	resp, err := client.get("/1.1/clients/self/apps/"+appID, nil)
 	if err != nil {
@@ -184,11 +176,7 @@ type GetGroupsResult struct {
 
 // GetGroups returns the application's engine groups
 func GetGroups(appID string) ([]*GetGroupsResult, error) {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil, err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	opts, err := client.options()
 	if err != nil {
@@ -242,11 +230,7 @@ type GetEngineInfoResult struct {
 }
 
 func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil, err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	opts, err := client.options()
 	if err != nil {
@@ -264,11 +248,7 @@ func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
 }
 
 func PutEnvironments(appID string, group string, envs map[string]string) error {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return err
-	}
-	client := NewClient(region)
+	client := NewClientByApp(appID)
 
 	opts, err := client.options()
 	if err != nil {

@@ -1,10 +1,10 @@
 package api
 
 import (
-	"github.com/leancloud/lean-cli/api/regions"
+	"net/url"
+
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
-	"net/url"
 )
 
 // ExecuteCQLResult is ExecuteCQL's result type
@@ -15,7 +15,7 @@ type ExecuteCQLResult struct {
 }
 
 // ExecuteCQL will execute the cql, and returns' the result
-func ExecuteCQL(appID string, masterKey string, region regions.Region, cql string) (*ExecuteCQLResult, error) {
+func ExecuteCQL(appID string, masterKey string, cql string) (*ExecuteCQLResult, error) {
 	opts := &grequests.RequestOptions{
 		Headers: map[string]string{
 			"X-LC-Id":      appID,
@@ -24,7 +24,7 @@ func ExecuteCQL(appID string, masterKey string, region regions.Region, cql strin
 		},
 		UserAgent: "LeanCloud-CLI/" + version.Version,
 	}
-	resp, err := grequests.Get(NewClient(region).baseURL()+"/1.1/cloudQuery?cql="+url.QueryEscape(cql), opts)
+	resp, err := grequests.Get(NewClientByApp(appID).baseURL()+"/1.1/cloudQuery?cql="+url.QueryEscape(cql), opts)
 	if err != nil {
 		return nil, err
 	}

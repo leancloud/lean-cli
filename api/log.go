@@ -120,7 +120,7 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 		return nil, err
 	}
 
-	url := region.APIServerURL() + "/1.1/tables/EngineLogs"
+	url := GetDefaultBaseUrl(region) + "/1.1/tables/EngineLogs"
 
 	options := &grequests.RequestOptions{
 		Headers: map[string]string{

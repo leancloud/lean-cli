@@ -8,7 +8,7 @@ import (
 
 func TestClient(t *testing.T) {
 	f := func(r regions.Region) {
-		client := NewClient(r)
+		client := NewClientByRegion(r)
 		resp, err := client.get("/1.1/date", nil)
 		if err != nil {
 			t.FailNow()

@@ -9,6 +9,7 @@ import (
 	"github.com/cheggaaa/pb"
 	"github.com/fatih/color"
 	"github.com/leancloud/go-upload"
+	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/mattn/go-colorable"
 )
 
@@ -32,16 +33,17 @@ func UploadFile(appID string, filePath string) (*upload.File, error) {
 		return nil, err
 	}
 
-	return UploadFileEx(appInfo.AppID, appInfo.AppKey, filePath)
-}
-
-// UploadFileEx upload specific file to LeanCloud
-func UploadFileEx(appID string, appKey string, filePath string) (*upload.File, error) {
 	region, err := GetAppRegion(appID)
+
 	if err != nil {
 		return nil, err
 	}
 
+	return UploadFileEx(appInfo.AppID, appInfo.AppKey, region, filePath)
+}
+
+// UploadFileEx upload specific file to LeanCloud
+func UploadFileEx(appID string, appKey string, region regions.Region, filePath string) (*upload.File, error) {
 	_, fileName := filepath.Split(filePath)
 	mimeType := mime.TypeByExtension(filepath.Ext(filePath))
 
@@ -68,7 +70,7 @@ func UploadFileEx(appID string, appKey string, filePath string) (*upload.File, e
 	file, err := upload.Upload(fileName, mimeType, readSeeker, &upload.Options{
 		AppID:     appID,
 		AppKey:    appKey,
-		ServerURL: NewClient(region).baseURL(),
+		ServerURL: NewClientByRegion(region).baseURL(),
 	})
 	if err != nil {
 		return nil, err
@@ -91,17 +93,19 @@ func DeleteFile(appID string, objectID string) error {
 	if err != nil {
 		return err
 	}
-	return DeleteFileEx(appInfo.AppID, appInfo.AppKey, objectID)
+
+	region, err := GetAppRegion(appID)
+
+	if err != nil {
+		return err
+	}
+
+	return DeleteFileEx(appInfo.AppID, appInfo.AppKey, region, objectID)
 }
 
 // DeleteFileEx will delete the specific file
-func DeleteFileEx(appID string, appKey string, objectID string) error {
-	region, err := GetAppRegion(appID)
-	if err != nil {
-		return nil
-	}
-
-	client := NewClient(region)
+func DeleteFileEx(appID string, appKey string, region regions.Region, objectID string) error {
+	client := NewClientByRegion(region)
 	opts, err := client.options()
 	if err != nil {
 		return err
