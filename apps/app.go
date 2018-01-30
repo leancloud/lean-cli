@@ -53,9 +53,14 @@ func GetCurrentAppID(projectPath string) (string, error) {
 	}
 	appID := strings.TrimSpace(string(content))
 	if appID == "" {
-		msg := "Invalid group, please check the `.leancloud/current_app_id`'s content."
+		msg := "Invalid app, please check the `.leancloud/current_app_id`'s content."
 		return "", errors.New(msg)
 	}
+
+	if _, err = GetAppRegion(appID); err != nil {
+		return "", err
+	}
+
 	return appID, nil
 }
 

@@ -45,12 +45,12 @@ func upAction(c *cli.Context) error {
 		return err
 	}
 
-	region, err := api.GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
 	}
 
-	apiServer := api.NewClientByApp(appId).baseURL()
+	apiServer := api.NewClientByApp(appID).GetBaseURL()
 
 	rtm, err := runtimes.DetectRuntime("")
 	if err != nil {

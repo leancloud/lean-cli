@@ -24,7 +24,7 @@ func ExecuteCQL(appID string, masterKey string, cql string) (*ExecuteCQLResult, 
 		},
 		UserAgent: "LeanCloud-CLI/" + version.Version,
 	}
-	resp, err := grequests.Get(NewClientByApp(appID).baseURL()+"/1.1/cloudQuery?cql="+url.QueryEscape(cql), opts)
+	resp, err := grequests.Get(NewClientByApp(appID).GetBaseURL()+"/1.1/cloudQuery?cql="+url.QueryEscape(cql), opts)
 	if err != nil {
 		return nil, err
 	}

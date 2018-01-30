@@ -58,12 +58,12 @@ func envAction(c *cli.Context) error {
 		return err
 	}
 
-	region, err := api.GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
 	}
 
-	apiServer := api.NewClientByApp(appId).baseURL()
+	apiServer := api.NewClientByApp(appID).GetBaseURL()
 
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {

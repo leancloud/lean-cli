@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/levigross/grequests"
+	"github.com/leancloud/lean-cli/apps"
 )
 
 // Log is EngineLogs's type structure
@@ -115,7 +116,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 }
 
 func fetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
-	region, err := GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return nil, err
 	}

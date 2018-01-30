@@ -178,7 +178,7 @@ func deployAction(c *cli.Context) error {
 	}
 
 	logp.Info("获取应用信息 ...")
-	region, err := api.GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
 	}

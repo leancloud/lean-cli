@@ -38,7 +38,7 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err == nil {
-		region, err := api.GetAppRegion(appID)
+		region, err := apps.GetAppRegion(appID)
 		if err != nil {
 			log.Fatal(err)
 		}

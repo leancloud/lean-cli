@@ -10,6 +10,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/apps"
 	"github.com/mattn/go-colorable"
 )
 
@@ -33,7 +34,7 @@ func UploadFile(appID string, filePath string) (*upload.File, error) {
 		return nil, err
 	}
 
-	region, err := GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 
 	if err != nil {
 		return nil, err
@@ -70,7 +71,7 @@ func UploadFileEx(appID string, appKey string, region regions.Region, filePath s
 	file, err := upload.Upload(fileName, mimeType, readSeeker, &upload.Options{
 		AppID:     appID,
 		AppKey:    appKey,
-		ServerURL: NewClientByRegion(region).baseURL(),
+		ServerURL: NewClientByRegion(region).GetBaseURL(),
 	})
 	if err != nil {
 		return nil, err
@@ -94,7 +95,7 @@ func DeleteFile(appID string, objectID string) error {
 		return err
 	}
 
-	region, err := GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 
 	if err != nil {
 		return err

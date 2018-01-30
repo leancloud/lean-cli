@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/apps"
 	"github.com/levigross/grequests"
 )
 
@@ -38,9 +39,10 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	}
 
 	for _, app := range result {
-		routerCache[app.AppID] = region
+		apps.SetRegionCache(app.AppID, region)
 	}
-	if err = saveRouterCache(); err != nil {
+
+	if err = apps.SaveRegionCache(); err != nil {
 		return nil, err
 	}
 

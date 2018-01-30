@@ -13,6 +13,7 @@ import (
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
@@ -50,7 +51,7 @@ type Client struct {
 	CookieJar *cookiejar.Jar
 	Region    regions.Region
 	AppID     string
-	BaseURL   string
+	baseURL   string
 }
 
 func GetDefaultBaseUrl(region regions.Region) string {
@@ -75,13 +76,13 @@ func NewClientByApp(appID string) *Client {
 	}
 }
 
-func (client *Client) baseURL() string {
-	if client.BaseURL != "" {
-		return client.BaseURL
+func (client *Client) GetBaseURL() string {
+	if client.baseURL != "" {
+		return client.baseURL
 	}
 
 	if client.AppID != "" {
-		region, err := GetAppRegion(client.AppID)
+		region, err := apps.GetAppRegion(client.AppID)
 
 		if err != nil {
 			panic(err) // This error should be catch at top level
@@ -93,8 +94,8 @@ func (client *Client) baseURL() string {
 			if err != nil {
 				logp.Warn(err) // Ignore app router error
 			} else {
-				client.BaseURL = "https://" + routerInfo.APIServer
-				return client.BaseURL
+				client.baseURL = "https://" + routerInfo.APIServer
+				return client.baseURL
 			}
 		}
 	}
@@ -103,7 +104,7 @@ func (client *Client) baseURL() string {
 }
 
 func (client *Client) options() (*grequests.RequestOptions, error) {
-	u, err := url.Parse(client.baseURL())
+	u, err := url.Parse(client.GetBaseURL())
 	if err != nil {
 		panic(err)
 	}
@@ -151,7 +152,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	default:
 		panic("invalid method: " + method)
 	}
-	resp, err := fn(client.baseURL()+path, options)
+	resp, err := fn(client.GetBaseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -201,7 +202,7 @@ func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Respon
 		return nil, err
 	}
 
-	resp, err = grequests.Post(client.baseURL()+"/1.1/do2fa", &grequests.RequestOptions{
+	resp, err = grequests.Post(client.GetBaseURL()+"/1.1/do2fa", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"token": token,
 			"code":  code,
