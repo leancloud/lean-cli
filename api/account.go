@@ -24,11 +24,13 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 		UseCookieJar: true,
 		UserAgent:    "LeanCloud-CLI/" + version.Version,
 	}
-	resp, err := grequests.Post(GetDefaultBaseUrl(region)+"/1/signin", options)
+	client := NewClientByRegion(region)
+
+	resp, err := grequests.Post(client.GetBaseURL()+"/1/signin", options)
 	if err != nil {
 		return nil, err
 	}
-	client := NewClientByRegion(region)
+
 	resp, err = client.checkAndDo2FA(resp)
 	if err != nil {
 		return nil, err

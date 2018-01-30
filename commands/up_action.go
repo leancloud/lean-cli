@@ -50,7 +50,7 @@ func upAction(c *cli.Context) error {
 		return err
 	}
 
-	apiServer := api.NewClientByApp(appID).GetBaseURL()
+	apiServer := api.GetAppAPIURL(region, appID)
 
 	rtm, err := runtimes.DetectRuntime("")
 	if err != nil {

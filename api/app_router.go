@@ -3,9 +3,17 @@ package api
 import (
 	"fmt"
 
+	"github.com/aisk/logp"
+	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
 )
+
+var defaultAPIURL = map[regions.Region]string{
+	regions.CN:  "https://api.leancloud.cn",
+	regions.US:  "https://us-api.leancloud.cn",
+	regions.TAB: "https://e1-api.leancloud.cn",
+}
 
 type RouterResponse struct {
 	TTL             int    `json:"ttl"`
@@ -14,6 +22,20 @@ type RouterResponse struct {
 	PushServer      string `json:"push_server"`
 	EngineServer    string `json:"engine_server"`
 	APIServer       string `json:"api_server"`
+}
+
+func GetAppAPIURL(region regions.Region, appID string) string {
+	if region != regions.US {
+		routerInfo, err := QueryAppRouter(appID)
+
+		if err != nil {
+			logp.Warn(err) // Ignore app router error
+		} else {
+			return "https://" + routerInfo.APIServer
+		}
+	}
+
+	return defaultAPIURL[region]
 }
 
 // Not applicable for US

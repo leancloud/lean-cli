@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/levigross/grequests"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/levigross/grequests"
 )
 
 // Log is EngineLogs's type structure
@@ -121,7 +121,7 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 		return nil, err
 	}
 
-	url := GetDefaultBaseUrl(region) + "/1.1/tables/EngineLogs"
+	url := NewClientByRegion(region).GetBaseURL() + "/1.1/tables/EngineLogs"
 
 	options := &grequests.RequestOptions{
 		Headers: map[string]string{

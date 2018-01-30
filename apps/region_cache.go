@@ -1,13 +1,13 @@
 package apps
 
 import (
-  "encoding/json"
+	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"path/filepath"
 
-  "github.com/leancloud/lean-cli/api/regions"
-  "github.com/leancloud/lean-cli/utils"
+	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/utils"
 )
 
 var regionCache = make(map[string]regions.Region)
@@ -21,7 +21,7 @@ func GetAppRegion(appID string) (regions.Region, error) {
 }
 
 func SetRegionCache(appID string, region regions.Region) {
-  regionCache[appID] = region
+	regionCache[appID] = region
 }
 
 func SaveRegionCache() error {

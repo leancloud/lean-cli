@@ -9,9 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/juju/persistent-cookiejar"
-	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
+	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/utils"
@@ -19,7 +18,7 @@ import (
 	"github.com/levigross/grequests"
 )
 
-var defaultBaseUrls = map[regions.Region]string{
+var dashboardBaseUrls = map[regions.Region]string{
 	regions.CN:  "https://leancloud.cn",
 	regions.US:  "https://us.leancloud.cn",
 	regions.TAB: "https://tab.leancloud.cn",
@@ -51,15 +50,6 @@ type Client struct {
 	CookieJar *cookiejar.Jar
 	Region    regions.Region
 	AppID     string
-	baseURL   string
-}
-
-func GetDefaultBaseUrl(region regions.Region) string {
-	if url, ok := defaultBaseUrls[region]; ok {
-		return url
-	} else {
-		panic("invalid region")
-	}
 }
 
 func NewClientByRegion(region regions.Region) *Client {
@@ -77,30 +67,22 @@ func NewClientByApp(appID string) *Client {
 }
 
 func (client *Client) GetBaseURL() string {
-	if client.baseURL != "" {
-		return client.baseURL
-	}
+	region := client.Region
 
 	if client.AppID != "" {
-		region, err := apps.GetAppRegion(client.AppID)
+		var err error
+		region, err = apps.GetAppRegion(client.AppID)
 
 		if err != nil {
 			panic(err) // This error should be catch at top level
 		}
-
-		if region != regions.US {
-			routerInfo, err := QueryAppRouter(client.AppID)
-
-			if err != nil {
-				logp.Warn(err) // Ignore app router error
-			} else {
-				client.baseURL = "https://" + routerInfo.APIServer
-				return client.baseURL
-			}
-		}
 	}
 
-	return GetDefaultBaseUrl(client.Region)
+	if url, ok := dashboardBaseUrls[region]; ok {
+		return url
+	} else {
+		panic("invalid region")
+	}
 }
 
 func (client *Client) options() (*grequests.RequestOptions, error) {
