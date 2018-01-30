@@ -32,10 +32,6 @@ func LinkApp(projectPath string, appID string) error {
 		return err
 	}
 
-	if err = setRecentLinkedApp(projectPath, appID); err != nil {
-		return err
-	}
-
 	return ioutil.WriteFile(currentAppIDFilePath(projectPath), []byte(appID), 0644)
 }
 
