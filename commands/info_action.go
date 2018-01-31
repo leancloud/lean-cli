@@ -11,10 +11,7 @@ import (
 func infoAction(c *cli.Context) error {
 	callbacks := make([]func(), 0)
 
-	loginedRegions, err := api.GetLoginedRegion()
-	if err != nil {
-		return err
-	}
+	loginedRegions := apps.GetLoginedRegions()
 
 	if len(loginedRegions) == 0 {
 		logp.Error("未登录")

@@ -119,10 +119,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	case "us", "US":
 		region = regions.US
 	case "":
-		loginedRegions, err := api.GetLoginedRegion()
-		if err != nil {
-			return err
-		}
+		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
 
 		} else if len(loginedRegions) == 1 {

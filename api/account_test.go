@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/apps"
 )
 
 func fakeHome(t *testing.T) func() {
@@ -36,10 +37,7 @@ func TestLogin(t *testing.T) {
 		t.Error(err)
 	}
 
-	loginedRegions, err := GetLoginedRegion()
-	if err != nil {
-		t.Fatal(err)
-	}
+	loginedRegions := apps.GetLoginedRegions()
 	if len(loginedRegions) != 3 {
 		t.Error()
 	}

@@ -137,10 +137,7 @@ func initAction(c *cli.Context) error {
 	case "tab", "TAB":
 		region = regions.TAB
 	case "":
-		loginedRegions, err := api.GetLoginedRegion()
-		if err != nil {
-			return err
-		}
+		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("没有登录", 1)
 		} else if len(loginedRegions) == 1 {

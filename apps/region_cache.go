@@ -20,6 +20,16 @@ func GetAppRegion(appID string) (regions.Region, error) {
 	}
 }
 
+func GetLoginedRegions() (result []regions.Region) {
+	for _, region := range regionCache {
+		if !regionInArray(region, result) {
+			result = append(result, region)
+		}
+	}
+
+	return result
+}
+
 func SetRegionCache(appID string, region regions.Region) {
 	regionCache[appID] = region
 }
@@ -38,4 +48,13 @@ func init() {
 		return
 	}
 	json.Unmarshal(data, &regionCache)
+}
+
+func regionInArray(region regions.Region, list []regions.Region) bool {
+	for _, r := range list {
+		if r == region {
+			return true
+		}
+	}
+	return false
 }
