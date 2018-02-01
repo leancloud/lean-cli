@@ -38,12 +38,5 @@ func (err Error) Error() string {
 type Options struct {
 	AppID     string
 	AppKey    string
-	ServerURL string
-}
-
-func (opts *Options) serverURL() string {
-	if opts.ServerURL != "" {
-		return opts.ServerURL
-	}
-	return "https://api.leancloud.cn"
+	APIServer string
 }

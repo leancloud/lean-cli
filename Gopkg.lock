@@ -108,7 +108,7 @@
   branch = "master"
   name = "github.com/leancloud/go-upload"
   packages = ["."]
-  revision = "cb72387ec6f3eb1079b38ef968fd56cac7bfc2a5"
+  revision = "99b47d07b1d169d30b9321ec34108ca18222e3e6"
 
 [[projects]]
   name = "github.com/levigross/grequests"

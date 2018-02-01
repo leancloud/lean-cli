@@ -71,7 +71,7 @@ func UploadFileEx(appID string, appKey string, region regions.Region, filePath s
 	file, err := upload.Upload(fileName, mimeType, readSeeker, &upload.Options{
 		AppID:     appID,
 		AppKey:    appKey,
-		ServerURL: NewClientByRegion(region).GetBaseURL(),
+		APIServer: GetAppAPIURL(region, appID),
 	})
 	if err != nil {
 		return nil, err
