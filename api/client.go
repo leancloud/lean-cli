@@ -67,6 +67,12 @@ func NewClientByApp(appID string) *Client {
 }
 
 func (client *Client) GetBaseURL() string {
+	envBaseURL := os.Getenv("LEANCLOUD_DASHBOARD")
+
+	if envBaseURL != "" {
+		return envBaseURL
+	}
+
 	region := client.Region
 
 	if client.AppID != "" {

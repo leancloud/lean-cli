@@ -2,6 +2,7 @@ package api
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api/regions"
@@ -12,7 +13,7 @@ import (
 var defaultAPIURL = map[regions.Region]string{
 	regions.CN:  "https://api.leancloud.cn",
 	regions.US:  "https://us-api.leancloud.cn",
-	regions.TAB: "https://e1-api.leancloud.cn",
+	regions.TAB: "https://tab.leancloud.cn",
 }
 
 type RouterResponse struct {
@@ -25,6 +26,12 @@ type RouterResponse struct {
 }
 
 func GetAppAPIURL(region regions.Region, appID string) string {
+	envAPIURL := os.Getenv("LEANCLOUD_API_SERVER")
+
+	if envAPIURL != "" {
+		return envAPIURL
+	}
+
 	if region != regions.US {
 		routerInfo, err := QueryAppRouter(appID)
 
