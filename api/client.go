@@ -235,15 +235,15 @@ func (client *Client) delete(path string, options *grequests.RequestOptions) (*g
 }
 
 func newCookieJar() *cookiejar.Jar {
+	jarFileDir := filepath.Join(utils.ConfigDir(), "leancloud")
+
+	os.MkdirAll(jarFileDir, 0775)
+
 	jar, err := cookiejar.New(&cookiejar.Options{
-		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
+		Filename: filepath.Join(jarFileDir, "cookies"),
 	})
 	if err != nil {
 		panic(err)
 	}
 	return jar
-}
-
-func init() {
-	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
 }
