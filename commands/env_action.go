@@ -58,10 +58,12 @@ func envAction(c *cli.Context) error {
 		return err
 	}
 
-	region, err := api.GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
 	}
+
+	apiServer := api.GetAppAPIURL(region, appID)
 
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
@@ -91,13 +93,13 @@ func envAction(c *cli.Context) error {
 		map[string]string{"name": "LC_APP_KEY", "value": appInfo.AppKey},
 		map[string]string{"name": "LC_APP_MASTER_KEY", "value": appInfo.MasterKey},
 		map[string]string{"name": "LC_APP_PORT", "value": port},
-		map[string]string{"name": "LC_API_SERVER", "value": region.APIServerURL()},
+		map[string]string{"name": "LC_API_SERVER", "value": apiServer},
 		map[string]string{"name": "LEANCLOUD_APP_ID", "value": appInfo.AppID},
 		map[string]string{"name": "LEANCLOUD_APP_KEY", "value": appInfo.AppKey},
 		map[string]string{"name": "LEANCLOUD_APP_MASTER_KEY", "value": appInfo.MasterKey},
 		map[string]string{"name": "LEANCLOUD_APP_HOOK_KEY", "value": appInfo.HookKey},
 		map[string]string{"name": "LEANCLOUD_APP_PORT", "value": port},
-		map[string]string{"name": "LEANCLOUD_API_SERVER", "value": region.APIServerURL()},
+		map[string]string{"name": "LEANCLOUD_API_SERVER", "value": apiServer},
 		map[string]string{"name": "LEANCLOUD_APP_ENV", "value": "development"},
 		map[string]string{"name": "LEANCLOUD_REGION", "value": region.String()},
 		map[string]string{"name": "LEANCLOUD_APP_DOMAIN", "value": groupInfo.Domain},

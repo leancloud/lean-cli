@@ -1,13 +1,14 @@
 package upload
 
 import (
-	"encoding/json"
+	"bytes"
 	"errors"
 	"io"
 	"io/ioutil"
 	"mime"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 )
@@ -26,25 +27,29 @@ func getSeekerSize(seeker io.Seeker) (int64, error) {
 
 // Upload upload specific file to LeanCloud
 func Upload(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
-	if opts.serverURL() == "https://api.leancloud.cn" || opts.serverURL() == "https://leancloud.cn" {
-		return uploadToQiniu(name, mimeType, reader, opts)
-	} else if opts.serverURL() == "https://us-api.leancloud.cn" || opts.serverURL() == "https://us.leancloud.cn" {
-		return uploadToS3(name, mimeType, reader, opts)
-	} else {
-		return uploadViaLeanCloud(name, mimeType, reader, opts)
-	}
-}
-
-func uploadToQiniu(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
 	size, err := getSeekerSize(reader)
 	if err != nil {
 		return nil, err
 	}
+
 	tokens, err := getFileTokens(name, mimeType, size, opts)
 	if err != nil {
 		return nil, err
 	}
 
+	switch tokens.Provider {
+	case "qiniu":
+		return uploadToQiniu(name, tokens, reader, opts)
+	case "s3":
+		return uploadToS3(name, tokens, reader, opts)
+	case "qcloud":
+		return uploadToCOS(name, tokens, reader, opts)
+	default:
+		return nil, errors.New("Unknown file provider: " + tokens.Provider)
+	}
+}
+
+func uploadToQiniu(name string, tokens *fileTokens, reader io.ReadSeeker, opts *Options) (*File, error) {
 	out, in := io.Pipe()
 	part := multipart.NewWriter(in)
 	done := make(chan error)
@@ -111,17 +116,7 @@ func uploadToQiniu(name string, mimeType string, reader io.ReadSeeker, opts *Opt
 	}, nil
 }
 
-func uploadToS3(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
-	size, err := getSeekerSize(reader)
-	if err != nil {
-		return nil, err
-	}
-
-	tokens, err := getFileTokens(name, mimeType, size, opts)
-	if err != nil {
-		return nil, err
-	}
-
+func uploadToS3(name string, tokens *fileTokens, reader io.ReadSeeker, opts *Options) (*File, error) {
 	request, err := http.NewRequest("PUT", tokens.UploadURL, reader)
 	if err != nil {
 		return nil, err
@@ -129,7 +124,7 @@ func uploadToS3(name string, mimeType string, reader io.ReadSeeker, opts *Option
 
 	request.Header.Set("Content-Type", tokens.MimeType)
 	request.Header.Set("Cache-Control", "public, max-age=31536000")
-	request.ContentLength = size
+	request.ContentLength = tokens.Size
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
@@ -151,38 +146,73 @@ func uploadToS3(name string, mimeType string, reader io.ReadSeeker, opts *Option
 	}, nil
 }
 
-func uploadViaLeanCloud(name string, mimeType string, reader io.ReadSeeker, opts *Options) (*File, error) {
-	url := opts.serverURL() + "/1.1/files/" + name
-	request, err := http.NewRequest("POST", url, reader)
+func uploadToCOS(name string, tokens *fileTokens, reader io.ReadSeeker, opts *Options) (*File, error) {
+	out, in := io.Pipe()
+	part := multipart.NewWriter(in)
+	done := make(chan error)
+
+	go func() {
+		if err := part.WriteField("op", "upload"); err != nil {
+			in.Close()
+			done <- err
+			return
+		}
+		writer, err := part.CreateFormFile("fileContent", name)
+		if err != nil {
+			in.Close()
+			done <- err
+			return
+		}
+		_, err = io.Copy(writer, reader)
+		if err != nil {
+			in.Close()
+			done <- err
+			return
+		}
+		if err := part.Close(); err != nil {
+			in.Close()
+			done <- err
+			return
+		}
+		in.Close()
+		done <- nil
+	}()
+
+	body, err := ioutil.ReadAll(out)
 	if err != nil {
 		return nil, err
 	}
 
-	request.Header.Set("X-LC-Id", opts.AppID)
-	request.Header.Set("X-LC-Key", opts.AppKey)
-	request.Header.Set("User-Agent", "LeanCloud-Go-Upload/"+version)
+	request, err := http.NewRequest("POST", tokens.UploadURL+"?sign="+url.QueryEscape(tokens.Token), bytes.NewBuffer(body))
+	if err != nil {
+		return nil, err
+	}
+
+	request.Header.Set("Content-Type", part.FormDataContentType())
+	request.ContentLength = int64(len(body))
 
 	response, err := http.DefaultClient.Do(request)
 	if err != nil {
 		return nil, err
 	}
-	defer response.Body.Close()
 
-	body, err := ioutil.ReadAll(response.Body)
+	err = <-done
 	if err != nil {
 		return nil, err
 	}
 
-	if response.StatusCode != 201 {
-		return nil, newErrorFromBody(body)
+	content, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		return nil, err
+	}
+	if response.StatusCode != 200 {
+		return nil, errors.New(string(content))
 	}
 
-	result := new(File)
-	err = json.Unmarshal(body, result)
-	if result.URL == "" {
-		return nil, errors.New("Upload file failed")
-	}
-	return result, err
+	return &File{
+		ObjectID: tokens.ObjectID,
+		URL:      tokens.URL,
+	}, nil
 }
 
 // UploadFileVerbose will open an file and upload it

@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"time"
 
+	"github.com/leancloud/lean-cli/apps"
 	"github.com/levigross/grequests"
 )
 
@@ -115,12 +116,12 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 }
 
 func fetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
-	region, err := GetAppRegion(appID)
+	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return nil, err
 	}
 
-	url := region.APIServerURL() + "/1.1/tables/EngineLogs"
+	url := NewClientByRegion(region).GetBaseURL() + "/1.1/tables/EngineLogs"
 
 	options := &grequests.RequestOptions{
 		Headers: map[string]string{

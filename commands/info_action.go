@@ -11,10 +11,7 @@ import (
 func infoAction(c *cli.Context) error {
 	callbacks := make([]func(), 0)
 
-	loginedRegions, err := api.GetLoginedRegion()
-	if err != nil {
-		return err
-	}
+	loginedRegions := apps.GetLoginedRegions()
 
 	if len(loginedRegions) == 0 {
 		logp.Error("未登录")
@@ -55,7 +52,7 @@ func infoAction(c *cli.Context) error {
 				logp.Error("获取应用信息失败：", err)
 			})
 		} else {
-			region, err := api.GetAppRegion(appID)
+			region, err := apps.GetAppRegion(appID)
 			if err != nil {
 				callbacks = append(callbacks, func() {
 					logp.Error("获取应用节点信息失败：", err)

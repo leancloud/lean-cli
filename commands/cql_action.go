@@ -24,11 +24,6 @@ const (
 )
 
 func enterCQLREPL(appInfo *api.GetAppInfoResult, format int) error {
-	region, err := api.GetAppRegion(appInfo.AppID)
-	if err != nil {
-		return err
-	}
-
 	l, err := readline.NewEx(&readline.Config{
 		Prompt:          "CQL > ",
 		HistoryFile:     filepath.Join(utils.ConfigDir(), "leancloud", "cql_history"),
@@ -61,7 +56,7 @@ func enterCQLREPL(appInfo *api.GetAppInfoResult, format int) error {
 			line = line[:len(line)-1]
 		}
 
-		result, err := api.ExecuteCQL(appInfo.AppID, appInfo.MasterKey, region, line)
+		result, err := api.ExecuteCQL(appInfo.AppID, appInfo.MasterKey, line)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -186,11 +181,7 @@ func cqlAction(c *cli.Context) error {
 	}
 
 	if eval != "" {
-		region, err := api.GetAppRegion(appInfo.AppID)
-		if err != nil {
-			return err
-		}
-		result, err := api.ExecuteCQL(appInfo.AppID, appInfo.MasterKey, region, eval)
+		result, err := api.ExecuteCQL(appInfo.AppID, appInfo.MasterKey, eval)
 		if err != nil {
 			return err
 		}

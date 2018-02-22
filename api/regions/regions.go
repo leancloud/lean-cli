@@ -30,20 +30,6 @@ func (r Region) Description() string {
 	}
 }
 
-// APIServerURL returns this region's API Server URL
-func (r Region) APIServerURL() string {
-	switch r {
-	case CN:
-		return "https://leancloud.cn"
-	case US:
-		return "https://us-api.leancloud.cn"
-	case TAB:
-		return "https://tab.leancloud.cn"
-	default:
-		return ""
-	}
-}
-
 // API server regions
 const (
 	Invalid Region = iota

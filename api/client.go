@@ -12,16 +12,17 @@ import (
 	"github.com/aisk/wizard"
 	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
 )
 
-const (
-	hostCN  = "https://leancloud.cn"
-	hostUS  = "https://us.leancloud.cn"
-	hostTAB = "https://tab.leancloud.cn"
-)
+var dashboardBaseUrls = map[regions.Region]string{
+	regions.CN:  "https://leancloud.cn",
+	regions.US:  "https://us.leancloud.cn",
+	regions.TAB: "https://tab.leancloud.cn",
+}
 
 var (
 	// Get2FACode is the function to get the user's two-factor-authentication code.
@@ -45,42 +46,53 @@ var (
 	}
 )
 
-// Client info
 type Client struct {
 	CookieJar *cookiejar.Jar
 	Region    regions.Region
+	AppID     string
 }
 
-// NewClient initilized a new Client
-func NewClient(region regions.Region) *Client {
-	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
-	jar, err := cookiejar.New(&cookiejar.Options{
-		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
-	})
-	if err != nil {
-		panic(err)
-	}
+func NewClientByRegion(region regions.Region) *Client {
 	return &Client{
-		CookieJar: jar,
+		CookieJar: newCookieJar(),
 		Region:    region,
 	}
 }
 
-func (client *Client) baseURL() string {
-	switch client.Region {
-	case regions.CN:
-		return hostCN
-	case regions.US:
-		return hostUS
-	case regions.TAB:
-		return hostTAB
-	default:
+func NewClientByApp(appID string) *Client {
+	return &Client{
+		CookieJar: newCookieJar(),
+		AppID:     appID,
+	}
+}
+
+func (client *Client) GetBaseURL() string {
+	envBaseURL := os.Getenv("LEANCLOUD_DASHBOARD")
+
+	if envBaseURL != "" {
+		return envBaseURL
+	}
+
+	region := client.Region
+
+	if client.AppID != "" {
+		var err error
+		region, err = apps.GetAppRegion(client.AppID)
+
+		if err != nil {
+			panic(err) // This error should be catch at top level
+		}
+	}
+
+	if url, ok := dashboardBaseUrls[region]; ok {
+		return url
+	} else {
 		panic("invalid region")
 	}
 }
 
 func (client *Client) options() (*grequests.RequestOptions, error) {
-	u, err := url.Parse(client.baseURL())
+	u, err := url.Parse(client.GetBaseURL())
 	if err != nil {
 		panic(err)
 	}
@@ -128,7 +140,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	default:
 		panic("invalid method: " + method)
 	}
-	resp, err := fn(client.baseURL()+path, options)
+	resp, err := fn(client.GetBaseURL()+path, options)
 	if err != nil {
 		return nil, err
 	}
@@ -178,7 +190,7 @@ func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Respon
 		return nil, err
 	}
 
-	resp, err = grequests.Post(client.baseURL()+"/1.1/do2fa", &grequests.RequestOptions{
+	resp, err = grequests.Post(client.GetBaseURL()+"/1.1/do2fa", &grequests.RequestOptions{
 		JSON: map[string]interface{}{
 			"token": token,
 			"code":  code,
@@ -220,4 +232,18 @@ func (client *Client) put(path string, params map[string]interface{}, options *g
 
 func (client *Client) delete(path string, options *grequests.RequestOptions) (*grequests.Response, error) {
 	return doRequest(client, "DELETE", path, nil, options)
+}
+
+func newCookieJar() *cookiejar.Jar {
+	jarFileDir := filepath.Join(utils.ConfigDir(), "leancloud")
+
+	os.MkdirAll(jarFileDir, 0775)
+
+	jar, err := cookiejar.New(&cookiejar.Options{
+		Filename: filepath.Join(jarFileDir, "cookies"),
+	})
+	if err != nil {
+		panic(err)
+	}
+	return jar
 }

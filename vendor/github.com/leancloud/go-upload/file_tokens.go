@@ -48,6 +48,7 @@ type fileTokens struct {
 	Token     string `json:"token"`
 	MimeType  string `json:"mime_type"`
 	Key       string
+	Size      int64
 }
 
 func getFileTokens(name string, mime string, size int64, opts *Options) (*fileTokens, error) {
@@ -67,7 +68,7 @@ func getFileTokens(name string, mime string, size int64, opts *Options) (*fileTo
 		return nil, err
 	}
 
-	url := opts.serverURL() + "/1.1/fileTokens"
+	url := opts.APIServer + "/1.1/fileTokens"
 	request, err := http.NewRequest("POST", url, bytes.NewReader(body))
 	if err != nil {
 		return nil, err
@@ -93,6 +94,7 @@ func getFileTokens(name string, mime string, size int64, opts *Options) (*fileTo
 	if err != nil {
 		return nil, err
 	}
-	result.Key = key // key is not in Server response
+	result.Key = key
+	result.Size = size
 	return result, err
 }

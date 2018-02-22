@@ -1,26 +1,14 @@
 package api
 
 import (
-	"os"
-	"path/filepath"
-	"time"
-
-	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
-	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
 )
 
 // Login LeanCloud account
 func Login(email string, password string, region regions.Region) (*GetUserInfoResult, error) {
-	os.MkdirAll(filepath.Join(utils.ConfigDir(), "leancloud"), 0775)
-	jar, err := cookiejar.New(&cookiejar.Options{
-		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
-	})
-	if err != nil {
-		return nil, err
-	}
+	jar := newCookieJar()
 
 	options := &grequests.RequestOptions{
 		JSON: map[string]string{
@@ -31,11 +19,13 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 		UseCookieJar: true,
 		UserAgent:    "LeanCloud-CLI/" + version.Version,
 	}
-	resp, err := grequests.Post(region.APIServerURL()+"/1/signin", options)
+	client := NewClientByRegion(region)
+
+	resp, err := grequests.Post(client.GetBaseURL()+"/1/signin", options)
 	if err != nil {
 		return nil, err
 	}
-	client := NewClient(region)
+
 	resp, err = client.checkAndDo2FA(resp)
 	if err != nil {
 		return nil, err
@@ -56,7 +46,7 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 
 // LoginUSRegion will use OAuth2 to login US Region
 func LoginUSRegion() error {
-	client := NewClient(regions.US)
+	client := NewClientByRegion(regions.US)
 	_, err := client.get("/1/oauth2/goto/avoscloud", nil)
 	if err != nil {
 		return err
@@ -72,7 +62,7 @@ type GetUserInfoResult struct {
 
 // GetUserInfo returns the current logined user info
 func GetUserInfo(region regions.Region) (*GetUserInfoResult, error) {
-	client := NewClient(region)
+	client := NewClientByRegion(region)
 
 	resp, err := client.get("/1.1/clients/self", nil)
 	if err != nil {
@@ -82,35 +72,4 @@ func GetUserInfo(region regions.Region) (*GetUserInfoResult, error) {
 	result := new(GetUserInfoResult)
 	err = resp.JSON(result)
 	return result, err
-}
-
-// GetLoginedRegion returns all regions which is logined
-func GetLoginedRegion() (result []regions.Region, err error) {
-	jar, err := cookiejar.New(&cookiejar.Options{
-		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	cookies := jar.AllCookies()
-
-	for _, cookie := range cookies {
-		if cookie.Name != "uluru_user" {
-			continue
-		}
-		if cookie.Expires.Before(time.Now()) {
-			continue
-		}
-		switch cookie.Domain {
-		case "leancloud.cn":
-			result = append(result, regions.CN)
-		case "us.leancloud.cn":
-			result = append(result, regions.US)
-		case "tab.leancloud.cn":
-			result = append(result, regions.TAB)
-		}
-	}
-
-	return
 }
