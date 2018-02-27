@@ -83,6 +83,10 @@ func loginAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
+	_, err = api.GetAppList(region) // load region cache
+	if err != nil {
+		return err
+	}
 	logp.Info("登录成功：")
 	logp.Infof("用户名: %s\r\n", userInfo.UserName)
 	logp.Infof("邮箱: %s\r\n", userInfo.Email)
