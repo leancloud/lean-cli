@@ -147,7 +147,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 
 	currentAppID, err := apps.GetCurrentAppID(".")
 	if err != nil {
-		if err != apps.ErrNoAppLinked {
+		if err != apps.ErrNoAppLinked && err != apps.ErrMissingRegionCache {
 			return err
 		}
 	}
