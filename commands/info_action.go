@@ -3,7 +3,6 @@ package commands
 import (
 	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
-	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/urfave/cli"
 )
@@ -19,6 +18,7 @@ func infoAction(c *cli.Context) error {
 	}
 
 	for _, loginedRegion := range loginedRegions {
+		loginedRegion := loginedRegion
 		logp.Infof("获取 %s 节点用户信息\r\n", loginedRegion)
 		userInfo, err := api.GetUserInfo(loginedRegion)
 		if err != nil {
@@ -26,11 +26,9 @@ func infoAction(c *cli.Context) error {
 				logp.Errorf("获取 %s 节点用户信息失败: %v\r\n", loginedRegion, err)
 			})
 		} else {
-			func(loginedRegion regions.Region) {
-				callbacks = append(callbacks, func() {
-					logp.Infof("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
-				})
-			}(loginedRegion)
+			callbacks = append(callbacks, func() {
+				logp.Infof("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
+			})
 		}
 	}
 

@@ -10,13 +10,15 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 )
 
+var ErrMissingRegionCache = errors.New("应用配置信息不完整，请重新运行 `lean switch` 关联应用")
+
 var regionCache = make(map[string]regions.Region)
 
 func GetAppRegion(appID string) (regions.Region, error) {
 	if r, ok := regionCache[appID]; ok {
 		return r, nil
 	} else {
-		return regions.Invalid, errors.New("应用配置信息不完整，请重新运行 `lean switch` 关联应用")
+		return regions.Invalid, ErrMissingRegionCache
 	}
 }
 
