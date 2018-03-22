@@ -48,7 +48,9 @@ func LinkGroup(projectPath string, groupName string) error {
 // GetCurrentAppID will return the content of ${projectPath}/.leancloud/current_app_id
 func GetCurrentAppID(projectPath string) (string, error) {
 	content, err := ioutil.ReadFile(currentAppIDFilePath(projectPath))
-	if err != nil {
+	if err != nil && os.IsNotExist(err) {
+		return "", ErrNoAppLinked
+	} else if err != nil {
 		return "", err
 	}
 	appID := strings.TrimSpace(string(content))
