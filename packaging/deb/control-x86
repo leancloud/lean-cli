@@ -1,8 +1,8 @@
 Package: lean-cli
 Section: devel
-Version: 0.18.1
+Version: 0.18.2
 Priority: optional
 Architecture: i386
-Maintainer: asaka <lan@leancloud.rocks>
+Maintainer: LeanCloud <support@leancloud.rocks>
 Homepage: https://leancloud.cn
 Description: LeanCloud Command Line Tool
