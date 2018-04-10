@@ -109,10 +109,10 @@ func getDefaultLogPrinter(isProd bool) api.LogReceiver {
 		}
 
 		if isProd {
-			fmt.Fprintf(color.Output, "%s %s %s\r\n", instance, levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			fmt.Fprintf(color.Output, "%s %s %s\r\n", instance, levelSprintf(" %s ", formatTime(&t)), content)
 		} else {
 			// no instance column
-			fmt.Fprintf(color.Output, "%s %s\r\n", levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			fmt.Fprintf(color.Output, "%s %s\r\n", levelSprintf(" %s ", formatTime(&t)), content)
 		}
 
 		return nil
@@ -126,4 +126,19 @@ func jsonLogPrinter(log *api.Log) error {
 	}
 	fmt.Println(string(content))
 	return nil
+}
+
+func isTimeInToday(t *time.Time) bool {
+	now := time.Now()
+	beginOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	endOfToday := beginOfToday.AddDate(0, 0, 1)
+	return t.After(beginOfToday) && t.Before(endOfToday)
+}
+
+func formatTime(t *time.Time) string {
+	if isTimeInToday(t) {
+		return t.Local().Format("15:04:05")
+	} else {
+		return t.Local().Format("2006-01-02 15:04:05")
+	}
 }
