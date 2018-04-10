@@ -16,7 +16,7 @@ func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	from := time.Time{}
 	var err error
 	if c.String("from") != "" {
-		from, err = time.Parse("2006-01-02", c.String("from"))
+		from, err = time.ParseInLocation("2006-01-02", c.String("from"), time.Now().Location())
 		if err != nil {
 			err = fmt.Errorf("from 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("from"))
 			return time.Time{}, time.Time{}, err
@@ -24,7 +24,7 @@ func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	}
 	to := time.Time{}
 	if c.String("to") != "" {
-		to, err = time.Parse("2006-01-02", c.String("to"))
+		to, err = time.ParseInLocation("2006-01-02", c.String("to"), time.Now().Location())
 		if err != nil {
 			err = fmt.Errorf("to 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("to"))
 			return time.Time{}, time.Time{}, err

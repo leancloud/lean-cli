@@ -72,7 +72,7 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from time.Time, to time.Time) error {
 	params := map[string]string{
 		"ascend":     "true",
-		"since":      from.Format("2006-01-02T15:04:05.000000000Z"),
+		"since":      from.UTC().Format("2006-01-02T15:04:05.000000000Z"),
 		"production": "0",
 		"group":      group,
 		"limit":      "1000",
