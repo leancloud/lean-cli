@@ -16,7 +16,7 @@ func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	from := time.Time{}
 	var err error
 	if c.String("from") != "" {
-		from, err = time.Parse("2006-01-02", c.String("from"))
+		from, err = time.ParseInLocation("2006-01-02", c.String("from"), time.Now().Location())
 		if err != nil {
 			err = fmt.Errorf("from 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("from"))
 			return time.Time{}, time.Time{}, err
@@ -24,7 +24,7 @@ func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	}
 	to := time.Time{}
 	if c.String("to") != "" {
-		to, err = time.Parse("2006-01-02", c.String("to"))
+		to, err = time.ParseInLocation("2006-01-02", c.String("to"), time.Now().Location())
 		if err != nil {
 			err = fmt.Errorf("to 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("to"))
 			return time.Time{}, time.Time{}, err
@@ -109,10 +109,10 @@ func getDefaultLogPrinter(isProd bool) api.LogReceiver {
 		}
 
 		if isProd {
-			fmt.Fprintf(color.Output, "%s %s %s\r\n", instance, levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			fmt.Fprintf(color.Output, "%s %s %s\r\n", instance, levelSprintf(" %s ", formatTime(&t)), content)
 		} else {
 			// no instance column
-			fmt.Fprintf(color.Output, "%s %s\r\n", levelSprintf(" %s ", t.Local().Format("15:04:05")), content)
+			fmt.Fprintf(color.Output, "%s %s\r\n", levelSprintf(" %s ", formatTime(&t)), content)
 		}
 
 		return nil
@@ -126,4 +126,19 @@ func jsonLogPrinter(log *api.Log) error {
 	}
 	fmt.Println(string(content))
 	return nil
+}
+
+func isTimeInToday(t *time.Time) bool {
+	now := time.Now()
+	beginOfToday := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
+	endOfToday := beginOfToday.AddDate(0, 0, 1)
+	return t.After(beginOfToday) && t.Before(endOfToday)
+}
+
+func formatTime(t *time.Time) string {
+	if isTimeInToday(t) {
+		return t.Local().Format("15:04:05")
+	} else {
+		return t.Local().Format("2006-01-02 15:04:05")
+	}
 }

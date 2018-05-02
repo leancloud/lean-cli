@@ -178,6 +178,9 @@ func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Respon
 		return nil, err
 	}
 	token := result.Token
+	if token == "" {
+		return resp, nil
+	}
 	code, err := Get2FACode()
 	if err != nil {
 		return nil, err
