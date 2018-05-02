@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='windows-1252'?>
 <Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
   <Product Name='LeanCloud Command Line Tool (x86)' Id='*' UpgradeCode='0A3A0119-23EF-4ADF-85FC-9DEC7BD0034A'
-    Language='1033' Codepage='1252' Version='0.18.2.0' Manufacturer='LeanCloud'>
+    Language='1033' Codepage='1252' Version='0.18.3.0' Manufacturer='LeanCloud'>
 
     <Package Id='*' Keywords='Installer' Description="LeanCloud Command Line Tool Installer"
       Comments='LeanCLoud Command Line Tool Installer' Manufacturer='leancloud.cn' InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
