@@ -98,7 +98,7 @@ func upAction(c *cli.Context) error {
 		haveStaging = "true"
 	}
 
-	rtm.Envs = []string{
+	rtm.Envs = append(rtm.Envs, []string{
 		"LC_APP_ID=" + appInfo.AppID,
 		"LC_APP_KEY=" + appInfo.AppKey,
 		"LC_APP_MASTER_KEY=" + appInfo.MasterKey,
@@ -114,10 +114,10 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_REGION=" + region.String(),
 		"LEANCLOUD_APP_DOMAIN=" + groupInfo.Domain,
 		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
-	}
+	}...)
 
 	for k, v := range groupInfo.Environments {
-		localVar := os.Getenv(k);
+		localVar := os.Getenv(k)
 		if localVar == "" {
 			logp.Info("从服务器导出自定义环境变量：", k)
 			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
