@@ -34,7 +34,9 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 	archiveFile := filepath.Join(fileDir, "leanengine.zip")
 
 	runtime, err := runtimes.DetectRuntime(repoPath)
-	if err != nil {
+	if err == runtimes.ErrRuntimeNotFound {
+		logp.Error("无法识别项目目录结构，若部署失败请检查当前项目目录是否正确")
+	} else if err != nil {
 		return nil, err
 	}
 
