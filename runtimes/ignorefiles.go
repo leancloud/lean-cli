@@ -50,6 +50,15 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 			"*.pyc",
 			"__pycache__/",
 		}
+	case "dotnet":
+		return []string{
+			".git/",
+			".DS_Store",
+			".avoscloud/",
+			".leancloud/",
+			"web/bin/",
+			"web/obj/",
+		}
 	default:
 		panic("invalid runtime")
 	}

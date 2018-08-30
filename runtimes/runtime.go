@@ -16,8 +16,7 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 )
 
-// ErrInvalidRuntime means the project's structure is not a valid LeanEngine project
-var ErrInvalidRuntime = errors.New("错误的项目目录结构，请确保当前运行目录是正确的云引擎项目")
+var ErrRuntimeNotFound = errors.New("不支持的项目目录结构，请确保当前运行目录是正确的云引擎项目")
 
 type filesPattern struct {
 	Includes []string
@@ -27,6 +26,7 @@ type filesPattern struct {
 // Runtime stands for a language runtime
 type Runtime struct {
 	command     *exec.Cmd
+	WorkDir     string
 	ProjectPath string
 	Name        string
 	Exec        string
@@ -44,7 +44,7 @@ type Runtime struct {
 func (runtime *Runtime) Run() {
 	go func() {
 		runtime.command = exec.Command(runtime.Exec, runtime.Args...)
-		runtime.command.Env = os.Environ()
+		runtime.command.Dir = runtime.WorkDir
 		runtime.command.Stdout = os.Stdout
 		runtime.command.Stderr = os.Stderr
 		runtime.command.Env = os.Environ()
@@ -152,7 +152,16 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		logp.Info("检测到 Java 运行时")
 		return newJavaRuntime(projectPath)
 	}
-	return nil, ErrInvalidRuntime
+	if utils.IsFileExists(filepath.Join(projectPath, "app.sln")) {
+		logp.Info("检测到 DotNet 运行时")
+		return newDotnetRuntime(projectPath)
+	}
+
+	return &Runtime{
+		ProjectPath: projectPath,
+		Name:        "Unknown",
+		Errors:      make(chan error),
+	}, ErrRuntimeNotFound
 }
 
 func lookupBin(fallbacks []string) (string, error) {
@@ -212,7 +221,6 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 			Name:        "python",
 			Exec:        execName,
 			Args:        []string{"wsgi.py"},
-			Envs:        os.Environ(),
 			Errors:      make(chan error),
 		}, nil
 	}
@@ -227,7 +235,6 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 		Name:        "python",
 		Exec:        "python",
 		Args:        []string{"wsgi.py"},
-		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
 }
@@ -239,7 +246,6 @@ func newPythonRuntimeFromEngineConfig(projectPath string, config *engineConfig) 
 		Name:        "python",
 		Exec:        exec,
 		Args:        args,
-		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
 
@@ -286,7 +292,6 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 		Name:        "node.js",
 		Exec:        execName,
 		Args:        args,
-		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
 }
@@ -304,7 +309,6 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 		Name:        "java",
 		Exec:        exec,
 		Args:        args,
-		Envs:        os.Environ(),
 		Errors:      make(chan error),
 	}, nil
 }
@@ -319,7 +323,18 @@ func newPhpRuntime(projectPath string) (*Runtime, error) {
 		Name:        "php",
 		Exec:        "php",
 		Args:        []string{"-S", "127.0.0.1:3000", "-t", "public", entryScript},
-		Envs:        os.Environ(),
+		Errors:      make(chan error),
+	}, nil
+}
+
+func newDotnetRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		WorkDir:     filepath.Join(projectPath, "web"),
+		ProjectPath: projectPath,
+		Name:        "dotnet",
+		Exec:        "dotnet",
+		Args:        []string{"run"},
+		Envs:        []string{"ASPNETCORE_URLS=http://0.0.0.0:3000"},
 		Errors:      make(chan error),
 	}, nil
 }
