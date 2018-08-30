@@ -186,7 +186,7 @@ func GetGroups(appID string) ([]*GetGroupsResult, error) {
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	resp, err := client.get("/1.1/engine/groups", opts)
+	resp, err := client.get("/1.1/engine/groups?all=true", opts)
 	if err != nil {
 		return nil, err
 	}
