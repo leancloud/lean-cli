@@ -91,16 +91,24 @@ func DeployImage(appID string, group string, prod int, imageTag string, mode str
 	return result.EventToken, err
 }
 
+type DeployOptions struct {
+	Message     string
+	NoDepsCache bool
+	Mode        string
+	BuildRoot   string
+}
+
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(appID string, group string, prod int, revision string, noDepsCache bool, mode string) (string, error) {
+func DeployAppFromGit(appID string, group string, prod int, revision string, opts *DeployOptions) (string, error) {
 	params := map[string]interface{}{
-		"noDependenciesCache": noDepsCache,
+		"noDependenciesCache": opts.NoDepsCache,
 		"async":               true,
 		"gitTag":              revision,
+		"buildRoot":           opts.BuildRoot,
 	}
 
-	params[mode] = true
+	params[opts.Mode] = true
 
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
@@ -115,15 +123,16 @@ func DeployAppFromGit(appID string, group string, prod int, revision string, noD
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(appID string, group string, prod int, fileURL string, message string, noDepsCache bool, mode string) (string, error) {
+func DeployAppFromFile(appID string, group string, prod int, fileURL string, opts *DeployOptions) (string, error) {
 	params := map[string]interface{}{
 		"zipUrl":              fileURL,
-		"comment":             message,
-		"noDependenciesCache": noDepsCache,
+		"comment":             opts.Message,
+		"noDependenciesCache": opts.NoDepsCache,
 		"async":               true,
+		"buildRoot":           opts.BuildRoot,
 	}
 
-	params[mode] = true
+	params[opts.Mode] = true
 
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
