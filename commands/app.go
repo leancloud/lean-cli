@@ -237,7 +237,7 @@ func Run(args []string) {
 		},
 		{
 			Name:   "debug",
-			Usage:  "Only start cloud function debugging service",
+			Usage:  "Only start cloud function debug console",
 			Action: wrapAction(debugAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{

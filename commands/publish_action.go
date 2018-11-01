@@ -44,7 +44,7 @@ func publishAction(c *cli.Context) error {
 	}
 
 	if engineInfo.Mode != "prod" {
-		return errors.New("You can use `lean deploy` to deploy to dev-version apps. There is no need to use this command.")
+		return errors.New("For development apps, `lean deploy` directly deploys to production. There is no need to use this command.")
 	}
 
 	logp.Infof("Deploying %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
