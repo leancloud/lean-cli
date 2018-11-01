@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	ErrNoEnoughData = errors.New("没有足够的数据")
+	ErrNoEnoughData = errors.New("Insufficient data")
 )
 
 type ReqStat struct {
@@ -55,7 +55,7 @@ func FetchReqStat(appID string, from time.Time, to time.Time) (Status, error) {
 	if err != nil {
 		return nil, err
 	}
-	logp.Info(fmt.Sprintf("正在获取 %s 储存报告", appInfo.AppName))
+	logp.Info(fmt.Sprintf("Retrieving %s storage report", appInfo.AppName))
 	client := NewClientByApp(appID)
 	resp, err := client.get("/1.1/clients/self/apps/"+appID+"/reqStats"+queryString, nil)
 	if err != nil {

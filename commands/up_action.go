@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	errDoNotSupportCloudCode = cli.NewExitError(`命令行工具不再支持 cloudcode 2.0 项目，请参考此文档对您的项目进行升级：
+	errDoNotSupportCloudCode = cli.NewExitError(`This tool no long supports cloudcode 2.0 projects. Please update your project according to: 
 https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 )
 
@@ -73,12 +73,12 @@ func upAction(c *cli.Context) error {
 		return errDoNotSupportCloudCode
 	}
 
-	logp.Info("获取应用信息 ...")
+	logp.Info("Retrieving app info ...")
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		return err
 	}
-	logp.Infof("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
+	logp.Infof("Current app: %s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
@@ -119,10 +119,10 @@ func upAction(c *cli.Context) error {
 	for k, v := range groupInfo.Environments {
 		localVar := os.Getenv(k)
 		if localVar == "" {
-			logp.Info("从服务器导出自定义环境变量：", k)
+			logp.Info("Exporting custome environment variables from server: ", k)
 			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
 		} else {
-			logp.Info("使用本地环境变量：", k)
+			logp.Info("Using local environment variables: ", k)
 			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, localVar))
 		}
 	}
@@ -155,13 +155,13 @@ func upAction(c *cli.Context) error {
 }
 
 func printDeprecatedWatchWarning(rtm *runtimes.Runtime) {
-	logp.Warn("--watch 选项不再被支持，请使用项目代码本身实现此功能")
+	logp.Warn("--watch is no longer supported. Please implement the functionality in your project code.")
 	if rtm.Name == "python" {
-		logp.Warn("可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+		logp.Warn("Please refer to this pull request to support auto-reloading in debugging")
 		logp.Warn("https://github.com/leancloud/python-getting-started/pull/12/files")
 	}
 	if rtm.Name == "node.js" {
-		logp.Warn("可以参考此 Pull Request 来给现有项目增加调试时自动重启功能：")
+		logp.Warn("Please refer to this pull request to support auto-reloading in debugging")
 		logp.Warn("https://github.com/leancloud/node-js-getting-started/pull/26/files")
 	}
 }

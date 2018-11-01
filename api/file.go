@@ -59,7 +59,7 @@ func UploadFileEx(appID string, appKey string, region regions.Region, filePath s
 	}
 	bar := pb.New(int(stat.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
 	bar.Output = colorable.NewColorableStderr()
-	bar.Prefix(color.GreenString("[INFO]") + " 上传文件")
+	bar.Prefix(color.GreenString("[INFO]") + " Uploading file")
 	bar.Start()
 
 	// qiniu want a io.ReadSeeker to get file's size
@@ -83,7 +83,7 @@ func UploadFileEx(appID string, appKey string, region regions.Region, filePath s
 	}
 
 	if file.URL == "" {
-		return nil, errors.New("文件上传失败")
+		return nil, errors.New("Failed to upload file")
 	}
 	return file, err
 }

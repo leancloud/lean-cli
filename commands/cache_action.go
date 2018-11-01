@@ -19,7 +19,7 @@ import (
 func selectCache(cacheList []*api.GetCacheListResult) (*api.GetCacheListResult, error) {
 	var selectedCache *api.GetCacheListResult
 	question := wizard.Question{
-		Content: "请选择 LeanCache 实例",
+		Content: "Please choose a LeanCache instance",
 		Answers: []wizard.Answer{},
 	}
 	for _, cache := range cacheList {
@@ -41,7 +41,7 @@ func selectCache(cacheList []*api.GetCacheListResult) (*api.GetCacheListResult, 
 func selectDb() (int, error) {
 	selectedDb := 0
 	question := wizard.Question{
-		Content: "请选择要操作 LeanCache 的 db （默认为 0）",
+		Content: "Please choose a LeanCache DB (Default: 0)",
 		Answers: []wizard.Answer{},
 	}
 	for i := 0; i < 16; i++ {
@@ -149,7 +149,7 @@ func cacheAction(c *cli.Context) error {
 	}
 
 	if len(caches) == 0 {
-		return cli.NewExitError("该应用没有 LeanCache 实例", 1)
+		return cli.NewExitError("This app doesn't have any LeanCache instance", 1)
 	}
 
 	if instanceName == "" {

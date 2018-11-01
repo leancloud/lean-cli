@@ -8,5 +8,5 @@ import (
 const Version = "0.19.0"
 
 func PrintCurrentVersion() {
-	logp.Info("当前命令行工具版本：", Version)
+	logp.Info("Current CLI tool version: ", Version)
 }

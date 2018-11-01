@@ -31,7 +31,7 @@ var (
 		result := new(string)
 		wizard.Ask([]wizard.Question{
 			{
-				Content: "请输入二次认证验证码",
+				Content: "Please input 2-factor auth code",
 				Input: &wizard.Input{
 					Result: result,
 					Hidden: false,
@@ -40,7 +40,7 @@ var (
 		})
 		code, err := strconv.Atoi(*result)
 		if err != nil {
-			return 0, errors.New("二次认证验证码应该为数字")
+			return 0, errors.New("2-factor auth code should be numerical")
 		}
 		return code, nil
 	}

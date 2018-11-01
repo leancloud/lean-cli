@@ -10,7 +10,7 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 )
 
-var ErrMissingRegionCache = errors.New("应用配置信息不完整，请重新运行 `lean switch` 关联应用")
+var ErrMissingRegionCache = errors.New("App configuration is incomplete. Please run `lean switch` to configure the app.")
 
 var regionCache = make(map[string]regions.Region)
 

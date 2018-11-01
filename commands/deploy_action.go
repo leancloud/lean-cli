@@ -35,7 +35,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 
 	runtime, err := runtimes.DetectRuntime(repoPath)
 	if err == runtimes.ErrRuntimeNotFound {
-		logp.Error("无法识别项目目录结构，若部署失败请检查当前项目目录是否正确")
+		logp.Error("Failed to recognize project type. Please inspect the directory structure if the deployment failed.")
 	} else if err != nil {
 		return nil, err
 	}
@@ -65,10 +65,10 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 		}
 	}
 	if warPath == "" {
-		return nil, errors.New("在 ./target 目录没有找到 war 文件")
+		return nil, errors.New("Cannot find .war file in ./target")
 	}
 
-	logp.Info("找到默认的 war 文件：", warPath)
+	logp.Info("Found .war file:", warPath)
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
@@ -101,7 +101,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 
 	if !keepFile {
 		defer func() {
-			logp.Info("删除临时文件")
+			logp.Info("Deleting temporary files")
 			err := api.DeleteFileEx(uploadRepoAppID, uploadRepoAppKey, uploadRepoRegion, file.ObjectID)
 			if err != nil {
 				logp.Error(err)
@@ -118,7 +118,7 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		return err
 	}
 	if !ok {
-		return cli.NewExitError("部署失败", 1)
+		return cli.NewExitError("Deployment failed", 1)
 	}
 	return nil
 }
@@ -133,7 +133,7 @@ func deployFromGit(revision string, opts *deployOptions) error {
 		return err
 	}
 	if !ok {
-		return cli.NewExitError("部署失败", 1)
+		return cli.NewExitError("Deployment failed", 1)
 	}
 	return nil
 }
@@ -166,7 +166,7 @@ func deployAction(c *cli.Context) error {
 	}
 
 	if message == "" {
-		message = "从命令行工具构建"
+		message = "Creating from the CLI"
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
@@ -179,7 +179,7 @@ func deployAction(c *cli.Context) error {
 		return err
 	}
 
-	logp.Info("获取应用信息 ...")
+	logp.Info("Retrieving app info ...")
 	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
@@ -195,10 +195,10 @@ func deployAction(c *cli.Context) error {
 
 	prod := 0
 	if engineInfo.Mode == "prod" {
-		logp.Infof("准备部署应用 %s(%s) 到 %s 节点分组 %s 预备环境\r\n", appInfo.AppName, appID, region, groupName)
+		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s staging\r\n", appInfo.AppName, appID, region, groupName)
 	} else if engineInfo.Mode == "free" {
 		prod = 1
-		logp.Infof("准备部署应用 %s(%s) 到 %s 节点分组 %s 生产环境\r\n", appInfo.AppName, appID, region, groupName)
+		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
 	} else {
 		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
 	}

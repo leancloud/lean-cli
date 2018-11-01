@@ -22,7 +22,7 @@ func cacheListAction(c *cli.Context) error {
 	}
 
 	if len(caches) == 0 {
-		return cli.NewExitError("该应用没有 LeanCache 实例", 1)
+		return cli.NewExitError("This app doesn't have any LeanCache instance", 1)
 	}
 
 	t := tabwriter.NewWriter(os.Stdout, 0, 1, 3, ' ', 0)

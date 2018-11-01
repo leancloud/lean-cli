@@ -13,60 +13,60 @@ func infoAction(c *cli.Context) error {
 	loginedRegions := apps.GetLoginedRegions()
 
 	if len(loginedRegions) == 0 {
-		logp.Error("未登录")
+		logp.Error("Please login first")
 		return nil
 	}
 
 	for _, loginedRegion := range loginedRegions {
 		loginedRegion := loginedRegion
-		logp.Infof("获取 %s 节点用户信息\r\n", loginedRegion)
+		logp.Infof("Retrieving user info from region: %s\r\n", loginedRegion)
 		userInfo, err := api.GetUserInfo(loginedRegion)
 		if err != nil {
 			callbacks = append(callbacks, func() {
-				logp.Errorf("获取 %s 节点用户信息失败: %v\r\n", loginedRegion, err)
+				logp.Errorf("Failed to retrieve user info from region: %s: %v\r\n", loginedRegion, err)
 			})
 		} else {
 			callbacks = append(callbacks, func() {
-				logp.Infof("当前 %s 节点登录用户: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
+				logp.Infof("Current region:  %s User: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
 			})
 		}
 	}
 
-	logp.Info("获取应用信息")
+	logp.Info("Retrieving app info ...")
 	appID, err := apps.GetCurrentAppID(".")
 
 	if err == apps.ErrNoAppLinked {
 		callbacks = append(callbacks, func() {
-			logp.Warn("当前目录没有关联任何 LeanCloud 应用")
+			logp.Warn("There is no LeanCloud app associated with the current directory")
 		})
 	} else if err != nil {
 		callbacks = append(callbacks, func() {
-			logp.Error("获取当前目录关联应用失败：", err)
+			logp.Error("Failed to retrieve the app associated with the current directory", err)
 		})
 	} else {
 		appInfo, err := api.GetAppInfo(appID)
 		if err != nil {
 			callbacks = append(callbacks, func() {
-				logp.Error("获取应用信息失败：", err)
+				logp.Error("Failed to retrieve app info: ", err)
 			})
 		} else {
 			region, err := apps.GetAppRegion(appID)
 			if err != nil {
 				callbacks = append(callbacks, func() {
-					logp.Error("获取应用节点信息失败：", err)
+					logp.Error("Failed to retrieve app region: ", err)
 				})
 			} else {
 				callbacks = append(callbacks, func() {
-					logp.Infof("当前目录关联 %s 节点应用：%s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
+					logp.Infof("Current region: %s App: %s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
 				})
 				group, err := apps.GetCurrentGroup(".")
 				if err != nil {
 					callbacks = append(callbacks, func() {
-						logp.Error("获取关联分组信息失败：", err)
+						logp.Error("Failed to retrieve group info: ", err)
 					})
 				} else {
 					callbacks = append(callbacks, func() {
-						logp.Infof("当前目录关联分组：%s\r\n", group)
+						logp.Infof("Current group: %s\r\n", group)
 					})
 				}
 			}
