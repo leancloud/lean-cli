@@ -179,6 +179,9 @@ func Run(args []string) {
 					Name: "atomic",
 				},
 				cli.StringFlag{
+					Name: "build-root",
+				},
+				cli.StringFlag{
 					Name:  "revision,r",
 					Usage: "git 的版本号或分支，仅对从 git 仓库部署有效",
 					Value: "master",

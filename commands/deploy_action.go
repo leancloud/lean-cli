@@ -35,7 +35,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 
 	runtime, err := runtimes.DetectRuntime(repoPath)
 	if err == runtimes.ErrRuntimeNotFound {
-		logp.Error("无法识别项目目录结构，若部署失败请检查当前项目目录是否正确")
+		logp.Warn("无法识别项目目录结构，若部署失败请检查当前项目目录是否正确")
 	} else if err != nil {
 		return nil, err
 	}
@@ -87,13 +87,13 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 	return api.UploadFileEx(uploadRepoAppID, uploadRepoAppKey, uploadRepoRegion, archivePath)
 }
 
-func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *deployOptions) error {
+func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *api.DeployOptions) error {
 	var file *upload.File
 	var err error
 	if isDeployFromJavaWar {
-		file, err = uploadWar(opts.appID, ".")
+		file, err = uploadWar(appID, ".")
 	} else {
-		file, err = uploadProject(opts.appID, ".", ignoreFilePath)
+		file, err = uploadProject(appID, ".", ignoreFilePath)
 		if err != nil {
 			return err
 		}
@@ -109,11 +109,11 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 		}()
 	}
 
-	eventTok, err := api.DeployAppFromFile(opts.appID, opts.groupName, opts.prod, file.URL, opts.message, opts.noDepsCache, opts.mode)
+	eventTok, err := api.DeployAppFromFile(appID, group, prod, file.URL, opts)
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(opts.appID, eventTok)
+	ok, err := api.PollEvents(appID, eventTok)
 	if err != nil {
 		return err
 	}
@@ -123,12 +123,12 @@ func deployFromLocal(isDeployFromJavaWar bool, ignoreFilePath string, keepFile b
 	return nil
 }
 
-func deployFromGit(revision string, opts *deployOptions) error {
-	eventTok, err := api.DeployAppFromGit(opts.appID, opts.groupName, opts.prod, revision, opts.noDepsCache, opts.mode)
+func deployFromGit(appID string, group string, prod int, revision string, opts *api.DeployOptions) error {
+	eventTok, err := api.DeployAppFromGit(appID, group, prod, revision, opts)
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(opts.appID, eventTok)
+	ok, err := api.PollEvents(appID, eventTok)
 	if err != nil {
 		return err
 	}
@@ -147,6 +147,7 @@ func deployAction(c *cli.Context) error {
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
+	buildRoot := c.String("build-root")
 
 	if message == "" {
 		_, err := exec.LookPath("git")
@@ -211,22 +212,20 @@ func deployAction(c *cli.Context) error {
 		deployMode = api.DEPLOY_SMOOTHLY
 	}
 
-	opts := &deployOptions{
-		appID:       appID,
-		groupName:   groupName,
-		message:     message,
-		noDepsCache: noDepsCache,
-		prod:        prod,
-		mode:        deployMode,
+	opts := &api.DeployOptions{
+		Message:     message,
+		NoDepsCache: noDepsCache,
+		Mode:        deployMode,
+		BuildRoot:   buildRoot,
 	}
 
 	if isDeployFromGit {
-		err = deployFromGit(revision, opts)
+		err = deployFromGit(appID, groupName, prod, revision, opts)
 		if err != nil {
 			return err
 		}
 	} else {
-		err = deployFromLocal(isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
+		err = deployFromLocal(appID, groupName, prod, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
 			return err
 		}
@@ -241,4 +240,5 @@ type deployOptions struct {
 	noDepsCache bool
 	prod        int
 	mode        string
+	buildRoot   string
 }

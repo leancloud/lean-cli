@@ -60,7 +60,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 			"web/obj/",
 		}
 	default:
-		panic("invalid runtime")
+		return []string{}
 	}
 }
 
