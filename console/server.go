@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/logp"
 	"github.com/gorilla/mux"
 	"github.com/leancloud/lean-cli/api"
@@ -228,7 +227,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/{resourceName}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort
-	logp.Info("云函数调试服务已启动，请使用浏览器访问：http://" + addr)
+	logp.Info("Cloud function debug console is accessible at: http://" + addr)
 
 	go func() {
 		server.Errors <- http.ListenAndServe(addr, router)
