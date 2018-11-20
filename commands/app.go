@@ -179,7 +179,7 @@ func Run(args []string) {
 		},
 		{
 			Name:      "upload",
-			Usage:     "Upload files to the current project (available in the '_File' class)",
+			Usage:     "Upload files to the current application (available in the '_File' class)",
 			Action:    uploadAction,
 			ArgsUsage: "<file-path> <file-path> ...",
 		},
@@ -270,12 +270,12 @@ func Run(args []string) {
 		},
 		{
 			Name:   "cache",
-			Usage:  "LeanCache management commands",
+			Usage:  "LeanCache shell",
 			Action: wrapAction(cacheAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "db",
-					Usage: "Name of LeanCache DB",
+					Usage: "Number of LeanCache DB",
 					Value: -1,
 				},
 				cli.StringFlag{
