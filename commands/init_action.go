@@ -106,7 +106,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
 	region := regions.Invalid
 	question := wizard.Question{
-		Content: "请选择应用节点",
+		Content: "请选择节点",
 		Answers: []wizard.Answer{},
 	}
 

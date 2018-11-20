@@ -68,6 +68,7 @@ func loginAction(c *cli.Context) error {
 	password := c.String("password")
 	regionStr := strings.ToUpper(c.String("region"))
 	var region regions.Region
+	var err error
 	switch regionStr {
 	case "CN":
 		region = regions.CN
@@ -75,6 +76,11 @@ func loginAction(c *cli.Context) error {
 		region = regions.US
 	case "TAB":
 		region = regions.TAB
+	case "":
+		region, err = selectRegion([]regions.Region{regions.CN, regions.US, regions.TAB})
+		if err != nil {
+			return err
+		}
 	default:
 		cli.ShowCommandHelp(c, "login")
 		return cli.NewExitError("错误的 region 参数", 1)

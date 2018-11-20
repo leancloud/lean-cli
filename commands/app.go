@@ -44,7 +44,6 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "region,r",
 					Usage: "需要登录的节点",
-					Value: "CN",
 				},
 			},
 		},
