@@ -19,13 +19,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-const (
-	uploadRepoAppID  = "x7WmVG0x63V6u8MCYM8qxKo8-gzGzoHsz"
-	uploadRepoAppKey = "PcDNOjiEpYc0DTz2E9kb5fvu"
-	uploadRepoRegion = regions.CN
-)
-
-func uploadProject(appID string, repoPath string, ignoreFilePath string) (*upload.File, error) {
+func uploadProject(appID string, region regions.Region, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return nil, err
@@ -45,7 +39,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 		return nil, err
 	}
 
-	file, err := api.UploadFileEx(uploadRepoAppID, uploadRepoAppKey, uploadRepoRegion, archiveFile)
+	file, err := api.UploadToRepoStorage(region, archiveFile)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +47,7 @@ func uploadProject(appID string, repoPath string, ignoreFilePath string) (*uploa
 	return file, nil
 }
 
-func uploadWar(appID string, repoPath string) (*upload.File, error) {
+func uploadWar(appID string, region regions.Region, repoPath string) (*upload.File, error) {
 	var warPath string
 	files, err := ioutil.ReadDir(filepath.Join(repoPath, "target"))
 	if err != nil {
@@ -84,16 +78,20 @@ func uploadWar(appID string, repoPath string) (*upload.File, error) {
 		return nil, err
 	}
 
-	return api.UploadFileEx(uploadRepoAppID, uploadRepoAppKey, uploadRepoRegion, archivePath)
+	return api.UploadToRepoStorage(region, archivePath)
 }
 
 func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *api.DeployOptions) error {
+	region, err := apps.GetAppRegion(appID)
+	if err != nil {
+		return err
+	}
+
 	var file *upload.File
-	var err error
 	if isDeployFromJavaWar {
-		file, err = uploadWar(appID, ".")
+		file, err = uploadWar(appID, region, ".")
 	} else {
-		file, err = uploadProject(appID, ".", ignoreFilePath)
+		file, err = uploadProject(appID, region, ".", ignoreFilePath)
 		if err != nil {
 			return err
 		}
@@ -102,7 +100,7 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	if !keepFile {
 		defer func() {
 			logp.Info("删除临时文件")
-			err := api.DeleteFileEx(uploadRepoAppID, uploadRepoAppKey, uploadRepoRegion, file.ObjectID)
+			err := api.DeleteFromRepoStorage(region, file.ObjectID)
 			if err != nil {
 				logp.Error(err)
 			}
