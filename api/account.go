@@ -44,16 +44,6 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	return result, err
 }
 
-// LoginUSRegion will use OAuth2 to login US Region
-func LoginUSRegion() error {
-	client := NewClientByRegion(regions.US)
-	_, err := client.get("/1/oauth2/goto/avoscloud", nil)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // GetUserInfoResult is the return type of GetUserInfo
 type GetUserInfoResult struct {
 	Email    string `json:"email"`
