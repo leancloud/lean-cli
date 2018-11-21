@@ -88,25 +88,16 @@ func UploadFileEx(appID string, appKey string, region regions.Region, filePath s
 	return file, err
 }
 
-// DeleteFile will delete the specific file
-func DeleteFile(appID string, objectID string) error {
-	appInfo, err := GetAppInfo(appID)
-	if err != nil {
-		return err
-	}
-
-	region, err := apps.GetAppRegion(appID)
-
-	if err != nil {
-		return err
-	}
-
-	return DeleteFileEx(appInfo.AppID, appInfo.AppKey, region, objectID)
+// upload code zip package to a concentrated app in specific region
+func UploadToRepoStorage(region regions.Region, filePath string) (*upload.File, error) {
+	appID, appKey, uploadRegion := getRepoStorageInfo(region)
+	return UploadFileEx(appID, appKey, uploadRegion, filePath)
 }
 
-// DeleteFileEx will delete the specific file
-func DeleteFileEx(appID string, appKey string, region regions.Region, objectID string) error {
-	client := NewClientByRegion(region)
+func DeleteFromRepoStorage(region regions.Region, objectID string) error {
+	appID, appKey, uploadRegion := getRepoStorageInfo(region)
+
+	client := NewClientByRegion(uploadRegion)
 	opts, err := client.options()
 	if err != nil {
 		return err
@@ -115,4 +106,13 @@ func DeleteFileEx(appID string, appKey string, region regions.Region, objectID s
 	opts.Headers["X-LC-Key"] = appKey
 	_, err = client.delete("/1.1/files/"+objectID, opts)
 	return err
+}
+
+func getRepoStorageInfo(region regions.Region) (appId string, appKey string, uploadRegion regions.Region) {
+	switch region {
+	case regions.US:
+		return "iuuztdrr4mj683kbsmwoalt1roaypb5d25eu0f23lrfsthgn", "exhqkdnvtjw34p5670r4zlofdsc91likhzfxmr9jz7vnbc07", regions.US
+	default:
+		return "x7WmVG0x63V6u8MCYM8qxKo8-gzGzoHsz", "PcDNOjiEpYc0DTz2E9kb5fvu", regions.CN
+	}
 }

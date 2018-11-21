@@ -41,26 +41,8 @@ func loginWithPassword(username string, password string, region regions.Region) 
 			return nil, err
 		}
 	}
-	r := region
-	if r == regions.US {
-		r = regions.CN
-	}
-	// When signing in the US region, first login to the CN region, then call api.LoginUSRegion.
-	info, err := api.Login(username, password, r)
-	if err != nil {
-		return nil, err
-	}
 
-	if region != regions.US {
-		return info, nil
-	}
-
-	err = api.LoginUSRegion()
-	if err != nil {
-		return nil, err
-	}
-
-	return info, err
+	return api.Login(username, password, region)
 }
 
 func loginAction(c *cli.Context) error {
@@ -68,6 +50,7 @@ func loginAction(c *cli.Context) error {
 	password := c.String("password")
 	regionStr := strings.ToUpper(c.String("region"))
 	var region regions.Region
+	var err error
 	switch regionStr {
 	case "CN":
 		region = regions.CN
@@ -75,6 +58,11 @@ func loginAction(c *cli.Context) error {
 		region = regions.US
 	case "TAB":
 		region = regions.TAB
+	case "":
+		region, err = selectRegion([]regions.Region{regions.CN, regions.US, regions.TAB})
+		if err != nil {
+			return err
+		}
 	default:
 		cli.ShowCommandHelp(c, "login")
 		return cli.NewExitError("Wrong region parameter", 1)

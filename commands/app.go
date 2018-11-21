@@ -44,7 +44,6 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "region,r",
 					Usage: "The LeanCloud region to log in to (e.g., US, CN)",
-					Value: "CN",
 				},
 			},
 		},
