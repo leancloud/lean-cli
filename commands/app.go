@@ -29,7 +29,7 @@ func Run(args []string) {
 	app.Commands = []cli.Command{
 		{
 			Name:      "login",
-			Usage:     "Login to LeanCloud",
+			Usage:     "Log in to LeanCloud",
 			Action:    wrapAction(loginAction),
 			ArgsUsage: "[-u username -p password (--region <CN> | <US> | <TAB>)]",
 			Flags: []cli.Flag{
@@ -43,34 +43,34 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "region,r",
-					Usage: "Region",
+					Usage: "The LeanCloud region to log in to (e.g., US, CN)",
 					Value: "CN",
 				},
 			},
 		},
 		{
 			Name:      "metric",
-			Usage:     "Storage service performance metrics of current project",
+			Usage:     "Obtain LeanStorage performance metrics of current project",
 			Action:    wrapAction(statusAction),
 			ArgsUsage: "[--from fromTime --to toTime --format default|json]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "Starting time formatted as YYYY-MM-DD, e.g. 1926-08-17",
+					Usage: "Start date, formatted as YYYY-MM-DD，e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "Ending time formatted as YYYY-MM-DD, e.g. 1926-08-17",
+					Usage: "End date formated as YYYY-MM-DD，e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
-					Usage: "Output format, default or json",
+					Usage: "Output format，'default' or 'json'",
 				},
 			},
 		},
 		{
 			Name:   "info",
-			Usage:  "Current user and app information",
+			Usage:  "Show information about the current user and app",
 			Action: wrapAction(infoAction),
 		},
 		{
@@ -78,99 +78,78 @@ func Run(args []string) {
 			Usage:  "Start a development instance locally",
 			Action: wrapAction(upAction),
 			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name:  "watch",
-					Usage: "Watch project files and auto-restart on change",
-				},
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "Local port to listen",
+					Usage: "Local port to listen on",
 					Value: 3000,
 				},
 				cli.IntFlag{
 					Name:  "console-port,c",
-					Usage: "Debug console port",
+					Usage: "Port of the debug console",
 				},
 				cli.StringFlag{
 					Name:  "cmd",
-					Usage: "Custom command to run, other arguments will be ignored (except --console-port)",
+					Usage: "Command to start the project, other arguments except --console-port are ignored",
 				},
 			},
 		},
 		{
 			Name:      "init",
-			Usage:     "Initialize LeanEngine project",
+			Usage:     "Initialize a LeanEngine project",
 			Action:    wrapAction(initAction),
 			ArgsUsage: "[dest]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
-					Usage: "Target region",
+					Usage: "LeanCloud region for the project",
 				},
 				cli.StringFlag{
 					Name:  "group",
-					Usage: "Target group",
+					Usage: "LeanEngine group",
 				},
 			},
 		},
 		{
 			Name:      "switch",
-			Usage:     "Change the LeanCloud app associated with current project",
+			Usage:     "Change the associated LeanCloud app",
 			Action:    wrapAction(switchAction),
 			ArgsUsage: "[appID | appName]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
-					Usage: "Target region",
+					Usage: "LeanCloud region",
 				},
 				cli.StringFlag{
 					Name:  "group",
-					Usage: "Target group",
-				},
-			},
-		},
-		{
-			Name:      "checkout",
-			Usage:     "Change the LeanCloud app associated with current project",
-			Action:    wrapAction(checkOutAction),
-			ArgsUsage: "[appID | appName]",
-			Hidden:    true,
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "region",
-					Usage: "Target region",
-				},
-				cli.StringFlag{
-					Name:  "group",
-					Usage: "Target group",
+					Usage: "LeanEngine group",
 				},
 			},
 		},
 		{
 			Name:   "deploy",
-			Usage:  "Deploy project to the cloud",
+			Usage:  "Deploy the project to LeanEngine",
 			Action: wrapAction(deployAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "g",
-					Usage: "Deploy from git",
+					Usage: "Deploy from git repo",
 				},
 				cli.BoolFlag{
 					Name:  "war",
-					Usage: "Deploy the first .war file in the target directory for a Java project",
+					Usage: "Deploy .war file for Java project. The first .war file in target/ is used by default",
 				},
 				cli.BoolFlag{
 					Name:  "no-cache",
-					Usage: "Force-update 3rd-party dependencies",
+					Usage: "Force download dependencies",
 				},
 				cli.StringFlag{
 					Name:  "leanignore",
-					Usage: "Rule file to ignore files during deployment",
+					Usage: "Rule file for ignored files in deployment",
 					Value: ".leanignore",
 				},
 				cli.StringFlag{
 					Name:  "message,m",
-					Usage: "Comments for this deployment. Only applicable when deploying from local files.",
+					Usage: "Comment for this deployment, only applicable when deploying from local files",
 				},
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
@@ -183,14 +162,14 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "revision,r",
-					Usage: "git revision or branch. Only applicable when deploying from git repo",
+					Usage: "Git revision or branch. Only applicable when deploying from Git",
 					Value: "master",
 				},
 			},
 		},
 		{
 			Name:   "publish",
-			Usage:  "Deploy from staging instance to production instances",
+			Usage:  "Publish code from staging to production",
 			Action: wrapAction(publishAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -200,84 +179,84 @@ func Run(args []string) {
 		},
 		{
 			Name:      "upload",
-			Usage:     "Upload file to the File class of the current app",
+			Usage:     "Upload files to the current application (available in the '_File' class)",
 			Action:    uploadAction,
 			ArgsUsage: "<file-path> <file-path> ...",
 		},
 		{
 			Name:   "logs",
-			Usage:  "View LeanEngine logs",
+			Usage:  "Show LeanEngine logs",
 			Action: wrapAction(logsAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "f",
-					Usage: "Continuously show updated logs",
+					Usage: "Wait for and continuously show most recent logs",
 				},
 				cli.StringFlag{
 					Name:  "env,e",
-					Usage: "Choose from staging / production",
+					Usage: "Environment to view (staging / production)",
 					Value: "production",
 				},
 				cli.IntFlag{
 					Name:  "limit,l",
-					Usage: "Maximum log lines to show",
+					Usage: "Maximum number of lines to show",
 					Value: 30,
 				},
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "Starting time formated as YYYY-MM-DD, e.g. 1926-08-17",
+					Usage: "Start date formatted as YYYY-MM-DD，e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "Ending time formated as YYYY-MM-DD, e.g. 1926-08-17",
+					Usage: "End date formated as YYYY-MM-DD，e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
-					Usage: "Log display format",
+					Usage: "Format to use ('default' or 'json')",
 					Value: "default",
 				},
 			},
 		},
 		{
 			Name:   "debug",
-			Usage:  "Only start cloud function debug console",
+			Usage:  "Start the debug console without running the project",
 			Action: wrapAction(debugAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "remote,r",
-					Usage: "URL of target app, default to http://localhost:3000",
+					Usage: "URL of target app",
 					Value: "http://localhost:3000",
 				},
 				cli.StringFlag{
 					Name:  "app-id",
-					Usage: "appID of target app, default to the current associated appID",
+					Usage: "Target AppID, use the AppID of the current project by default",
 				},
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "Port for local debugging",
+					Usage: "Port to listen on",
 					Value: 3001,
 				},
 			},
 		},
 		{
 			Name:   "env",
-			Usage:  "Print the environment variables need by the current project",
+			Usage:  "Output environment variables used by the current project",
 			Action: wrapAction(envAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "Local debugging port",
+					Usage: "Local port for the app (affects value of LC_APP_PORT)",
 					Value: 3000,
 				},
 				cli.StringFlag{
 					Name:  "template",
-					Usage: "Template for printing environment variables. Default: 'export {{name}}={{value}}'",
+					Usage: "Template for output, 'export {{name}}={{value}}' by default",
 				},
 			},
 			Subcommands: []cli.Command{
 				{
 					Name:      "set",
-					Usage:     "Set an environment variable",
+					Usage:     "Set the value of an environment variable",
 					Action:    wrapAction(envSetAction),
 					ArgsUsage: "[env-name] [env-value]",
 				},
@@ -291,50 +270,50 @@ func Run(args []string) {
 		},
 		{
 			Name:   "cache",
-			Usage:  "LeanCache management functions",
+			Usage:  "LeanCache shell",
 			Action: wrapAction(cacheAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "db",
-					Usage: "LeanCache DB to connect to",
+					Usage: "Number of LeanCache DB",
 					Value: -1,
 				},
 				cli.StringFlag{
 					Name:  "name",
-					Usage: "LeanCache instance to connect to",
+					Usage: "Name of LeanCache instance",
 				},
 				cli.StringFlag{
 					Name:  "eval",
-					Usage: "LeanCache command to execute",
+					Usage: "LeanCache command to run",
 				},
 			},
 			Subcommands: []cli.Command{
 				{
 					Name:   "list",
-					Usage:  "List all LeanCache instances associated with current project",
+					Usage:  "Show LeanCache instances of the current project",
 					Action: wrapAction(cacheListAction),
 				},
 			},
 		},
 		{
 			Name:   "cql",
-			Usage:  "Enter interactive CQL query",
+			Usage:  "Start CQL interactive mode",
 			Action: wrapAction(cqlAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{Name: "format,f",
-					Usage: "Format of CQL results",
+					Usage: "CQL result format",
 					Value: "table",
 				},
 				cli.StringFlag{
 					Name:  "eval",
-					Usage: "CQL command to execute",
+					Usage: "CQL command to run",
 				},
 			},
 		},
 		{
 			Name:      "search",
-			Usage:     "Search the developer docs for keywords",
-			ArgsUsage: "<keywords>",
+			Usage:     "Search development docs",
+			ArgsUsage: "<kwywords>",
 			Action: func(c *cli.Context) error {
 				if c.NArg() == 0 {
 					if err := cli.ShowCommandHelp(c, "search"); err != nil {
@@ -348,7 +327,7 @@ func Run(args []string) {
 		{
 			Name:      "help",
 			Aliases:   []string{"h"},
-			Usage:     "Display all help information or for given command",
+			Usage:     "Show all commands or help info for one command",
 			ArgsUsage: "[command]",
 			Action: func(c *cli.Context) error {
 				args := c.Args()

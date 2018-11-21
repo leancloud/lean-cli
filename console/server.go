@@ -228,7 +228,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/{resourceName}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort
-	logp.Info("The cloud function debug console is running at: http://" + addr)
+	logp.Info("Cloud function debug console is accessible at: http://" + addr)
 
 	go func() {
 		server.Errors <- http.ListenAndServe(addr, router)
