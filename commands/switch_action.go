@@ -17,7 +17,7 @@ import (
 func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*api.GetAppListResult, error) {
 	var selectedApp *api.GetAppListResult
 	question := wizard.Question{
-		Content: "请选择 APP",
+		Content: "Please select an app: ",
 		Answers: []wizard.Answer{},
 	}
 	for _, app := range appList {
@@ -57,7 +57,7 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 	// check if arg is an app id
 	for _, app := range currentApps {
 		if app.AppID == arg {
-			fmt.Printf("切换至应用：%s (%s)\r\n", app.AppName, region)
+			fmt.Printf("Switching to app: %s (%s)\r\n", app.AppName, region)
 			err = apps.LinkApp(".", app.AppID)
 			if err != nil {
 				return err
@@ -68,7 +68,7 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 					return err
 				}
 				if len(groupList) != 1 {
-					return cli.NewExitError("此应用对应多个分组，请使用 --group 参数指定分组", 1)
+					return cli.NewExitError("This app has multiple groups, please use --group specify one", 1)
 				}
 				groupName = groupList[0].GroupName
 			}
@@ -85,7 +85,7 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 	}
 	if len(matchedApps) == 1 {
 		matchedApp := matchedApps[0]
-		fmt.Printf("切换至应用：%s (%s)\r\n", matchedApp.AppName, region)
+		fmt.Printf("Switching to app: %s (%s)\r\n", matchedApp.AppName, region)
 		err = apps.LinkApp(".", matchedApps[0].AppID)
 		if err != nil {
 			return err
@@ -96,16 +96,16 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 				return err
 			}
 			if len(groupList) != 1 {
-				return cli.NewExitError("此应用对应多个分组，请使用 --group 参数指定分组", 1)
+				return cli.NewExitError("This app has multiple groups, please use --group specify one.", 1)
 			}
 			groupName = groupList[0].GroupName
 		}
 		return apps.LinkGroup(".", groupName)
 	} else if len(matchedApps) > 1 {
-		return cli.NewExitError("找到多个应用使用此应用名，切换失败。请尝试使用 app ID 取代应用名来进行切换。", 1)
+		return cli.NewExitError("Multiple apps are using this name. Please use app ID to identify the app instead.", 1)
 	}
 
-	return cli.NewExitError("找不到对应的应用，切换失败。", 1)
+	return cli.NewExitError("Failed to find the designated app.", 1)
 }
 
 func checkOutWithWizard(regionString string, groupName string) error {
@@ -131,10 +131,10 @@ func checkOutWithWizard(regionString string, groupName string) error {
 			}
 		}
 	default:
-		return cli.NewExitError("错误的 region 参数", 1)
+		return cli.NewExitError("Wrong region parameter", 1)
 	}
 
-	logp.Info("获取应用列表 ...")
+	logp.Info("Retrieve app list ...")
 	appList, err := api.GetAppList(region)
 	if err != nil {
 		return err
@@ -175,14 +175,14 @@ func checkOutWithWizard(regionString string, groupName string) error {
 					return nil
 				}
 			}
-			return errors.New("找不到分组 " + groupName)
+			return errors.New("Cannot find group " + groupName)
 		}()
 		if err != nil {
 			return err
 		}
 	}
 
-	fmt.Printf("切换应用至：%s ，分组：%s\r\n", app.AppName, group.GroupName)
+	fmt.Printf("Switching to app: %s, group: %s\r\n", app.AppName, group.GroupName)
 
 	err = apps.LinkApp(".", app.AppID)
 	if err != nil {
@@ -210,6 +210,6 @@ func switchAction(c *cli.Context) error {
 }
 
 func checkOutAction(c *cli.Context) error {
-	logp.Warn("lean checkout 被标记为废弃，请使用 lean switch 代替此命令")
+	logp.Warn("`lean checkout` is deprecated, please use `lean switch` instead")
 	return switchAction(c)
 }

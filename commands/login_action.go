@@ -15,14 +15,14 @@ func inputAccountInfo() (string, string, error) {
 	password := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "请输入您的邮箱",
+			Content: "Email: ",
 			Input: &wizard.Input{
 				Result: email,
 				Hidden: false,
 			},
 		},
 		{
-			Content: "请输入您的密码",
+			Content: "Password: ",
 			Input: &wizard.Input{
 				Result: password,
 				Hidden: true,
@@ -45,7 +45,7 @@ func loginWithPassword(username string, password string, region regions.Region) 
 	if r == regions.US {
 		r = regions.CN
 	}
-	// US 节点登录时，需要先用用户名／密码登录 CN 节点，然后调用 api.LoginUSRegion 进行登录。
+	// When signing in the US region, first login to the CN region, then call api.LoginUSRegion.
 	info, err := api.Login(username, password, r)
 	if err != nil {
 		return nil, err
@@ -77,7 +77,7 @@ func loginAction(c *cli.Context) error {
 		region = regions.TAB
 	default:
 		cli.ShowCommandHelp(c, "login")
-		return cli.NewExitError("错误的 region 参数", 1)
+		return cli.NewExitError("Wrong region parameter", 1)
 	}
 	userInfo, err := loginWithPassword(username, password, region)
 	if err != nil {
@@ -87,8 +87,8 @@ func loginAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	logp.Info("登录成功：")
-	logp.Infof("用户名: %s\r\n", userInfo.UserName)
-	logp.Infof("邮箱: %s\r\n", userInfo.Email)
+	logp.Info("Login succeeded: ")
+	logp.Infof("Username: %s\r\n", userInfo.UserName)
+	logp.Infof("Email: %s\r\n", userInfo.Email)
 	return nil
 }

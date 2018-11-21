@@ -229,7 +229,7 @@ func GetGroup(appID string, groupName string) (*GetGroupsResult, error) {
 			return group, nil
 		}
 	}
-	return nil, errors.New("找不到分组：" + groupName)
+	return nil, errors.New("Failed to find group: " + groupName)
 }
 
 type GetEngineInfoResult struct {
@@ -280,7 +280,7 @@ func PutEnvironments(appID string, group string, envs map[string]string) error {
 		return err
 	}
 	if response.StatusCode != 200 {
-		return errors.New("更新运引擎环境变量失败，响应码：" + string(response.StatusCode))
+		return errors.New("Error updating environment variable, code: " + string(response.StatusCode))
 	}
 	return nil
 }

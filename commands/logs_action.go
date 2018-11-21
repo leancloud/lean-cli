@@ -18,7 +18,7 @@ func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	if c.String("from") != "" {
 		from, err = time.ParseInLocation("2006-01-02", c.String("from"), time.Now().Location())
 		if err != nil {
-			err = fmt.Errorf("from 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("from"))
+			err = fmt.Errorf("from format error: %s. The correct format is YYYY-MM-DD, e.g., 1926-08-17", c.String("from"))
 			return time.Time{}, time.Time{}, err
 		}
 	}
@@ -26,7 +26,7 @@ func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
 	if c.String("to") != "" {
 		to, err = time.ParseInLocation("2006-01-02", c.String("to"), time.Now().Location())
 		if err != nil {
-			err = fmt.Errorf("to 参数格式错误：%s。正确格式为 YYYY-MM-DD，例如 1926-08-17", c.String("to"))
+			err = fmt.Errorf("to format error: %s. The correct format is YYYY-MM-DD, e.g., 1926-08-17", c.String("to"))
 			return time.Time{}, time.Time{}, err
 		}
 	}
@@ -55,12 +55,12 @@ func logsAction(c *cli.Context) error {
 	} else if env == "production" || env == "" || env == "prod" {
 		isProd = true
 	} else {
-		return cli.NewExitError("environment 参数必须为 staging 或者 production", 1)
+		return cli.NewExitError("environment must be staging or production", 1)
 	}
 
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
-		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
+		return cli.NewExitError("Please use `lean checkout` designate a LeanCloud app first.", 1)
 	}
 	if err != nil {
 		return err
@@ -76,7 +76,7 @@ func logsAction(c *cli.Context) error {
 	} else if strings.ToLower(format) == "json" {
 		printer = jsonLogPrinter
 	} else {
-		return cli.NewExitError("错误的 format 参数，必须为 json / default 其中之一。", 1)
+		return cli.NewExitError("format must be json or default.", 1)
 	}
 
 	if from != (time.Time{}) {

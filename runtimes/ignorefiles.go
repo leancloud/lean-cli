@@ -66,7 +66,7 @@ func (runtime *Runtime) defaultIgnorePatterns() []string {
 
 func (runtime *Runtime) readIgnore(ignoreFilePath string) (parseignore.Matcher, error) {
 	if ignoreFilePath == ".leanignore" && !utils.IsFileExists(filepath.Join(runtime.ProjectPath, ".leanignore")) {
-		logp.Warn("没有找到 .leanignore 文件，根据项目文件创建默认的 .leanignore 文件")
+		logp.Warn(".leanignore Not found. Default .leanignore created.")
 		content := strings.Join(runtime.defaultIgnorePatterns(), "\r\n")
 		err := ioutil.WriteFile(filepath.Join(runtime.ProjectPath, ".leanignore"), []byte(content), 0644)
 		if err != nil {

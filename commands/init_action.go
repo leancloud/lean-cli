@@ -15,7 +15,7 @@ import (
 func selectApp(appList []*api.GetAppListResult) (*api.GetAppListResult, error) {
 	var selectedApp *api.GetAppListResult
 	question := wizard.Question{
-		Content: "请选择 APP",
+		Content: "Please select an app: ",
 		Answers: []wizard.Answer{},
 	}
 	for _, app := range appList {
@@ -41,7 +41,7 @@ func selectGroup(groupList []*api.GetGroupsResult) (*api.GetGroupsResult, error)
 
 	var selectedGroup *api.GetGroupsResult
 	question := wizard.Question{
-		Content: "请选择云引擎分组",
+		Content: "Please select a LeanEngine group",
 		Answers: []wizard.Answer{},
 	}
 	for _, group := range groupList {
@@ -68,7 +68,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	}
 
 	question := wizard.Question{
-		Content: "请选择需要创建应用的编程语言",
+		Content: "Please select a language",
 		Answers: []wizard.Answer{},
 	}
 	for _, category := range categories {
@@ -85,7 +85,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	err = wizard.Ask([]wizard.Question{question})
 
 	question = wizard.Question{
-		Content: "请选择需要创建的应用模版",
+		Content: "Please select an app template: ",
 		Answers: []wizard.Answer{},
 	}
 	for _, boil := range selectedCategory.Boilerplates {
@@ -106,7 +106,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
 	region := regions.Invalid
 	question := wizard.Question{
-		Content: "请选择应用节点",
+		Content: "Please select a region: ",
 		Answers: []wizard.Answer{},
 	}
 
@@ -139,7 +139,7 @@ func initAction(c *cli.Context) error {
 	case "":
 		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
-			return cli.NewExitError("没有登录", 1)
+			return cli.NewExitError("Please login first.", 1)
 		} else if len(loginedRegions) == 1 {
 			region = loginedRegions[0]
 		} else {
@@ -149,7 +149,7 @@ func initAction(c *cli.Context) error {
 			}
 		}
 	default:
-		return cli.NewExitError("invalid region", 1)
+		return cli.NewExitError("Invalid region", 1)
 	}
 
 	appList, err := api.GetAppList(region)
@@ -184,7 +184,7 @@ func initAction(c *cli.Context) error {
 					return nil
 				}
 			}
-			return errors.New("找不到分组 " + groupName)
+			return errors.New("Failed to find group " + groupName)
 		}()
 		if err != nil {
 			return err

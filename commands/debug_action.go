@@ -26,12 +26,12 @@ func debugAction(c *cli.Context) error {
 		}
 	}
 
-	logp.Info("获取应用信息 ...")
+	logp.Info("Retrieving app info ...")
 	appInfo, err := api.GetAppInfo(appID)
 	if err != nil {
 		return err
 	}
-	logp.Infof("当前应用：%s (%s)\r\n", color.RedString(appInfo.AppName), appID)
+	logp.Infof("Current app: %s (%s)\r\n", color.RedString(appInfo.AppName), appID)
 
 	cons := &console.Server{
 		AppID:       appInfo.AppID,

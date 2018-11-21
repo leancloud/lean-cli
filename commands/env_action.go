@@ -130,11 +130,11 @@ func envSetAction(c *cli.Context) error {
 	envValue := c.Args()[1]
 
 	if strings.HasPrefix(strings.ToUpper(envName), "LEANCLOUD") {
-		return errors.New("请不要设置 `LEANCLOUD` 开头的环境变量")
+		return errors.New("Do not set any environment variable starting with `LEANCLOUD`")
 	}
 
 	if strings.HasPrefix(strings.ToUpper(envName), "LEAN_CLI") {
-		return errors.New("请不要设置 `LEAN_CLI` 开头的环境变量")
+		return errors.New("Do not set any environment variable starting with `LEAN_CLI`")
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
@@ -142,7 +142,7 @@ func envSetAction(c *cli.Context) error {
 		return err
 	}
 
-	logp.Info("获取云引擎信息 ...")
+	logp.Info("Retriving LeanEngine info ...")
 	engineInfo, err := api.GetEngineInfo(appID)
 	if err != nil {
 		return err
@@ -154,7 +154,7 @@ func envSetAction(c *cli.Context) error {
 
 	envs := engineInfo.Environments
 	envs[envName] = envValue
-	logp.Info("更新云引擎 " + group + " 分组环境变量")
+	logp.Info("Updating environment variables for group: " + group)
 	return api.PutEnvironments(appID, group, envs)
 }
 
@@ -166,11 +166,11 @@ func envUnsetAction(c *cli.Context) error {
 	env := c.Args()[0]
 
 	if strings.HasPrefix(strings.ToUpper(env), "LEANCLOUD") {
-		return errors.New("请不要移除 `LEANCLOUD` 开头的环境变量")
+		return errors.New("Please do not unset any environment variable starting with `LEANCLOUD`")
 	}
 
 	if strings.HasPrefix(strings.ToUpper(env), "LEAN_CLI") {
-		return errors.New("请不要移除 `LEAN_CLI` 开头的环境变量")
+		return errors.New("Please do not unset any environment variable starting with `LEAN_CLI`")
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
@@ -178,7 +178,7 @@ func envUnsetAction(c *cli.Context) error {
 		return err
 	}
 
-	logp.Info("获取云引擎信息 ...")
+	logp.Info("Retrieving LeanEngine info ...")
 	group, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		return err
@@ -191,6 +191,6 @@ func envUnsetAction(c *cli.Context) error {
 	envs := engineInfo.Environments
 	delete(envs, env)
 
-	logp.Info("更新云引擎 " + group + " 分组环境变量")
+	logp.Info("Updating environment variables for group: " + group)
 	return api.PutEnvironments(appID, group, envs)
 }

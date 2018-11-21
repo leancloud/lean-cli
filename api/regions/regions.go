@@ -20,11 +20,11 @@ func (r Region) String() string {
 func (r Region) Description() string {
 	switch r {
 	case CN:
-		return "中国华北节点"
+		return "China North"
 	case US:
-		return "美国节点"
+		return "United States"
 	case TAB:
-		return "中国华东节点"
+		return "China East"
 	default:
 		return "invalid"
 	}

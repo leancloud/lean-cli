@@ -29,148 +29,148 @@ func Run(args []string) {
 	app.Commands = []cli.Command{
 		{
 			Name:      "login",
-			Usage:     "登录 LeanCloud 账户",
+			Usage:     "Login to LeanCloud",
 			Action:    wrapAction(loginAction),
 			ArgsUsage: "[-u username -p password (--region <CN> | <US> | <TAB>)]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "username,u",
-					Usage: "用户名",
+					Usage: "Username",
 				},
 				cli.StringFlag{
 					Name:  "password,p",
-					Usage: "密码",
+					Usage: "Password",
 				},
 				cli.StringFlag{
 					Name:  "region,r",
-					Usage: "需要登录的节点",
+					Usage: "Region",
 					Value: "CN",
 				},
 			},
 		},
 		{
 			Name:      "metric",
-			Usage:     "获取当前项目云存储的性能总览",
+			Usage:     "Storage service performance metrics of current project",
 			Action:    wrapAction(statusAction),
 			ArgsUsage: "[--from fromTime --to toTime --format default|json]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "开始时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+					Usage: "Starting time formatted as YYYY-MM-DD, e.g. 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "结束时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+					Usage: "Ending time formatted as YYYY-MM-DD, e.g. 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
-					Usage: "输出格式，默认为 default，可选 json",
+					Usage: "Output format, default or json",
 				},
 			},
 		},
 		{
 			Name:   "info",
-			Usage:  "查看当前登录用户以及应用信息",
+			Usage:  "Current user and app information",
 			Action: wrapAction(infoAction),
 		},
 		{
 			Name:   "up",
-			Usage:  "本地启动云引擎应用",
+			Usage:  "Start a development instance locally",
 			Action: wrapAction(upAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "watch",
-					Usage: "监听项目文件变更，以自动重启项目",
+					Usage: "Watch project files and auto-restart on change",
 				},
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "指定本地服务端口",
+					Usage: "Local port to listen",
 					Value: 3000,
 				},
 				cli.IntFlag{
 					Name:  "console-port,c",
-					Usage: "指定调试页面启动端口",
+					Usage: "Debug console port",
 				},
 				cli.StringFlag{
 					Name:  "cmd",
-					Usage: "指定项目启动命令，其他参数将被忽略（--console-port 除外）",
+					Usage: "Custom command to run, other arguments will be ignored (except --console-port)",
 				},
 			},
 		},
 		{
 			Name:      "init",
-			Usage:     "初始化云引擎项目",
+			Usage:     "Initialize LeanEngine project",
 			Action:    wrapAction(initAction),
 			ArgsUsage: "[dest]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
-					Usage: "目标应用节点",
+					Usage: "Target region",
 				},
 				cli.StringFlag{
 					Name:  "group",
-					Usage: "目标应用 group",
+					Usage: "Target group",
 				},
 			},
 		},
 		{
 			Name:      "switch",
-			Usage:     "切换当前项目关联的 LeanCloud 应用",
+			Usage:     "Change the LeanCloud app associated with current project",
 			Action:    wrapAction(switchAction),
 			ArgsUsage: "[appID | appName]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
-					Usage: "目标应用节点",
+					Usage: "Target region",
 				},
 				cli.StringFlag{
 					Name:  "group",
-					Usage: "目标应用 group",
+					Usage: "Target group",
 				},
 			},
 		},
 		{
 			Name:      "checkout",
-			Usage:     "切换当前项目关联的 LeanCloud 应用",
+			Usage:     "Change the LeanCloud app associated with current project",
 			Action:    wrapAction(checkOutAction),
 			ArgsUsage: "[appID | appName]",
 			Hidden:    true,
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
-					Usage: "目标应用节点",
+					Usage: "Target region",
 				},
 				cli.StringFlag{
 					Name:  "group",
-					Usage: "目标应用 group",
+					Usage: "Target group",
 				},
 			},
 		},
 		{
 			Name:   "deploy",
-			Usage:  "部署云引擎项目到服务器",
+			Usage:  "Deploy project to the cloud",
 			Action: wrapAction(deployAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "g",
-					Usage: "从 git 部署项目",
+					Usage: "Deploy from git",
 				},
 				cli.BoolFlag{
 					Name:  "war",
-					Usage: "对于 Java 运行环境，直接部署 war 文件。默认部署 target 目录下找到的第一个 war 文件",
+					Usage: "Deploy the first .war file in the target directory for a Java project",
 				},
 				cli.BoolFlag{
 					Name:  "no-cache",
-					Usage: "强制更新第三方依赖",
+					Usage: "Force-update 3rd-party dependencies",
 				},
 				cli.StringFlag{
 					Name:  "leanignore",
-					Usage: "部署过程中需要忽略的文件的规则",
+					Usage: "Rule file to ignore files during deployment",
 					Value: ".leanignore",
 				},
 				cli.StringFlag{
 					Name:  "message,m",
-					Usage: "本次部署备注，仅对从本地文件部署项目有效",
+					Usage: "Comments for this deployment. Only applicable when deploying from local files.",
 				},
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
@@ -183,14 +183,14 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "revision,r",
-					Usage: "git 的版本号或分支，仅对从 git 仓库部署有效",
+					Usage: "git revision or branch. Only applicable when deploying from git repo",
 					Value: "master",
 				},
 			},
 		},
 		{
 			Name:   "publish",
-			Usage:  "部署当前预备环境的代码至生产环境",
+			Usage:  "Deploy from staging instance to production instances",
 			Action: wrapAction(publishAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
@@ -200,90 +200,90 @@ func Run(args []string) {
 		},
 		{
 			Name:      "upload",
-			Usage:     "上传文件到当前应用 File 表",
+			Usage:     "Upload file to the File class of the current app",
 			Action:    uploadAction,
 			ArgsUsage: "<file-path> <file-path> ...",
 		},
 		{
 			Name:   "logs",
-			Usage:  "查看 LeanEngine 产生的日志",
+			Usage:  "View LeanEngine logs",
 			Action: wrapAction(logsAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "f",
-					Usage: "持续查看最新日志",
+					Usage: "Continuously show updated logs",
 				},
 				cli.StringFlag{
 					Name:  "env,e",
-					Usage: "日志环境，可选项为 staging / production",
+					Usage: "Choose from staging / production",
 					Value: "production",
 				},
 				cli.IntFlag{
 					Name:  "limit,l",
-					Usage: "获取日志条目数",
+					Usage: "Maximum log lines to show",
 					Value: 30,
 				},
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "日志开始时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+					Usage: "Starting time formated as YYYY-MM-DD, e.g. 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "日志结束时间，格式为 YYYY-MM-DD，例如 1926-08-17",
+					Usage: "Ending time formated as YYYY-MM-DD, e.g. 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
-					Usage: "日志展示格式",
+					Usage: "Log display format",
 					Value: "default",
 				},
 			},
 		},
 		{
 			Name:   "debug",
-			Usage:  "不运行项目，直接启动云函数调试服务",
+			Usage:  "Only start cloud function debug console",
 			Action: wrapAction(debugAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "remote,r",
-					Usage: "目标应用的访问地址，默认为 http://localhost:3000",
+					Usage: "URL of target app, default to http://localhost:3000",
 					Value: "http://localhost:3000",
 				},
 				cli.StringFlag{
 					Name:  "app-id",
-					Usage: "目标应用 appID，如果不指定，则使用当前目录关联应用 appID",
+					Usage: "appID of target app, default to the current associated appID",
 				},
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "指定本地调试的端口",
+					Usage: "Port for local debugging",
 					Value: 3001,
 				},
 			},
 		},
 		{
 			Name:   "env",
-			Usage:  "输出运行当前云引擎应用所需要的环境变量",
+			Usage:  "Print the environment variables need by the current project",
 			Action: wrapAction(envAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "指定本地调试的端口",
+					Usage: "Local debugging port",
 					Value: 3000,
 				},
 				cli.StringFlag{
 					Name:  "template",
-					Usage: "指定输出环境变量模版，默认 'export {{name}}={{value}}'",
+					Usage: "Template for printing environment variables. Default: 'export {{name}}={{value}}'",
 				},
 			},
 			Subcommands: []cli.Command{
 				{
 					Name:      "set",
-					Usage:     "设置新的环境变量",
+					Usage:     "Set an environment variable",
 					Action:    wrapAction(envSetAction),
 					ArgsUsage: "[env-name] [env-value]",
 				},
 				{
 					Name:      "unset",
-					Usage:     "删除环境变量",
+					Usage:     "Delete an environment variable",
 					Action:    wrapAction(envUnsetAction),
 					ArgsUsage: "[env-name]",
 				},
@@ -291,50 +291,50 @@ func Run(args []string) {
 		},
 		{
 			Name:   "cache",
-			Usage:  "LeanCache 管理相关功能",
+			Usage:  "LeanCache management functions",
 			Action: wrapAction(cacheAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "db",
-					Usage: "需要连接的 LeanCache 实例 db",
+					Usage: "LeanCache DB to connect to",
 					Value: -1,
 				},
 				cli.StringFlag{
 					Name:  "name",
-					Usage: "需要连接的 LeanCache 实例名",
+					Usage: "LeanCache instance to connect to",
 				},
 				cli.StringFlag{
 					Name:  "eval",
-					Usage: "需要立即执行的 LeanCache 命令",
+					Usage: "LeanCache command to execute",
 				},
 			},
 			Subcommands: []cli.Command{
 				{
 					Name:   "list",
-					Usage:  "列出当前应用关联的所有 LeanCache",
+					Usage:  "List all LeanCache instances associated with current project",
 					Action: wrapAction(cacheListAction),
 				},
 			},
 		},
 		{
 			Name:   "cql",
-			Usage:  "进入 CQL 交互查询",
+			Usage:  "Enter interactive CQL query",
 			Action: wrapAction(cqlAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{Name: "format,f",
-					Usage: "指定 CQL 结果展示格式",
+					Usage: "Format of CQL results",
 					Value: "table",
 				},
 				cli.StringFlag{
 					Name:  "eval",
-					Usage: "需要立即执行的 CQL 命令",
+					Usage: "CQL command to execute",
 				},
 			},
 		},
 		{
 			Name:      "search",
-			Usage:     "根据关键词查询开发文档",
-			ArgsUsage: "<kwywords>",
+			Usage:     "Search the developer docs for keywords",
+			ArgsUsage: "<keywords>",
 			Action: func(c *cli.Context) error {
 				if c.NArg() == 0 {
 					if err := cli.ShowCommandHelp(c, "search"); err != nil {
@@ -348,7 +348,7 @@ func Run(args []string) {
 		{
 			Name:      "help",
 			Aliases:   []string{"h"},
-			Usage:     "显示全部命令或者某个子命令的帮助",
+			Usage:     "Display all help information or for given command",
 			ArgsUsage: "[command]",
 			Action: func(c *cli.Context) error {
 				args := c.Args()

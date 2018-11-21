@@ -84,7 +84,7 @@ func FetchRepo(boil *Boilerplate, dest string, appID string) error {
 		return err
 	}
 
-	logp.Info("正在创建项目...")
+	logp.Info("Creating project...")
 
 	zipFile, err := zip.OpenReader(zipFilePath)
 	if err != nil {
@@ -97,8 +97,8 @@ func FetchRepo(boil *Boilerplate, dest string, appID string) error {
 			return err
 		}
 	}
-
-	logp.Info("创建", boil.Name, "项目成功，更多关于", boil.Name, "的文档请参考官网：", boil.Homepage)
+	// TODO: Change value of boil.Homepage for English site.
+	logp.Info("Creating ", boil.Name, " succeeded. Please refer to our website ", boil.Homepage, " for documentation about ", boil.Name)
 	return nil
 }
 
@@ -145,7 +145,7 @@ func DownloadToFile(r *grequests.Response, fileName string) error {
 	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
 		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
 		bar.Output = colorable.NewColorableStderr()
-		bar.Prefix(color.GreenString("[INFO]") + " 下载模版文件")
+		bar.Prefix(color.GreenString("[INFO]") + " Downloading templates")
 		bar.Start()
 		defer bar.Finish()
 		reader := bar.NewProxyReader(r)

@@ -93,7 +93,7 @@ func statusAction(c *cli.Context) error {
 	}
 	appID, err := apps.GetCurrentAppID("./")
 	if err == apps.ErrNoAppLinked {
-		return cli.NewExitError("没有关联任何 app，请使用 lean checkout 来关联应用。", 1)
+		return cli.NewExitError("Please use `lean checkout` to designate a LeanCloud app first.", 1)
 	}
 	ReqStats, err := api.FetchReqStat(appID, from, to)
 	if err != nil {

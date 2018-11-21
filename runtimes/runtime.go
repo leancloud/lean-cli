@@ -16,7 +16,7 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 )
 
-var ErrRuntimeNotFound = errors.New("不支持的项目目录结构，请确保当前运行目录是正确的云引擎项目")
+var ErrRuntimeNotFound = errors.New("Unsupported project structure. Please inspect your directory structure to make sure it is a valid LeanEngine project.")
 
 type filesPattern struct {
 	Includes []string
@@ -53,8 +53,8 @@ func (runtime *Runtime) Run() {
 			runtime.command.Env = append(runtime.command.Env, env)
 		}
 
-		logp.Infof("使用 %s 启动项目\r\n", runtime.command.Args)
-		logp.Infof("项目已启动，请使用浏览器访问：http://localhost:%s\r\n", runtime.Port)
+		logp.Infof("Use %s to start the project\r\n", runtime.command.Args)
+		logp.Infof("The project is running at: http://localhost:%s\r\n", runtime.Port)
 		err := runtime.command.Run()
 		if err != nil {
 			runtime.Errors <- err
@@ -69,7 +69,7 @@ func (runtime *Runtime) ArchiveUploadFiles(archiveFile string, ignoreFilePath st
 func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string) error {
 	matcher, err := runtime.readIgnore(ignoreFilePath)
 	if os.IsNotExist(err) {
-		return fmt.Errorf("指定的 ignore 文件 '%s' 不存在", ignoreFilePath)
+		return fmt.Errorf("The designated ignore file '%s' doesn't exist", ignoreFilePath)
 	} else if err != nil {
 		return err
 	}
@@ -113,14 +113,14 @@ func (runtime *Runtime) defaultArchive(archiveFile string, ignoreFilePath string
 func DetectRuntime(projectPath string) (*Runtime, error) {
 	// order is important
 	if utils.IsFileExists(filepath.Join(projectPath, "cloud", "main.js")) {
-		logp.Info("检测到 cloudcode 运行时")
+		logp.Info("cloudcode runtime detected")
 		return &Runtime{
 			Name: "cloudcode",
 		}, nil
 	}
 	packageFilePath := filepath.Join(projectPath, "package.json")
 	if utils.IsFileExists(filepath.Join(projectPath, "server.js")) && utils.IsFileExists(packageFilePath) {
-		logp.Info("检测到 node.js 运行时")
+		logp.Info("Node.js runtime detected")
 		return newNodeRuntime(projectPath)
 	}
 	if utils.IsFileExists(packageFilePath) {
@@ -134,26 +134,26 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 			}
 			if err = json.Unmarshal(data, &result); err == nil {
 				if result.Scripts.Start != "" {
-					logp.Info("检测到 node.js 运行时")
+					logp.Info("Node.js runtime detected")
 					return newNodeRuntime(projectPath)
 				}
 			}
 		}
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "requirements.txt")) && utils.IsFileExists(filepath.Join(projectPath, "wsgi.py")) {
-		logp.Info("检测到 Python 运行时")
+		logp.Info("Python runtime detected")
 		return newPythonRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "composer.json")) && utils.IsFileExists(filepath.Join("public", "index.php")) {
-		logp.Info("检测到 PHP 运行时")
+		logp.Info("PHP runtime detected")
 		return newPhpRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
-		logp.Info("检测到 Java 运行时")
+		logp.Info("Java runtime detected")
 		return newJavaRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "app.sln")) {
-		logp.Info("检测到 DotNet 运行时")
+		logp.Info("DotNet runtime detected")
 		return newDotnetRuntime(projectPath)
 	}
 
@@ -169,9 +169,9 @@ func lookupBin(fallbacks []string) (string, error) {
 		binPath, err := exec.LookPath(bin)
 		if err == nil { // found
 			if i == 0 {
-				logp.Infof("找到运行文件 `%s`\r\n", binPath)
+				logp.Infof("Found executable file: `%s`\r\n", binPath)
 			} else {
-				logp.Warnf("没有找到命令 `%s`，使用 `%s` 代替 \r\n", fallbacks[i-1], fallbacks[i])
+				logp.Warnf("Cannot find command `%s`, using `%s` instead of \r\n", fallbacks[i-1], fallbacks[i])
 			}
 			return bin, nil
 		}
@@ -226,9 +226,9 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 	}
 	pythonVersion := string(content)
 	if !(strings.HasPrefix(pythonVersion, "2.") || strings.HasPrefix(pythonVersion, "3.")) {
-		return nil, errors.New("错误的 pyenv 版本，目前云引擎只支持 CPython，请检查 .python-version 文件确认")
+		return nil, errors.New("Wrong pyenv version. We only support CPython. Please check and correct .python-version")
 	}
-	logp.Info("检测到项目使用 pyenv，请确保当前环境 pyenv 已正确设置")
+	logp.Info("pyenv detected. Please make sure pyenv is configured properly.")
 
 	return &Runtime{
 		ProjectPath: projectPath,
@@ -281,7 +281,7 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 			if strings.HasPrefix(sdkVersion, "0.") ||
 				strings.HasPrefix(sdkVersion, "~0.") ||
 				strings.HasPrefix(sdkVersion, "^0.") {
-				logp.Warn("当前使用 leanengine SDK 版本过低，本地云函数调试功能将会不能正常启用。建议参考 http://url.leanapp.cn/Og1cVia 尽快升级")
+				logp.Warn("The current leanengine SDK is too low. Local debugging of cloud functions is not supported. Please refer to http://url.leanapp.cn/Og1cVia for upgrade instructions")
 			}
 		}
 

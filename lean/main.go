@@ -64,7 +64,7 @@ func main() {
 	})
 	err, id := raven.CapturePanicAndWait(run, nil)
 	if err != nil {
-		fmt.Printf("panic: %s, 错误 ID: %s\r\n", err, id)
+		fmt.Printf("panic: %s, Error ID: %s\r\n", err, id)
 		os.Exit(1)
 	}
 }

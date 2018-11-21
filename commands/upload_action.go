@@ -11,12 +11,12 @@ import (
 )
 
 func uploadFile(appID string, filePath string) error {
-	logp.Info("上传文件: " + filePath)
+	logp.Info("Uploading file: " + filePath)
 	file, err := api.UploadFile(appID, filePath)
 	if err != nil {
 		return err
 	}
-	logp.Infof("上传成功，文件 URL：%s\r\n", file.URL)
+	logp.Infof("Upload succeeded. URL: %s\r\n", file.URL)
 	return nil
 }
 
