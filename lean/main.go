@@ -14,22 +14,21 @@ import (
 
 func run() {
 	if len(os.Args) >= 2 && os.Args[1] == "--_collect-stats" {
-		err := stats.Init("Rp8mUcQBVObk8EuyVMDPv39U-gzGzoHsz", "9g3bs563vEsOGdycO2E9ly0y")
-		if err != nil {
+		if err := stats.Init(); err != nil {
 			raven.CaptureError(err, nil, nil)
 		}
+
 		stats.Client.AppVersion = version.Version
 		stats.Client.AppChannel = pkgType
 
 		var event string
+
 		if len(os.Args) >= 3 {
 			event = os.Args[2]
 		}
 
-		stats.Collect([]stats.Event{
-			{
-				Event: event,
-			},
+		stats.Collect(stats.Event{
+			Event: event,
 		})
 		return
 	}

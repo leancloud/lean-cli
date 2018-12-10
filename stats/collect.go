@@ -6,22 +6,12 @@ import (
 	"github.com/levigross/grequests"
 )
 
-// LeanCloud app info
-var (
-	leanCloudAppID  string
-	leanCloudAppKey string
-)
+const GA_TRACK_ID = "UA-42629236-12"
 
 // Client is current user's client info
 var Client ClientType
 
-var session SessionType
-
-// Init LeanCloud app info
-func Init(appID string, appKey string) error {
-	leanCloudAppID = appID
-	leanCloudAppKey = appKey
-
+func Init() error {
 	deviceID, err := GetDeviceID()
 	if err != nil {
 		return err
@@ -29,7 +19,6 @@ func Init(appID string, appKey string) error {
 
 	Client.ID = deviceID
 	Client.Platform = runtime.GOOS
-	session.ID, err = newDeviceID()
 	return err
 }
 
@@ -46,30 +35,20 @@ type ClientType struct {
 	AppChannel string `json:"app_channel"`
 }
 
-// SessionType is collect payload's session filed type
-type SessionType struct {
-	ID string `json:"id"`
-}
-
-// Payload is leancloud statics collect's playload
-type Payload struct {
-	Client  ClientType  `json:"client"`
-	Events  []Event     `json:"events"`
-	Session SessionType `json:"session"`
-}
-
 // Collect the user's stats
-func Collect(events []Event) {
-	payload := &Payload{
-		Client:  Client,
-		Events:  events,
-		Session: session,
-	}
-	grequests.Post("https://api.leancloud.cn/1.1/stats/open/collect", &grequests.RequestOptions{
-		Headers: map[string]string{
-			"X-LC-Id":  leanCloudAppID,
-			"X-LC-Key": leanCloudAppKey,
+func Collect(event Event) {
+	grequests.Post("https://www.google-analytics.com/collect", &grequests.RequestOptions{
+		Data: map[string]string{
+			"aid": Client.Platform,
+			"aiid": Client.AppChannel,
+			"an": "lean",
+			"av": Client.AppVersion,
+			"cid": Client.ID,
+			"ea": event.Event,
+			"ec": "run",
+			"t": "event",
+			"tid": GA_TRACK_ID,
+			"v": "1",
 		},
-		JSON: payload,
 	})
 }
