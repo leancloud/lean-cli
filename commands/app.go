@@ -153,16 +153,18 @@ func Run(args []string) {
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
 				},
-				cli.BoolFlag{
-					Name: "atomic",
-				},
-				cli.StringFlag{
-					Name: "build-root",
-				},
 				cli.StringFlag{
 					Name:  "revision,r",
 					Usage: "Git revision or branch. Only applicable when deploying from Git",
 					Value: "master",
+				},
+				cli.StringFlag{
+					Name:  "options",
+					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app&atomic=true`)",
+				},
+				cli.StringFlag{
+					Name:  "prod",
+					Usage: "Deploy to production(`--prod 1`) or staging(`--prod 0`) environment, default to staging if it exists",
 				},
 			},
 		},
@@ -171,8 +173,9 @@ func Run(args []string) {
 			Usage:  "Publish code from staging to production",
 			Action: wrapAction(publishAction),
 			Flags: []cli.Flag{
-				cli.BoolFlag{
-					Name: "atomic",
+				cli.StringFlag{
+					Name:  "options",
+					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app&atomic=true`)",
 				},
 			},
 		},

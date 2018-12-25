@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"net/url"
 
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
@@ -16,11 +17,6 @@ type GetAppListResult struct {
 	MasterKey string `json:"master_key"`
 	AppDomain string `json:"app_domain"`
 }
-
-const (
-	DEPLOY_SMOOTHLY = "smoothly"
-	DEPLOY_ATOMIC   = "atomic"
-)
 
 // GetAppList returns the current user's all LeanCloud application
 // this will also update the app router cache
@@ -72,13 +68,14 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 }
 
 // DeployImage will deploy the engine group with specify image tag
-func DeployImage(appID string, group string, prod int, imageTag string, mode string) (string, error) {
-	params := map[string]interface{}{
-		"imageTag": imageTag,
-		"async":    true,
+func DeployImage(appID string, group string, prod int, imageTag string, opts *DeployOptions) (string, error) {
+	params, err := generateDeployParams(opts)
+
+	if err != nil {
+		return "", err
 	}
 
-	params[mode] = true
+	params["imageTag"] = imageTag
 
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
@@ -94,21 +91,19 @@ func DeployImage(appID string, group string, prod int, imageTag string, mode str
 type DeployOptions struct {
 	Message     string
 	NoDepsCache bool
-	Mode        string
-	BuildRoot   string
+	Options     string // Additional options in urlencode format
 }
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
 func DeployAppFromGit(appID string, group string, prod int, revision string, opts *DeployOptions) (string, error) {
-	params := map[string]interface{}{
-		"noDependenciesCache": opts.NoDepsCache,
-		"async":               true,
-		"gitTag":              revision,
-		"buildRoot":           opts.BuildRoot,
+	params, err := generateDeployParams(opts)
+
+	if err != nil {
+		return "", err
 	}
 
-	params[opts.Mode] = true
+	params["gitTag"] = revision
 
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
@@ -124,15 +119,13 @@ func DeployAppFromGit(appID string, group string, prod int, revision string, opt
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
 func DeployAppFromFile(appID string, group string, prod int, fileURL string, opts *DeployOptions) (string, error) {
-	params := map[string]interface{}{
-		"zipUrl":              fileURL,
-		"comment":             opts.Message,
-		"noDependenciesCache": opts.NoDepsCache,
-		"async":               true,
-		"buildRoot":           opts.BuildRoot,
+	params, err := generateDeployParams(opts)
+
+	if err != nil {
+		return "", err
 	}
 
-	params[opts.Mode] = true
+	params["zipUrl"] = fileURL
 
 	resp, err := deploy(appID, group, prod, params)
 	if err != nil {
@@ -177,6 +170,7 @@ type GetGroupsResult struct {
 	Instances  []struct {
 		Name  string `json:"name"`
 		Quota int    `json:"quota"`
+		Prod  int    `json:"prod"`
 	} `json:"instances"`
 	StagingImage struct {
 		Runtime  string `json:"runtime"`
@@ -283,4 +277,29 @@ func PutEnvironments(appID string, group string, envs map[string]string) error {
 		return errors.New("Error updating environment variable, code: " + string(response.StatusCode))
 	}
 	return nil
+}
+
+func generateDeployParams(options *DeployOptions) (map[string]interface{}, error) {
+	params := map[string]interface{}{
+		"noDependenciesCache": options.NoDepsCache,
+		"async":               true,
+	}
+
+	if options.Message != "" {
+		params["comment"] = options.Message
+	}
+
+	if options.Options != "" {
+		queryString, err := url.ParseQuery(options.Options)
+
+		if err != nil {
+			return nil, err
+		}
+
+		for k, v := range queryString {
+			params[k] = v[0]
+		}
+	}
+
+	return params, nil
 }

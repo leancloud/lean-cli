@@ -34,30 +34,21 @@ func publishAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	engineInfo, err := api.GetEngineInfo(appID)
-	if err != nil {
-		return err
-	}
 	group, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		return err
 	}
 
-	if engineInfo.Mode != "prod" {
+	if !groupHasStagingInstances(group) {
 		return errors.New("For development apps, `lean deploy` directly deploys to production. There is no need to use this command.")
 	}
 
 	logp.Infof("Deploying %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
 
-	var deployMode string
+	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag, &api.DeployOptions{
+		Options: c.String("options"),
+	})
 
-	if c.Bool("atomic") {
-		deployMode = api.DEPLOY_SMOOTHLY
-	} else {
-		deployMode = api.DEPLOY_SMOOTHLY
-	}
-
-	tok, err := api.DeployImage(appID, groupName, 1, group.StagingImage.ImageTag, deployMode)
 	ok, err := api.PollEvents(appID, tok)
 	if err != nil {
 		return err

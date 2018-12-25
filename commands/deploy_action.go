@@ -2,10 +2,10 @@ package commands
 
 import (
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/aisk/logp"
@@ -18,6 +18,86 @@ import (
 	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
+
+func deployAction(c *cli.Context) error {
+	version.PrintCurrentVersion()
+	isDeployFromGit := c.Bool("g")
+	isDeployFromJavaWar := c.Bool("war")
+	ignoreFilePath := c.String("leanignore")
+	noDepsCache := c.Bool("no-cache")
+	message := c.String("message")
+	keepFile := c.Bool("keep-deploy-file")
+	revision := c.String("revision")
+	prodString := c.String("prod")
+
+	var prod int
+
+	appID, err := apps.GetCurrentAppID(".")
+	if err != nil {
+		return err
+	}
+
+	groupName, err := apps.GetCurrentGroup(".")
+	if err != nil {
+		return err
+	}
+
+	logp.Info("Retrieving app info ...")
+
+	region, err := apps.GetAppRegion(appID)
+	if err != nil {
+		return err
+	}
+
+	appInfo, err := api.GetAppInfo(appID)
+	if err != nil {
+		return err
+	}
+
+	if prodString == "" {
+		groupInfo, err := api.GetGroup(appID, groupName)
+		if err != nil {
+			return err
+		}
+
+		if groupHasStagingInstances(groupInfo) {
+			prod = 0
+		} else {
+			prod = 1
+		}
+	} else {
+		prod, err = strconv.Atoi(prodString)
+		if err != nil {
+			return err
+		}
+	}
+
+	if prod == 1 {
+		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
+	} else {
+		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s staging\r\n", appInfo.AppName, appID, region, groupName)
+	}
+
+	opts := &api.DeployOptions{
+		NoDepsCache: noDepsCache,
+		Options:     c.String("options"),
+	}
+
+	if isDeployFromGit {
+		err = deployFromGit(appID, groupName, prod, revision, opts)
+		if err != nil {
+			return err
+		}
+	} else {
+		opts.Message = getCommentMessage(message)
+
+		err = deployFromLocal(appID, groupName, prod, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
 
 func uploadProject(appID string, region regions.Region, repoPath string, ignoreFilePath string) (*upload.File, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
@@ -136,17 +216,7 @@ func deployFromGit(appID string, group string, prod int, revision string, opts *
 	return nil
 }
 
-func deployAction(c *cli.Context) error {
-	version.PrintCurrentVersion()
-	isDeployFromGit := c.Bool("g")
-	isDeployFromJavaWar := c.Bool("war")
-	ignoreFilePath := c.String("leanignore")
-	noDepsCache := c.Bool("no-cache")
-	message := c.String("message")
-	keepFile := c.Bool("keep-deploy-file")
-	revision := c.String("revision")
-	buildRoot := c.String("build-root")
-
+func getCommentMessage(message string) string {
 	if message == "" {
 		_, err := exec.LookPath("git")
 
@@ -168,75 +238,15 @@ func deployAction(c *cli.Context) error {
 		message = "Creating from the CLI"
 	}
 
-	appID, err := apps.GetCurrentAppID(".")
-	if err != nil {
-		return err
-	}
-
-	groupName, err := apps.GetCurrentGroup(".")
-	if err != nil {
-		return err
-	}
-
-	logp.Info("Retrieving app info ...")
-	region, err := apps.GetAppRegion(appID)
-	if err != nil {
-		return err
-	}
-	appInfo, err := api.GetAppInfo(appID)
-	if err != nil {
-		return err
-	}
-	engineInfo, err := api.GetEngineInfo(appID)
-	if err != nil {
-		return err
-	}
-
-	prod := 0
-	if engineInfo.Mode == "prod" {
-		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s staging\r\n", appInfo.AppName, appID, region, groupName)
-	} else if engineInfo.Mode == "free" {
-		prod = 1
-		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
-	} else {
-		panic(fmt.Sprintf("invalid engine mode: %s", engineInfo.Mode))
-	}
-
-	var deployMode string
-
-	if c.Bool("atomic") {
-		deployMode = api.DEPLOY_ATOMIC
-	} else {
-		deployMode = api.DEPLOY_SMOOTHLY
-	}
-
-	opts := &api.DeployOptions{
-		Message:     message,
-		NoDepsCache: noDepsCache,
-		Mode:        deployMode,
-		BuildRoot:   buildRoot,
-	}
-
-	if isDeployFromGit {
-		err = deployFromGit(appID, groupName, prod, revision, opts)
-		if err != nil {
-			return err
-		}
-	} else {
-		err = deployFromLocal(appID, groupName, prod, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	return message
 }
 
-type deployOptions struct {
-	appID       string
-	groupName   string
-	message     string
-	noDepsCache bool
-	prod        int
-	mode        string
-	buildRoot   string
+func groupHasStagingInstances(groupInfo *api.GetGroupsResult) bool {
+	for _, instance := range groupInfo.Instances {
+		if instance.Prod == 0 {
+			return true
+		}
+	}
+
+	return false
 }
