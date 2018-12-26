@@ -49,7 +49,7 @@ func publishAction(c *cli.Context) error {
 		Options: c.String("options"),
 	})
 
-	ok, err := api.PollEvents(appID, tok)
+	ok, err := api.PollEventsByApp(appID, tok)
 	if err != nil {
 		return err
 	}

@@ -7,6 +7,8 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/mattn/go-colorable"
+
+	"github.com/leancloud/lean-cli/api/regions"
 )
 
 type deployEvent struct {
@@ -20,15 +22,7 @@ type deployEvent struct {
 }
 
 // PollEvents will poll the server's event logs and print the result to the given io.Writer
-func PollEvents(appID string, tok string) (bool, error) {
-	client := NewClientByApp(appID)
-
-	opts, err := client.options()
-	if err != nil {
-		return false, err
-	}
-	opts.Headers["X-LC-Id"] = appID
-
+func PollEvents(client *Client, tok string) (bool, error) {
 	from := ""
 	ok := true
 	retryCount := 0
@@ -38,7 +32,7 @@ func PollEvents(appID string, tok string) (bool, error) {
 		if from != "" {
 			url = url + "?from=" + from
 		}
-		resp, err := client.get(url, opts)
+		resp, err := client.get(url, nil)
 		if err != nil {
 			retryCount++
 			if retryCount > 3 {
@@ -66,4 +60,12 @@ func PollEvents(appID string, tok string) (bool, error) {
 		}
 	}
 	return ok, nil
+}
+
+func PollEventsByApp(appID string, tok string) (bool, error) {
+	return PollEvents(NewClientByApp(appID), tok)
+}
+
+func PollEventsByRegion(region regions.Region, tok string) (bool, error) {
+	return PollEvents(NewClientByRegion(region), tok)
 }

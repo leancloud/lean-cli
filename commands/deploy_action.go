@@ -191,7 +191,7 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(appID, eventTok)
+	ok, err := api.PollEventsByApp(appID, eventTok)
 	if err != nil {
 		return err
 	}
@@ -206,7 +206,7 @@ func deployFromGit(appID string, group string, prod int, revision string, opts *
 	if err != nil {
 		return err
 	}
-	ok, err := api.PollEvents(appID, eventTok)
+	ok, err := api.PollEventsByApp(appID, eventTok)
 	if err != nil {
 		return err
 	}
