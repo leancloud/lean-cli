@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -31,6 +32,18 @@ func deployAction(c *cli.Context) error {
 	prodString := c.String("prod")
 
 	var prod int
+	var err error
+
+	if prodString != "" {
+		prod, err = strconv.Atoi(prodString)
+		if err != nil {
+			return err
+		}
+	}
+
+	if c.Bool("github-action") {
+		return deployByWebhookToken(c, prod)
+	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -64,11 +77,6 @@ func deployAction(c *cli.Context) error {
 			prod = 0
 		} else {
 			prod = 1
-		}
-	} else {
-		prod, err = strconv.Atoi(prodString)
-		if err != nil {
-			return err
 		}
 	}
 
@@ -207,6 +215,45 @@ func deployFromGit(appID string, group string, prod int, revision string, opts *
 		return err
 	}
 	ok, err := api.PollEventsByApp(appID, eventTok)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return cli.NewExitError("Deployment failed", 1)
+	}
+	return nil
+}
+
+func deployByWebhookToken(c *cli.Context, prod int) error {
+	regionString := strings.ToUpper(c.String("region"))
+
+	var region regions.Region
+
+	switch regionString {
+	case "CN", "":
+		region = regions.CN
+	case "US":
+		region = regions.US
+	case "TAB":
+		region = regions.TAB
+	default:
+		return cli.NewExitError("Wrong region parameter", 1)
+	}
+
+	group := os.Getenv("LEANCLOUD_APP_GROUP")
+	webhookToken := os.Getenv("LEANCLOUD_WEBHOOK_TOKEN")
+	gitTag := os.Getenv("GITHUB_SHA")
+
+	if group == "" {
+		group = "web"
+	}
+
+	eventTok, err := api.DeployByWebhookToken(region, group, webhookToken, prod, gitTag)
+	if err != nil {
+		return err
+	}
+
+	ok, err := api.PollEventsByRegion(region, eventTok)
 	if err != nil {
 		return err
 	}

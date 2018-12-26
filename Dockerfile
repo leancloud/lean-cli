@@ -21,4 +21,4 @@ LABEL com.github.actions.color="blue"
 COPY --from=build /go/src/github.com/leancloud/lean-cli/_build/lean-linux-x64 /usr/bin/lean
 
 ENTRYPOINT ["lean"]
-CMD ["help"]
+CMD ["deploy", "--github-action"]

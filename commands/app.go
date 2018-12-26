@@ -166,6 +166,14 @@ func Run(args []string) {
 					Name:  "prod",
 					Usage: "Deploy to production(`--prod 1`) or staging(`--prod 0`) environment, default to staging if it exists",
 				},
+				cli.BoolFlag{
+					Name:  "github-action",
+					Usage: "Deploy from GitHub Action, use the commit triggered the workflow, should set a environment variable named `LEANCLOUD_WEBHOOK_TOKEN`",
+				},
+				cli.StringFlag{
+					Name:  "region",
+					Usage: "The LeanCloud region used by GitHub Action (e.g., US, CN)",
+				},
 			},
 		},
 		{

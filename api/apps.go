@@ -139,6 +139,42 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, opt
 	return result.EventToken, err
 }
 
+func DeployByWebhookToken(region regions.Region, group string, webhookToken string, prod int, revision string) (string, error) {
+	client := NewClientByRegion(region)
+
+	opts, err := client.options()
+
+	if err != nil {
+		return "", err
+	}
+
+	var url string
+
+	switch prod {
+	case 0:
+		url = "/1.1/engine/groups/" + group + "/stagingImage"
+	case 1:
+		url = "/1.1/engine/groups/" + group + "/productionImage"
+	default:
+		return "", errors.New("invalid prod value " + string(prod))
+	}
+
+	url += "?token=" + webhookToken + "&gitTag=" + revision
+
+	resp, err := client.post(url, nil, &grequests.RequestOptions{
+		UserAgent: opts.UserAgent,
+	})
+
+	if err != nil {
+		return "", err
+	}
+	result := new(struct {
+		EventToken string `json:"eventToken"`
+	})
+	err = resp.JSON(result)
+	return result.EventToken, err
+}
+
 // GetAppInfoResult is GetAppInfo function's result type
 type GetAppInfoResult struct {
 	AppDomain string `json:"app_domain"`
