@@ -2,168 +2,258 @@
 
 
 [[projects]]
+  digest = "1:bab2bc6bc4d34fe266b5f262736e634b63ab3380829725d1b9e644b11817c2d3"
   name = "github.com/ahmetalpbalkan/go-linq"
   packages = ["."]
+  pruneopts = ""
   revision = "ba42ddae458c0def2bc25a414ff03a6cc449752d"
 
 [[projects]]
   branch = "master"
+  digest = "1:5b7f0d67e2d0df55ff8cb35c1c5e4a7cc8e6e7fa36263e31eb0bb6de1c3464c1"
   name = "github.com/aisk/logp"
   packages = ["."]
+  pruneopts = ""
   revision = "af23a256979e2f46179456571d31f99429135f53"
 
 [[projects]]
   branch = "master"
+  digest = "1:535a2ca4584d351f23687c8acc711ff45217b1591f510923b9a4aeecfe4c167a"
   name = "github.com/aisk/wizard"
   packages = ["."]
+  pruneopts = ""
   revision = "348bc51880163889be60e064bf144337be9b56d6"
 
 [[projects]]
   branch = "master"
+  digest = "1:ba958829427c67f0e71864e95d9ad81654f483fa89b32eff69695128cfb75d37"
   name = "github.com/cbroglie/mustache"
   packages = ["."]
+  pruneopts = ""
   revision = "6857e4b493bdb8d4b1931446eb41704aeb4c28cb"
 
 [[projects]]
+  digest = "1:95320e2860405d30c315c68b1232c44c03634aa75a1c3541ac67635a0a8a781e"
   name = "github.com/certifi/gocertifi"
   packages = ["."]
+  pruneopts = ""
   revision = "a61bf5eafa3aee233ec8043e9da052447e5463dd"
   version = "2016.09.26"
 
 [[projects]]
+  digest = "1:cb420994947c9cb6d93d8820a3463fd393a894059862b136d036dcc03f73b7c7"
   name = "github.com/cheggaaa/pb"
   packages = ["."]
+  pruneopts = ""
   revision = "f6ccf2184de4dd34495277e38dc19b6e7fbe0ea2"
   version = "v1.0.15"
 
 [[projects]]
+  digest = "1:862a12e1f41062fce8c4495e314a607062c123c1f754c9048a14fbff5ee7d200"
   name = "github.com/chzyer/readline"
   packages = ["."]
+  pruneopts = ""
   revision = "c914be64f07d9998f52bf0d598ec26d457168c0f"
 
 [[projects]]
+  branch = "master"
+  digest = "1:4115e9fad17f63edd4e5e2409b3c7d3c7372f338a677f973454ffab0a59bcddf"
+  name = "github.com/cloudfoundry-attic/jibber_jabber"
+  packages = ["."]
+  pruneopts = ""
+  revision = "bcc4c8345a21301bf47c032ff42dd1aae2fe3027"
+
+[[projects]]
+  digest = "1:3c3f68ebab415344aef64363d23471e953a4715645115604aaf57923ae904f5e"
   name = "github.com/coreos/go-semver"
   packages = ["semver"]
+  pruneopts = ""
   revision = "8ab6407b697782a06568d4b7f1db25550ec2e4c6"
   version = "v0.2.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:abb469d2a36ab1ff8a76ba20b6e5a9f63699311abf8c3e04f2a9e3487cf6709a"
   name = "github.com/facebookgo/parseignore"
   packages = ["."]
+  pruneopts = ""
   revision = "41ebb753c47c8cce5b5d5c1d65289df4ce0183cc"
 
 [[projects]]
   branch = "master"
+  digest = "1:4e298f7e1e056331867ed0b4f1640ec70a3f06e88505324fe03b7c06aaac76ac"
   name = "github.com/facebookgo/symwalk"
   packages = ["."]
+  pruneopts = ""
   revision = "42004b9f322246749dd73ad71008b1f3160c0052"
 
 [[projects]]
+  digest = "1:c9bebdae4ac52d0c3bbe5876de3d72f3bb05b4986865cdb3f15e305e1dc4fbca"
   name = "github.com/fatih/color"
   packages = ["."]
+  pruneopts = ""
   revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
   version = "v1.5.0"
 
 [[projects]]
+  digest = "1:1197cecafa8bb80f61cb488f8817971a6e1ed63e459ab05e4ed043b5dfa1bb17"
   name = "github.com/getsentry/raven-go"
   packages = ["."]
+  pruneopts = ""
   revision = "3f7439d3e74d88e21d196ba20eb61a5a958bc118"
 
 [[projects]]
   branch = "v2"
+  digest = "1:81314a486195626940617e43740b4fa073f265b0715c9f54ce2027fee1cb5f61"
   name = "github.com/go-yaml/yaml"
   packages = ["."]
+  pruneopts = ""
   revision = "eb3733d160e74a9c7e442f435eb3bea458e1d19f"
 
 [[projects]]
+  digest = "1:cf553fabae6a6b91d6e75be73371e8b94d724803e115fb804f86fda175b9bf83"
   name = "github.com/google/go-querystring"
   packages = ["query"]
+  pruneopts = ""
   revision = "9235644dd9e52eeae6fa48efd539fdc351a0af53"
 
 [[projects]]
   branch = "master"
+  digest = "1:dbbeb8ddb0be949954c8157ee8439c2adfd8dc1c9510eb44a6e58cb68c3dce28"
   name = "github.com/gorilla/context"
   packages = ["."]
+  pruneopts = ""
   revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
 
 [[projects]]
+  digest = "1:783fde5796ef54ba05de240f2529b6c9fbabc541e70ea43585c53b3f1bbabb5b"
   name = "github.com/gorilla/mux"
   packages = ["."]
+  pruneopts = ""
   revision = "bcd8bc72b08df0f70df986b97f95590779502d31"
   version = "v1.4.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:499860665660bef418a86e824c23d98c56cc05c2e2f50d5c77164f58a934def7"
   name = "github.com/juju/go4"
   packages = ["lock"]
+  pruneopts = ""
   revision = "40d72ab9641a2a8c36a9c46a51e28367115c8e59"
 
 [[projects]]
+  digest = "1:f9d7eb9859a18144a41fe6e4ad0d7e6fc15d0e93d31e1e48c18129433319629d"
   name = "github.com/juju/persistent-cookiejar"
   packages = ["."]
+  pruneopts = ""
   revision = "5243747bf8f2d0897f6c7a52799327dc97d585e8"
 
 [[projects]]
   branch = "master"
+  digest = "1:81837082ae36c3a687830922c220461e4e03ee993e898af7bb5dcc2dd7f8e03c"
   name = "github.com/leancloud/go-upload"
   packages = ["."]
+  pruneopts = ""
   revision = "99b47d07b1d169d30b9321ec34108ca18222e3e6"
 
 [[projects]]
+  digest = "1:e92b002858333440f202056cce8153146a381c1846927d2525cf302fee5e0dae"
   name = "github.com/levigross/grequests"
   packages = ["."]
+  pruneopts = ""
   revision = "14e4175cc49ce3783f0848f90b0527ba09e1d209"
 
 [[projects]]
+  digest = "1:c67296ed66a8768d76da7ca6658f72ac7b796a3a21420523f0ce3d9bf21d85dd"
   name = "github.com/mattn/go-colorable"
   packages = ["."]
+  pruneopts = ""
   revision = "5411d3eea5978e6cdc258b30de592b60df6aba96"
 
 [[projects]]
+  digest = "1:3aa5c598529f0e2be84e793151f74c5ba10b9bf54b26be386629204aabf98567"
   name = "github.com/mattn/go-isatty"
   packages = ["."]
+  pruneopts = ""
   revision = "57fdcb988a5c543893cc61bce354a6e24ab70022"
 
 [[projects]]
+  digest = "1:88bd45ac4d19ff0d7c7a2918cb24c506d7a9452f34c0e02d7397083302d64756"
   name = "github.com/mattn/go-runewidth"
   packages = ["."]
+  pruneopts = ""
   revision = "737072b4e32b7a5018b4a7125da8d12de90e8045"
 
 [[projects]]
+  digest = "1:3f0a0ddd2d82e2094b128a30e95c514406aa16fecbd3b558e56bbbf85afedc7f"
   name = "github.com/pkg/browser"
   packages = ["."]
+  pruneopts = ""
   revision = "9302be274faad99162b9d48ec97b24306872ebb0"
 
 [[projects]]
+  digest = "1:6cd26dec5142a0e6a6bf8931df56b706cb643bf7f91fb3a064792f07fea94704"
   name = "github.com/urfave/cli"
   packages = ["."]
+  pruneopts = ""
   revision = "0bdeddeeb0f650497d603c4ad7b20cfe685682f6"
   version = "v1.19.1"
 
 [[projects]]
+  digest = "1:22b750c26ad3c81bc3d6ab6ee8669f6c3dd2ac2413a157026097ef9af0a2ba52"
   name = "golang.org/x/net"
-  packages = ["idna","publicsuffix"]
+  packages = [
+    "idna",
+    "publicsuffix",
+  ]
+  pruneopts = ""
   revision = "45e771701b814666a7eb299e6c7a57d0b1799e91"
 
 [[projects]]
+  digest = "1:ce00147339eeaad5db574f7be878dbb27f144dd5ab5fc3f8bf349a8bd00b4a85"
   name = "golang.org/x/sys"
   packages = ["unix"]
+  pruneopts = ""
   revision = "e24f485414aeafb646f6fca458b0bf869c0880a1"
 
 [[projects]]
+  digest = "1:1f4f53e3001fa635e83c01a67a49d32674c6d870403e2f067f11697297bbdd98"
   name = "gopkg.in/errgo.v1"
   packages = ["."]
+  pruneopts = ""
   revision = "66cb46252b94c1f3d65646f54ee8043ab38d766c"
 
 [[projects]]
+  digest = "1:c96d8b7d1cd89eb0b9fd9ce1208b6a0718a4d7ba355b6525943c6fefd10c3e5b"
   name = "gopkg.in/retry.v1"
   packages = ["."]
+  pruneopts = ""
   revision = "c09f6b86ba4d5d2cf5bdf0665364aec9fd4815db"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "59d3841532d60f937802d3372d7785c38b0d0c4099c36b7075084c4d541b7b35"
+  input-imports = [
+    "github.com/ahmetalpbalkan/go-linq",
+    "github.com/aisk/logp",
+    "github.com/aisk/wizard",
+    "github.com/cbroglie/mustache",
+    "github.com/cheggaaa/pb",
+    "github.com/chzyer/readline",
+    "github.com/cloudfoundry-attic/jibber_jabber",
+    "github.com/coreos/go-semver/semver",
+    "github.com/facebookgo/parseignore",
+    "github.com/facebookgo/symwalk",
+    "github.com/fatih/color",
+    "github.com/getsentry/raven-go",
+    "github.com/go-yaml/yaml",
+    "github.com/gorilla/mux",
+    "github.com/juju/persistent-cookiejar",
+    "github.com/leancloud/go-upload",
+    "github.com/levigross/grequests",
+    "github.com/mattn/go-colorable",
+    "github.com/pkg/browser",
+    "github.com/urfave/cli",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

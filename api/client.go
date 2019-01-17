@@ -9,7 +9,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
+	"github.com/cloudfoundry-attic/jibber_jabber"
 	"github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
@@ -107,7 +109,8 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 
 	return &grequests.RequestOptions{
 		Headers: map[string]string{
-			"X-XSRF-TOKEN": xsrf,
+			"X-XSRF-TOKEN":    xsrf,
+			"Accept-Language": getSystemLanguage(),
 		},
 		CookieJar:    client.CookieJar,
 		UseCookieJar: true,
@@ -249,4 +252,14 @@ func newCookieJar() *cookiejar.Jar {
 		panic(err)
 	}
 	return jar
+}
+
+func getSystemLanguage() string {
+	language, err := jibber_jabber.DetectLanguage()
+
+	if err != nil {
+		logp.Error(err)
+	}
+
+	return language
 }
