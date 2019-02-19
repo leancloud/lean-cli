@@ -25,6 +25,17 @@
   revision = "348bc51880163889be60e064bf144337be9b56d6"
 
 [[projects]]
+  digest = "1:cb3d8d52625e5023a4c06464c5e14a7d6d02df19a77a047f38e8e843f683f19f"
+  name = "github.com/algolia/algoliasearch-client-go"
+  packages = [
+    "algoliasearch",
+    "algoliasearch/call",
+  ]
+  pruneopts = ""
+  revision = "1c0b06b9e47a0110de105eeb0aa2fdeda6e4a422"
+  version = "2.27.0"
+
+[[projects]]
   branch = "master"
   digest = "1:ba958829427c67f0e71864e95d9ad81654f483fa89b32eff69695128cfb75d37"
   name = "github.com/cbroglie/mustache"
@@ -237,6 +248,7 @@
     "github.com/ahmetalpbalkan/go-linq",
     "github.com/aisk/logp",
     "github.com/aisk/wizard",
+    "github.com/algolia/algoliasearch-client-go/algoliasearch",
     "github.com/cbroglie/mustache",
     "github.com/cheggaaa/pb",
     "github.com/chzyer/readline",

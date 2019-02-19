@@ -31,6 +31,10 @@
   name = "github.com/aisk/wizard"
 
 [[constraint]]
+  name = "github.com/algolia/algoliasearch-client-go"
+  version = "2.27.0"
+
+[[constraint]]
   name = "github.com/cbroglie/mustache"
 
 [[constraint]]
