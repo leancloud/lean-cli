@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"os/exec"
@@ -326,12 +327,12 @@ func Run(args []string) {
 		{
 			Name:      "help",
 			Aliases:   []string{"h"},
-			Usage:     "Show all commands or help info for one command",
-			ArgsUsage: "[command]",
+			Usage:     "Show all commands",
 			Action: func(c *cli.Context) error {
 				args := c.Args()
 				if args.Present() {
-					return cli.ShowCommandHelp(c, args.First())
+					_, err := fmt.Printf("Please use `lean %s -h` for subcommand usage.", args.First())
+					return err
 				}
 				return cli.ShowAppHelp(c)
 			},
