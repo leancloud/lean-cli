@@ -308,7 +308,7 @@ func Run(args []string) {
 		{
 			Name:      "search",
 			Usage:     "Search development docs",
-			ArgsUsage: "<kwywords>",
+			ArgsUsage: "<keywords>",
 			Action: searchAction,
 		},
 		{
