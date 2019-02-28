@@ -1,15 +1,11 @@
 package commands
 
 import (
-	"net/url"
-	"os"
-	"os/exec"
-	"strings"
-
 	"github.com/leancloud/lean-cli/logo"
 	"github.com/leancloud/lean-cli/version"
-	"github.com/pkg/browser"
 	"github.com/urfave/cli"
+	"os"
+	"os/exec"
 )
 
 // Run the command line
@@ -307,20 +303,6 @@ func Run(args []string) {
 					Name:  "eval",
 					Usage: "CQL command to run",
 				},
-			},
-		},
-		{
-			Name:      "search",
-			Usage:     "Search development docs",
-			ArgsUsage: "<kwywords>",
-			Action: func(c *cli.Context) error {
-				if c.NArg() == 0 {
-					if err := cli.ShowCommandHelp(c, "search"); err != nil {
-						return err
-					}
-				}
-				keyword := strings.Join(c.Args(), " ")
-				return browser.OpenURL("https://leancloud.cn/search.html?q=" + url.QueryEscape(keyword))
 			},
 		},
 		{
