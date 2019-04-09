@@ -2,14 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"net/url"
 	"os"
 	"os/exec"
-	"strings"
 
 	"github.com/leancloud/lean-cli/logo"
 	"github.com/leancloud/lean-cli/version"
-	"github.com/pkg/browser"
 	"github.com/urfave/cli"
 )
 
@@ -311,23 +308,9 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:      "search",
-			Usage:     "Search development docs",
-			ArgsUsage: "<kwywords>",
-			Action: func(c *cli.Context) error {
-				if c.NArg() == 0 {
-					if err := cli.ShowCommandHelp(c, "search"); err != nil {
-						return err
-					}
-				}
-				keyword := strings.Join(c.Args(), " ")
-				return browser.OpenURL("https://leancloud.cn/search.html?q=" + url.QueryEscape(keyword))
-			},
-		},
-		{
 			Name:    "help",
 			Aliases: []string{"h"},
-			Usage:   "Show all commands",
+			Usage:   "Show all commands or help info for one command",
 			Action: func(c *cli.Context) error {
 				args := c.Args()
 				if args.Present() {
