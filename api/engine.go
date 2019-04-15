@@ -7,11 +7,8 @@ import (
 	"github.com/levigross/grequests"
 )
 
-type GetEngineInfoResult struct {
-	AppID         string `json:"appId"`
-	Mode          string `json:"mode"`
-	InstanceLimit int    `json:"instanceLimit"`
-	Version       string `json:"version"`
+type EngineInfo struct {
+	AppID string `json:"appId"`
 }
 
 type VersionInfo struct {
@@ -23,16 +20,16 @@ type GroupDeployInfo struct {
 	Version    VersionInfo `json:"version"`
 }
 
-// GetGroupsResult is GetGroups's result struct
+type InstanceInfo struct {
+	Name string `json:"name"`
+	Prod int    `json:"prod"`
+}
+
 type GetGroupsResult struct {
-	GroupName  string `json:"groupName"`
-	Repository string `json:"repository"`
-	Domain     string `json:"domain"`
-	Instances  []struct {
-		Name  string `json:"name"`
-		Quota int    `json:"quota"`
-		Prod  int    `json:"prod"`
-	} `json:"instances"`
+	GroupName    string            `json:"groupName"`
+	Repository   string            `json:"repository"`
+	Domain       string            `json:"domain"`
+	Instances    []InstanceInfo    `json:"instances"`
 	Staging      GroupDeployInfo   `json:"staging"`
 	Environments map[string]string `json:"environments"`
 }
@@ -55,9 +52,9 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 	var url string
 	switch prod {
 	case 0:
-		url = "/1.1/engine/groups/" + group + "/stagingImage"
+		url = "/1.1/engine/groups/" + group + "/staging/version"
 	case 1:
-		url = "/1.1/engine/groups/" + group + "/productionImage"
+		url = "/1.1/engine/groups/" + group + "/production/version"
 	default:
 		return nil, errors.New("invalid prod value " + string(prod))
 	}
@@ -178,7 +175,7 @@ func GetGroup(appID string, groupName string) (*GetGroupsResult, error) {
 	return nil, errors.New("Failed to find group: " + groupName)
 }
 
-func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
+func GetEngineInfo(appID string) (*EngineInfo, error) {
 	client := NewClientByApp(appID)
 
 	opts, err := client.options()
@@ -191,7 +188,7 @@ func GetEngineInfo(appID string) (*GetEngineInfoResult, error) {
 	if err != nil {
 		return nil, err
 	}
-	var result = new(GetEngineInfoResult)
+	var result = new(EngineInfo)
 	err = response.JSON(result)
 	return result, err
 }

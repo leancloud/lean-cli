@@ -70,14 +70,7 @@ func envAction(c *cli.Context) error {
 		return err
 	}
 
-	engineInfo, err := api.GetEngineInfo(appID)
-	if err != nil {
-		return err
-	}
 	haveStaging := "false"
-	if engineInfo.Mode == "prod" {
-		haveStaging = "true"
-	}
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
@@ -86,6 +79,10 @@ func envAction(c *cli.Context) error {
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		return err
+	}
+
+	if groupInfo.Staging.Deployable {
+		haveStaging = "true"
 	}
 
 	envs := []map[string]string{
