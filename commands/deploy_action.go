@@ -60,7 +60,7 @@ func deployAction(c *cli.Context) error {
 			return err
 		}
 
-		if groupHasStagingInstances(groupInfo) {
+		if groupInfo.Staging.Deployable {
 			prod = 0
 		} else {
 			prod = 1
@@ -239,14 +239,4 @@ func getCommentMessage(message string) string {
 	}
 
 	return message
-}
-
-func groupHasStagingInstances(groupInfo *api.GetGroupsResult) bool {
-	for _, instance := range groupInfo.Instances {
-		if instance.Prod == 0 {
-			return true
-		}
-	}
-
-	return false
 }
