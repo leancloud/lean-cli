@@ -20,7 +20,7 @@ import (
 )
 
 var (
-	errDoNotSupportCloudCode = cli.NewExitError(`This tool no long supports cloudcode 2.0 projects. Please update your project according to: 
+	errDoNotSupportCloudCode = cli.NewExitError(`This tool no long supports cloudcode 2.0 projects. Please update your project according to:
 https://leancloud.cn/docs/leanengine_upgrade_3.html`, 1)
 )
 
@@ -89,12 +89,9 @@ func upAction(c *cli.Context) error {
 		return err
 	}
 
-	engineInfo, err := api.GetEngineInfo(appID)
-	if err != nil {
-		return err
-	}
 	haveStaging := "false"
-	if engineInfo.Mode == "prod" {
+
+	if groupInfo.Staging.Deployable {
 		haveStaging = "true"
 	}
 

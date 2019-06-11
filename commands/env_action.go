@@ -70,14 +70,7 @@ func envAction(c *cli.Context) error {
 		return err
 	}
 
-	engineInfo, err := api.GetEngineInfo(appID)
-	if err != nil {
-		return err
-	}
 	haveStaging := "false"
-	if engineInfo.Mode == "prod" {
-		haveStaging = "true"
-	}
 
 	groupName, err := apps.GetCurrentGroup(".")
 	if err != nil {
@@ -86,6 +79,10 @@ func envAction(c *cli.Context) error {
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		return err
+	}
+
+	if groupInfo.Staging.Deployable {
+		haveStaging = "true"
 	}
 
 	envs := []map[string]string{
@@ -143,16 +140,17 @@ func envSetAction(c *cli.Context) error {
 	}
 
 	logp.Info("Retriving LeanEngine info ...")
-	engineInfo, err := api.GetEngineInfo(appID)
-	if err != nil {
-		return err
-	}
 	group, err := apps.GetCurrentGroup(".")
 	if err != nil {
 		return err
 	}
 
-	envs := engineInfo.Environments
+	groupInfo, err := api.GetGroup(appID, group)
+	if err != nil {
+		return err
+	}
+
+	envs := groupInfo.Environments
 	envs[envName] = envValue
 	logp.Info("Updating environment variables for group: " + group)
 	return api.PutEnvironments(appID, group, envs)
@@ -183,12 +181,12 @@ func envUnsetAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-	engineInfo, err := api.GetEngineInfo(appID)
+	groupInfo, err := api.GetGroup(appID, group)
 	if err != nil {
 		return err
 	}
 
-	envs := engineInfo.Environments
+	envs := groupInfo.Environments
 	delete(envs, env)
 
 	logp.Info("Updating environment variables for group: " + group)

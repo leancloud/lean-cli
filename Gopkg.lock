@@ -185,13 +185,6 @@
   revision = "737072b4e32b7a5018b4a7125da8d12de90e8045"
 
 [[projects]]
-  digest = "1:3f0a0ddd2d82e2094b128a30e95c514406aa16fecbd3b558e56bbbf85afedc7f"
-  name = "github.com/pkg/browser"
-  packages = ["."]
-  pruneopts = ""
-  revision = "9302be274faad99162b9d48ec97b24306872ebb0"
-
-[[projects]]
   digest = "1:6cd26dec5142a0e6a6bf8931df56b706cb643bf7f91fb3a064792f07fea94704"
   name = "github.com/urfave/cli"
   packages = ["."]
@@ -252,7 +245,6 @@
     "github.com/leancloud/go-upload",
     "github.com/levigross/grequests",
     "github.com/mattn/go-colorable",
-    "github.com/pkg/browser",
     "github.com/urfave/cli",
   ]
   solver-name = "gps-cdcl"
