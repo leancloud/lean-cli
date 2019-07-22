@@ -57,7 +57,7 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "End date formated as YYYY-MM-DD，e.g., 1926-08-17",
+					Usage: "End date formatted as YYYY-MM-DD，e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
@@ -208,7 +208,7 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "End date formated as YYYY-MM-DD，e.g., 1926-08-17",
+					Usage: "End date formatted as YYYY-MM-DD，e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
