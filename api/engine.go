@@ -31,6 +31,7 @@ type GetGroupsResult struct {
 	Domain       string            `json:"domain"`
 	Instances    []InstanceInfo    `json:"instances"`
 	Staging      GroupDeployInfo   `json:"staging"`
+	Production   GroupDeployInfo   `json:"production"`
 	Environments map[string]string `json:"environments"`
 }
 

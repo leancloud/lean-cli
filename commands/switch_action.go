@@ -162,15 +162,21 @@ func checkOutWithWizard(regionString string, groupName string) error {
 		return err
 	}
 
+	var filtedGroups []*api.GetGroupsResult
+
+	linq.From(groupList).Where(func(group interface{}) bool {
+		return group.(*api.GetGroupsResult).Staging.Deployable || group.(*api.GetGroupsResult).Production.Deployable
+	}).ToSlice(&filtedGroups)
+
 	var group *api.GetGroupsResult
 	if groupName == "" {
-		group, err = selectGroup(groupList)
+		group, err = selectGroup(filtedGroups)
 		if err != nil {
 			return err
 		}
 	} else {
 		err = func() error {
-			for _, group = range groupList {
+			for _, group = range filtedGroups {
 				if group.GroupName == groupName {
 					return nil
 				}
