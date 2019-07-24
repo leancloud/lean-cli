@@ -181,25 +181,35 @@ func lookupBin(fallbacks []string) (string, error) {
 }
 
 func newPythonRuntime(projectPath string) (*Runtime, error) {
-	runtime := &Runtime{
-		ProjectPath: projectPath,
-		Name:        "python",
-		Exec:        "python",
-		Args:        []string{"wsgi.py"},
-		Errors:      make(chan error),
+	runtime := func(version string) *Runtime {
+		var python string
+		if version == "" {
+			python = "python"
+		} else {
+			parts := strings.SplitN(version, ".", 3)
+			major, minor := parts[0], parts[1]
+			python, _ = lookupBin([]string{"python"+major+"."+minor, "python"+major, "python"})
+		}
+		return &Runtime{
+			ProjectPath: projectPath,
+			Name:        "python",
+			Exec:        python,
+			Args:        []string{"wsgi.py"},
+			Errors:      make(chan error),
+		}
 	}
 	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".python-version"))
 	if err == nil {
 		pythonVersion := string(content)
 		if strings.HasPrefix(pythonVersion, "2.") || strings.HasPrefix(pythonVersion, "3.") {
 			logp.Info("pyenv detected. Please make sure pyenv is configured properly.")
-			return runtime, nil
+			return runtime(pythonVersion), nil
 		} else {
 			return nil, errors.New("Wrong pyenv version. We only support CPython. Please check and correct .python-version")
 		}
 	} else {
 		if os.IsNotExist(err) {
-			return runtime, nil
+			return runtime(""), nil
 		} else {
 			return nil, err
 		}
