@@ -156,6 +156,10 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		logp.Info("DotNet runtime detected")
 		return newDotnetRuntime(projectPath)
 	}
+	if utils.IsFileExists(filepath.Join(projectPath, "index.html")) {
+		logp.Info("Static runtime detected")
+		return newStaticRuntime(projectPath)
+	}
 
 	return &Runtime{
 		ProjectPath: projectPath,
@@ -335,6 +339,16 @@ func newDotnetRuntime(projectPath string) (*Runtime, error) {
 		Exec:        "dotnet",
 		Args:        []string{"run"},
 		Envs:        []string{"ASPNETCORE_URLS=http://0.0.0.0:3000"},
+		Errors:      make(chan error),
+	}, nil
+}
+
+func newStaticRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		ProjectPath: projectPath,
+		Name:        "static",
+		Exec:        "npx",
+		Args:        []string{"serve", "--listen=3000"},
 		Errors:      make(chan error),
 	}, nil
 }
