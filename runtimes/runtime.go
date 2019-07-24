@@ -348,7 +348,7 @@ func newStaticRuntime(projectPath string) (*Runtime, error) {
 		ProjectPath: projectPath,
 		Name:        "static",
 		Exec:        "npx",
-		Args:        []string{"live-server", "--port=3000"},
+		Args:        []string{"serve", "--port=3000"},
 		Errors:      make(chan error),
 	}, nil
 }
