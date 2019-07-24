@@ -22,7 +22,7 @@ import (
 
 var dashboardBaseUrls = map[regions.Region]string{
 	regions.CN:  "https://leancloud.cn",
-	regions.US:  "https://us.leancloud.cn",
+	regions.US:  "https://console.leancloud.app",
 	regions.TAB: "https://tab.leancloud.cn",
 }
 
