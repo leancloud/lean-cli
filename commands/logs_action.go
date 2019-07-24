@@ -17,14 +17,14 @@ func parseDateString(str string) (time.Time, error) {
 	if str == "" {
 		return time.Time{}, nil
 	} else if strings.Contains(str, "T") {
-		return time.Parse("2006-01-02T15:04:05.999999999Z", str)
+		return time.Parse(time.RFC3339, str)
 	} else {
 		return time.ParseInLocation("2006-01-02", str, time.Now().Location())
 	}
 }
 
 func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
-	dateFormat := "format error. The correct format is YYYY-MM-DD or UTC timestamp, e.g., 2006-01-02 or 2006-01-02T15:04:05.999999999Z"
+	dateFormat := "format error. The correct format is YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05Z"
 	from, err := parseDateString(c.String("from"))
 	if err != nil {
 		err = errors.New("from " + dateFormat)
