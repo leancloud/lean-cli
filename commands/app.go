@@ -204,11 +204,11 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "Start date formatted as YYYY-MM-DD (local time) or RFC3339，e.g., 2006-01-02 or 2006-01-02T15:04:05Z",
+					Usage: "Start date formatted as YYYY-MM-DD (local time) or RFC3339，e.g., 2006-01-02 or 2006-01-02T15:04:05+08:00",
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "End date formated as YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05Z",
+					Usage: "End date formated as YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05+08:00",
 				},
 				cli.StringFlag{
 					Name:  "format",
