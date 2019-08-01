@@ -297,7 +297,7 @@ func Run(args []string) {
 		},
 		{
 			Name:   "cql",
-			Usage:  "Start CQL interactive mode",
+			Usage:  "Start CQL interactive mode (warn: CQL is deprecated)",
 			Action: wrapAction(cqlAction),
 			Flags: []cli.Flag{
 				cli.StringFlag{Name: "format,f",
