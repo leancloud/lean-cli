@@ -1,6 +1,7 @@
 package stats
 
 import (
+	"fmt"
 	"runtime"
 
 	"github.com/levigross/grequests"
@@ -37,7 +38,7 @@ type ClientType struct {
 
 // Collect the user's stats
 func Collect(event Event) {
-	grequests.Post("https://www.google-analytics.com/collect", &grequests.RequestOptions{
+	_, err := grequests.Post("https://www.google-analytics.com/collect", &grequests.RequestOptions{
 		Data: map[string]string{
 			"aid": Client.Platform,
 			"aiid": Client.AppChannel,
@@ -51,4 +52,7 @@ func Collect(event Event) {
 			"v": "1",
 		},
 	})
+	if err != nil {
+		fmt.Println("Failed to send statistics to Google Analytics.")
+	}
 }
