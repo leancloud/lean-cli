@@ -14,23 +14,26 @@ import (
 
 func run() {
 	if len(os.Args) >= 2 && os.Args[1] == "--_collect-stats" {
-		if err := stats.Init(); err != nil {
-			raven.CaptureError(err, nil, nil)
+		disableGA, ok := os.LookupEnv("NO_ANALYTICS")
+		if !ok || disableGA == "false" {
+			if err := stats.Init(); err != nil {
+				raven.CaptureError(err, nil, nil)
+			}
+
+			stats.Client.AppVersion = version.Version
+			stats.Client.AppChannel = pkgType
+
+			var event string
+
+			if len(os.Args) >= 3 {
+				event = os.Args[2]
+			}
+
+			stats.Collect(stats.Event{
+				Event: event,
+			})
+			return
 		}
-
-		stats.Client.AppVersion = version.Version
-		stats.Client.AppChannel = pkgType
-
-		var event string
-
-		if len(os.Args) >= 3 {
-			event = os.Args[2]
-		}
-
-		stats.Collect(stats.Event{
-			Event: event,
-		})
-		return
 	}
 
 	// disable the log prefix

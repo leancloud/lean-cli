@@ -9,6 +9,10 @@ Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 - via `homebrew`: `$ brew install lean-cli`
 - via `https://releases.leanapp.cn/#/leancloud/lean-cli/releases`(In case of your connection with GitHub cracked)
 
+lean-cli will send stastics information such as your os version and lean-cli version to Google Analytics.
+This stastics information helps us to improve LeanEngine services.
+To opt out, you can set the environment variable `NO_ANALYTICS` to `true`.
+
 ## Develop
 
 Install the toolchains:
