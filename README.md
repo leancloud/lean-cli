@@ -23,7 +23,7 @@ Clone this repo then run `make all` to build releases.
 
 Please run `go mod tidy` and `go mod vendor` to make vendored copy of dependencies after importing new dependencies.
 
-Ensure all codes is formated by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
+Ensure all codes is formatted by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
 
 ## Release
 
