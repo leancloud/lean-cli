@@ -130,11 +130,6 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 		Params: params,
 	}
 
-	println(url)
-	for k, v := range options.Params {
-		println(k, v)
-	}
-
 	var resp *grequests.Response
 	retryCount := 0
 	for {
@@ -148,8 +143,6 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 		retryCount++
 		time.Sleep(1123 * time.Millisecond) // 1123 is a prime number, prime number makes less bugs.
 	}
-
-	println(resp.String())
 
 	var logs []Log
 	err = resp.JSON(&logs)
