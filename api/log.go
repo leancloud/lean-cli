@@ -6,7 +6,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/leancloud/lean-cli/apps"
 	"github.com/levigross/grequests"
 )
 
@@ -114,26 +113,20 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 }
 
 func fetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
-	region, err := apps.GetAppRegion(appID)
+	client := NewClientByApp(appID)
+	url := "/1.1/engine/logs"
+
+	opts, err := client.options()
 	if err != nil {
 		return nil, err
 	}
-
-	url := NewClientByRegion(region).GetBaseURL() + "/1.1/engine/logs"
-
-	options := &grequests.RequestOptions{
-		Headers: map[string]string{
-			"X-AVOSCloud-Application-Id": appID,
-			"X-AVOSCloud-Master-Key":     masterKey,
-			"Content-Type":               "application/json",
-		},
-		Params: params,
-	}
+	opts.Headers["X-LC-Id"] = appID
+	opts.Params = params
 
 	var resp *grequests.Response
 	retryCount := 0
 	for {
-		resp, err = grequests.Get(url, options)
+		resp, err = client.get(url, opts)
 		if err == nil {
 			break
 		}
