@@ -17,10 +17,9 @@ type Log struct {
 	Type         string `json:"type"`
 	Time         string `json:"time"`
 	GroupName    string `json:"groupName"`
-	Production   int    `json:"production"`
-	OID          string `json:"oid"`
-	Level        string `json:"level"`
-	Instance     string `json:"instance"`
+	Production   int    `json:"prod"`
+	Stream       string `json:"stream"`
+	ID           string `json:"id"`
 }
 
 // LogReceiver is print func interface to PrintLogs
@@ -29,12 +28,12 @@ type LogReceiver func(*Log) error
 // ReceiveLogsByLimit will poll the leanengine's log and print it to the giver io.Writer
 func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isProd bool, group string, limit int, follow bool) error {
 	params := map[string]string{
-		"limit":      strconv.Itoa(limit),
-		"production": "0",
-		"group":      group,
+		"limit": strconv.Itoa(limit),
+		"prod":  "0",
+		"group": group,
 	}
 	if isProd {
-		params["production"] = "1"
+		params["prod"] = "1"
 	}
 
 	for {
@@ -71,14 +70,15 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 // ReceiveLogsByRange will poll the leanengine's log and print it to the giver io.Writer
 func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from time.Time, to time.Time) error {
 	params := map[string]string{
-		"ascend":     "true",
-		"since":      from.UTC().Format("2006-01-02T15:04:05.000000000Z"),
-		"production": "0",
-		"group":      group,
-		"limit":      "1000",
+		"ascend": "true",
+		"since":  from.UTC().Format("2006-01-02T15:04:05.000000000Z"),
+		"prod":   "0",
+		"group":  group,
+		"limit":  "1000",
 	}
+
 	if isProd {
-		params["production"] = "1"
+		params["prod"] = "1"
 	}
 
 	for {
@@ -119,7 +119,7 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 		return nil, err
 	}
 
-	url := NewClientByRegion(region).GetBaseURL() + "/1.1/tables/EngineLogs"
+	url := NewClientByRegion(region).GetBaseURL() + "/1.1/engine/logs"
 
 	options := &grequests.RequestOptions{
 		Headers: map[string]string{
@@ -128,6 +128,11 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 			"Content-Type":               "application/json",
 		},
 		Params: params,
+	}
+
+	println(url)
+	for k, v := range options.Params {
+		println(k, v)
 	}
 
 	var resp *grequests.Response
@@ -143,6 +148,8 @@ func fetchLogs(appID string, masterKey string, params map[string]string, isProd 
 		retryCount++
 		time.Sleep(1123 * time.Millisecond) // 1123 is a prime number, prime number makes less bugs.
 	}
+
+	println(resp.String())
 
 	var logs []Log
 	err = resp.JSON(&logs)
