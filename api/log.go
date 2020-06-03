@@ -27,9 +27,9 @@ type LogReceiver func(*Log) error
 // ReceiveLogsByLimit will poll the leanengine's log and print it to the giver io.Writer
 func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isProd bool, group string, limit int, follow bool) error {
 	params := map[string]string{
-		"limit": strconv.Itoa(limit),
-		"prod":  "0",
-		"group": group,
+		"limit":     strconv.Itoa(limit),
+		"prod":      "0",
+		"groupName": group,
 	}
 	if isProd {
 		params["prod"] = "1"
@@ -69,11 +69,11 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 // ReceiveLogsByRange will poll the leanengine's log and print it to the giver io.Writer
 func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from time.Time, to time.Time) error {
 	params := map[string]string{
-		"ascend": "true",
-		"since":  from.UTC().Format("2006-01-02T15:04:05.000000000Z"),
-		"prod":   "0",
-		"group":  group,
-		"limit":  "1000",
+		"ascend":    "true",
+		"since":     from.UTC().Format("2006-01-02T15:04:05.000000000Z"),
+		"prod":      "0",
+		"groupName": group,
+		"limit":     "1000",
 	}
 
 	if isProd {
