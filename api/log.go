@@ -37,10 +37,6 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 
 	logIDSet := map[string]bool{}
 	for {
-		for k, v := range params {
-			println(k, v)
-		}
-
 		logs, err := fetchLogs(appID, masterKey, params, isProd)
 		if err != nil {
 			return err
