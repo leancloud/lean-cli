@@ -35,7 +35,7 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 		params["prod"] = "1"
 	}
 
-	uniqueLogs := map[string]bool{}
+	logIDSet := map[string]bool{}
 	for {
 		for k, v := range params {
 			println(k, v)
@@ -48,10 +48,10 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 
 		for i := len(logs) - 1; i >= 0; i-- {
 			log := logs[i]
-			if _, ok := uniqueLogs[log.ID]; ok {
+			if _, ok := logIDSet[log.ID]; ok {
 				continue
 			}
-			uniqueLogs[log.ID] = true
+			logIDSet[log.ID] = true
 			err = printer(&log)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
