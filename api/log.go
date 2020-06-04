@@ -95,36 +95,31 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 		params["to"] = to.UTC().Format("2006-01-02T15:04:05.000000000Z")
 	}
 
-	for {
-		logs, err := fetchLogs(appID, masterKey, params, isProd)
+	logs, err := fetchLogs(appID, masterKey, params, isProd)
+	if err != nil {
+		return err
+	}
+	start := 0
+	end := len(logs)
+	if (to != (time.Time{}) && from == (time.Time{})) ||
+		(from != (time.Time{}) && to != (time.Time{}) && from.After(to)) {
+		start = len(logs) - 1
+		end = -1
+	}
+	for i := start; i != end; {
+		log := logs[i]
+		err = printer(&log)
 		if err != nil {
-			return err
+			fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
 		}
-		for _, log := range logs {
-			logTime, err := time.Parse("2006-01-02T15:04:05.999999999Z", log.Time)
-			if err != nil {
-				return err
-			}
-			if to != (time.Time{}) && logTime.After(to) {
-				// reached the end
-				return nil
-			}
-
-			err = printer(&log)
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
-			}
-		}
-
-		if len(logs) == 0 {
-			// no more logs
-			return nil
-		}
-
-		if len(logs) > 0 {
-			params["since"] = logs[len(logs)-1].Time
+		if start < end {
+			i++
+		} else {
+			i--
 		}
 	}
+
+	return nil
 }
 
 func fetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
