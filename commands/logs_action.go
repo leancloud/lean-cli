@@ -79,7 +79,7 @@ func logsAction(c *cli.Context) error {
 		return cli.NewExitError("format must be json or default.", 1)
 	}
 
-	if from != (time.Time{}) {
+	if from != (time.Time{}) || to != (time.Time{}) {
 		return api.ReceiveLogsByRange(printer, info.AppID, info.MasterKey, isProd, groupName, from, to)
 	}
 	return api.ReceiveLogsByLimit(printer, info.AppID, info.MasterKey, isProd, groupName, limit, follow)

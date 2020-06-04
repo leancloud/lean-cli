@@ -35,14 +35,23 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 		params["prod"] = "1"
 	}
 
+	uniqueLogs := map[string]bool{}
 	for {
+		for k, v := range params {
+			println(k, v)
+		}
+
 		logs, err := fetchLogs(appID, masterKey, params, isProd)
 		if err != nil {
 			return err
 		}
-		for i := len(logs); i > 0; i-- {
-			log := logs[i-1]
 
+		for i := len(logs) - 1; i >= 0; i-- {
+			log := logs[i]
+			if _, ok := uniqueLogs[log.ID]; ok {
+				continue
+			}
+			uniqueLogs[log.ID] = true
 			err = printer(&log)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
@@ -57,8 +66,9 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 		delete(params, "limit")
 
 		if len(logs) > 0 {
-			params["since"] = logs[0].Time
+			params["to"] = logs[0].Time
 		}
+		params["from"] = time.Now().UTC().Format("2006-01-02T15:04:05.000000000Z")
 
 		time.Sleep(5 * time.Second)
 	}
@@ -69,8 +79,6 @@ func ReceiveLogsByLimit(printer LogReceiver, appID string, masterKey string, isP
 // ReceiveLogsByRange will poll the leanengine's log and print it to the giver io.Writer
 func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isProd bool, group string, from time.Time, to time.Time) error {
 	params := map[string]string{
-		"ascend":    "true",
-		"since":     from.UTC().Format("2006-01-02T15:04:05.000000000Z"),
 		"prod":      "0",
 		"groupName": group,
 		"limit":     "1000",
@@ -78,6 +86,13 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 
 	if isProd {
 		params["prod"] = "1"
+	}
+
+	if from != (time.Time{}) {
+		params["from"] = from.UTC().Format("2006-01-02T15:04:05.000000000Z")
+	}
+	if to != (time.Time{}) {
+		params["to"] = to.UTC().Format("2006-01-02T15:04:05.000000000Z")
 	}
 
 	for {
