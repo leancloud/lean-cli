@@ -77,7 +77,6 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 	params := map[string]string{
 		"prod":      "0",
 		"groupName": group,
-		"limit":     "1000",
 	}
 
 	if isProd {
@@ -85,37 +84,71 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 	}
 
 	if from != (time.Time{}) {
-		params["from"] = from.UTC().Format("2006-01-02T15:04:05.000000000Z")
+		from = from.UTC()
+		params["from"] = from.Format("2006-01-02T15:04:05.000000000Z")
 	}
 	if to != (time.Time{}) {
-		params["to"] = to.UTC().Format("2006-01-02T15:04:05.000000000Z")
+		to = to.UTC()
+		params["to"] = to.Format("2006-01-02T15:04:05.000000000Z")
 	}
 
-	logs, err := fetchLogs(appID, masterKey, params, isProd)
-	if err != nil {
-		return err
-	}
-	start := 0
-	end := len(logs)
-	if (to != (time.Time{}) && from == (time.Time{})) ||
-		(from != (time.Time{}) && to != (time.Time{}) && from.After(to)) {
-		start = len(logs) - 1
-		end = -1
-	}
-	for i := start; i != end; {
-		log := logs[i]
-		err = printer(&log)
+	logIDSet := map[string]bool{}
+	for {
+		logs, err := fetchLogs(appID, masterKey, params, isProd)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
+			return err
 		}
-		if start < end {
-			i++
+
+		if from.After(to) {
+			// 反转，比倒序遍历好看点
+			for i, j := 0, len(logs)-1; i < j; i, j = i+1, j-1 {
+				logs[i], logs[j] = logs[j], logs[i]
+			}
+		}
+
+		// 去重后的日志数量
+		uniqueLogsCount := 0
+		for i := 0; i < len(logs); i++ {
+			log := logs[i]
+
+			logTime, err := time.Parse("2006-01-02T15:04:05.999999999Z", log.Time)
+			if err != nil {
+				return err
+			}
+
+			if from.Before(to) {
+				if logTime.Before(from) || logTime.After(to) {
+					println("before", logTime.String(), from.String(), to.String())
+					return nil
+				}
+			} else {
+				if logTime.Before(to) || logTime.After(from) {
+					println("after", logTime.String(), from.String(), to.String())
+					return nil
+				}
+			}
+
+			if _, ok := logIDSet[log.ID]; ok {
+				continue
+			}
+			logIDSet[log.ID] = true
+			uniqueLogsCount++
+			err = printer(&log)
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
+			}
+		}
+
+		if uniqueLogsCount == 0 {
+			return nil
+		}
+
+		if from != (time.Time{}) {
+			params["from"] = logs[len(logs)-1].Time
 		} else {
-			i--
+			params["to"] = logs[len(logs)-1].Time
 		}
 	}
-
-	return nil
 }
 
 func fetchLogs(appID string, masterKey string, params map[string]string, isProd bool) ([]Log, error) {
