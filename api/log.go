@@ -92,6 +92,13 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 		params["to"] = to.Format("2006-01-02T15:04:05.000000000Z")
 	}
 
+	// 边界
+	min := from
+	max := to
+	if from.After(to) {
+		min, max = max, min
+	}
+
 	logIDSet := map[string]bool{}
 	for {
 		logs, err := fetchLogs(appID, masterKey, params, isProd)
@@ -116,16 +123,8 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 				return err
 			}
 
-			if from.Before(to) {
-				if logTime.Before(from) || logTime.After(to) {
-					println("before", logTime.String(), from.String(), to.String())
-					return nil
-				}
-			} else {
-				if logTime.Before(to) || logTime.After(from) {
-					println("after", logTime.String(), from.String(), to.String())
-					return nil
-				}
+			if logTime.Before(min) || logTime.After(max) {
+				return nil
 			}
 
 			if _, ok := logIDSet[log.ID]; ok {
