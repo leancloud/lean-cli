@@ -83,34 +83,17 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 		params["prod"] = "1"
 	}
 
-	if from != (time.Time{}) {
-		from = from.UTC()
-		params["from"] = from.Format("2006-01-02T15:04:05.000000000Z")
+	params["from"] = from.UTC().Format("2006-01-02T15:04:05.000000000Z")
+	if to == (time.Time{}) {
+		to = time.Now()
 	}
-	if to != (time.Time{}) {
-		to = to.UTC()
-		params["to"] = to.Format("2006-01-02T15:04:05.000000000Z")
-	}
-
-	// 边界
-	min := from
-	max := to
-	if from.After(to) {
-		min, max = max, min
-	}
+	params["to"] = to.UTC().Format("2006-01-02T15:04:05.000000000Z")
 
 	logIDSet := map[string]bool{}
 	for {
 		logs, err := fetchLogs(appID, masterKey, params, isProd)
 		if err != nil {
 			return err
-		}
-
-		if from.After(to) {
-			// 反转，比倒序遍历好看点
-			for i, j := 0, len(logs)-1; i < j; i, j = i+1, j-1 {
-				logs[i], logs[j] = logs[j], logs[i]
-			}
 		}
 
 		// 去重后的日志数量
@@ -123,7 +106,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 				return err
 			}
 
-			if logTime.Before(min) || logTime.After(max) {
+			if logTime.After(to) {
 				return nil
 			}
 
@@ -132,6 +115,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 			}
 			logIDSet[log.ID] = true
 			uniqueLogsCount++
+
 			err = printer(&log)
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "error \"%v\" while parsing log: %v\r\n", err, log)
@@ -142,11 +126,7 @@ func ReceiveLogsByRange(printer LogReceiver, appID string, masterKey string, isP
 			return nil
 		}
 
-		if from != (time.Time{}) {
-			params["from"] = logs[len(logs)-1].Time
-		} else {
-			params["to"] = logs[len(logs)-1].Time
-		}
+		params["from"] = logs[len(logs)-1].Time
 	}
 }
 

@@ -79,8 +79,8 @@ func logsAction(c *cli.Context) error {
 		return cli.NewExitError("format must be json or default.", 1)
 	}
 
-	if from != (time.Time{}) || to != (time.Time{}) {
-		// 如果包含 from 或 to，则使用范围查询，此时忽略到 limit
+	if from != (time.Time{}) {
+		// 如果包含 from，则使用范围查询，此时忽略到 limit
 		return api.ReceiveLogsByRange(printer, info.AppID, info.MasterKey, isProd, groupName, from, to)
 	}
 	return api.ReceiveLogsByLimit(printer, info.AppID, info.MasterKey, isProd, groupName, limit, follow)
