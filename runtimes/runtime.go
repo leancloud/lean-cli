@@ -185,74 +185,39 @@ func lookupBin(fallbacks []string) (string, error) {
 }
 
 func newPythonRuntime(projectPath string) (*Runtime, error) {
-	// TODO: reafactor this shit
-	if config, err := getEngineConfig(projectPath); err == nil {
-		if config.CMD != "" {
-			return newPythonRuntimeFromEngineConfig(projectPath, config)
-		}
-	}
-	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".python-version"))
-	if err != nil {
-		if !os.IsNotExist(err) {
-			return nil, err
-		}
-
-		execName := "python2.7"
-		content, err = ioutil.ReadFile(filepath.Join(projectPath, "runtime.txt"))
-		if err != nil {
-			if !os.IsNotExist(err) {
-				return nil, err
-			}
-			// the default content
-			content = []byte("python-2.7")
-		}
-		if strings.HasPrefix(string(content), "python-2.7") {
-			execName, err = lookupBin([]string{"python2.7", "python2", "python"})
-			if err != nil {
-				return nil, err
-			}
-		} else if strings.HasPrefix(string(content), "python-3.5") {
-			execName, err = lookupBin([]string{"python3.5", "python3", "python"})
-			if err != nil {
-				return nil, err
-			}
+	runtime := func(version string) *Runtime {
+		var python string
+		if version == "" {
+			python = "python"
 		} else {
-			return nil, errors.New("invalid python runtime.txt format, only `python-2.7` and `python-3.5` were allowed")
+			parts := strings.SplitN(version, ".", 3)
+			major, minor := parts[0], parts[1]
+			python, _ = lookupBin([]string{"python"+major+"."+minor, "python"+major, "python"})
 		}
-
 		return &Runtime{
 			ProjectPath: projectPath,
 			Name:        "python",
-			Exec:        execName,
+			Exec:        python,
 			Args:        []string{"wsgi.py"},
 			Errors:      make(chan error),
-		}, nil
+		}
 	}
-	pythonVersion := string(content)
-	if !(strings.HasPrefix(pythonVersion, "2.") || strings.HasPrefix(pythonVersion, "3.")) {
-		return nil, errors.New("Wrong pyenv version. We only support CPython. Please check and correct .python-version")
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, ".python-version"))
+	if err == nil {
+		pythonVersion := string(content)
+		if strings.HasPrefix(pythonVersion, "2.") || strings.HasPrefix(pythonVersion, "3.") {
+			logp.Info("pyenv detected. Please make sure pyenv is configured properly.")
+			return runtime(pythonVersion), nil
+		} else {
+			return nil, errors.New("Wrong pyenv version. We only support CPython. Please check and correct .python-version")
+		}
+	} else {
+		if os.IsNotExist(err) {
+			return runtime(""), nil
+		} else {
+			return nil, err
+		}
 	}
-	logp.Info("pyenv detected. Please make sure pyenv is configured properly.")
-
-	return &Runtime{
-		ProjectPath: projectPath,
-		Name:        "python",
-		Exec:        "python",
-		Args:        []string{"wsgi.py"},
-		Errors:      make(chan error),
-	}, nil
-}
-
-func newPythonRuntimeFromEngineConfig(projectPath string, config *engineConfig) (*Runtime, error) {
-	exec, args := config.parseCMD()
-	return &Runtime{
-		ProjectPath: projectPath,
-		Name:        "python",
-		Exec:        exec,
-		Args:        args,
-		Errors:      make(chan error),
-	}, nil
-
 }
 
 func newNodeRuntime(projectPath string) (*Runtime, error) {
