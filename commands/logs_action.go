@@ -80,6 +80,7 @@ func logsAction(c *cli.Context) error {
 	}
 
 	if from != (time.Time{}) {
+		// 如果包含 from，则使用范围查询，此时忽略到 limit
 		return api.ReceiveLogsByRange(printer, info.AppID, info.MasterKey, isProd, groupName, from, to)
 	}
 	return api.ReceiveLogsByLimit(printer, info.AppID, info.MasterKey, isProd, groupName, limit, follow)
@@ -94,25 +95,25 @@ func getDefaultLogPrinter(isProd bool) api.LogReceiver {
 			return err
 		}
 		content := strings.TrimSuffix(log.Content, "\n")
-		level := log.Level
-		var levelSprintf func(string, ...interface{}) string
-		if level == "info" {
-			levelSprintf = color.New(color.BgGreen, color.FgWhite).SprintfFunc()
+		stream := log.Stream
+		var streamSprintf func(string, ...interface{}) string
+		if stream == "stdout" {
+			streamSprintf = color.New(color.BgGreen, color.FgWhite).SprintfFunc()
 		} else {
-			levelSprintf = color.New(color.BgRed, color.FgWhite).SprintfFunc()
+			streamSprintf = color.New(color.BgRed, color.FgWhite).SprintfFunc()
 		}
 		var instance string
-		if log.Instance == "" {
+		if log.InstanceName == "" {
 			instance = "    "
 		} else {
-			instance = log.Instance
+			instance = log.InstanceName
 		}
 
 		if isProd {
-			fmt.Fprintf(color.Output, "%s %s %s\r\n", instance, levelSprintf(" %s ", formatTime(&t)), content)
+			fmt.Fprintf(color.Output, "%s %s %s\r\n", instance, streamSprintf(" %s ", formatTime(&t)), content)
 		} else {
 			// no instance column
-			fmt.Fprintf(color.Output, "%s %s\r\n", levelSprintf(" %s ", formatTime(&t)), content)
+			fmt.Fprintf(color.Output, "%s %s\r\n", streamSprintf(" %s ", formatTime(&t)), content)
 		}
 
 		return nil
