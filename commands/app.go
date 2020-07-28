@@ -276,7 +276,7 @@ func Run(args []string) {
 				cli.IntFlag{
 					Name:  "db",
 					Usage: "Number of LeanCache DB",
-					Value: -1,
+					Value: 0,
 				},
 				cli.StringFlag{
 					Name:  "name",
