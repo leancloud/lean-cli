@@ -90,13 +90,8 @@ type LeanCacheInstance struct {
 func GetInstanceList(appID string) ([]*LeanCacheInstance, error) {
 	client := NewClientByApp(appID)
 
-	opts, err := client.options()
-	if err != nil {
-		return nil, err
-	}
-
 	url := fmt.Sprintf("/1.1/leandb/apps/%s/clusters", appID)
-	resp, err := client.get(url, opts)
+	resp, err := client.get(url, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -115,15 +110,10 @@ func GetInstanceList(appID string) ([]*LeanCacheInstance, error) {
 func ExecuteInstanceCommand(appID string, instance string, db int, command string) (*ExecuteCacheCommandResult, error) {
 	client := NewClientByApp(appID)
 
-	opts, err := client.options()
-	if err != nil {
-		return nil, err
-	}
-
 	url := fmt.Sprintf("/1.1/leandb/clusters/%s/user-command/exec", instance)
 	resp, err := client.post(url, map[string]interface{}{
 		"db":      db,
-		"command": command}, opts)
+		"command": command}, nil)
 
 	if err != nil {
 		return nil, err
