@@ -1,4 +1,4 @@
-name: lean-cli-co
+name: Test
 
 on:
   push:
