@@ -19,7 +19,7 @@ Install the toolchains:
 
 > You can install them via homebrew
 
-Clone this repo to anywhere you want, then have a look at `Makefile`, Then run `make all` to build releases.
+Clone this repo then run `make all` to build releases.
 
 Please run `go mod tidy` and `go mod vendor` to make vendored copy of dependencies after importing new dependencies.
 
