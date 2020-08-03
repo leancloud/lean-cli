@@ -78,16 +78,16 @@ func ExecuteCacheCommand(appID string, instance string, db int, command string) 
 	return result, err
 }
 
-// LeanCacheInstance is structure of LeanCache DB instannce
-type LeanCacheInstance struct {
+// LeanCacheCluster is structure of LeanCache DB instannce
+type LeanCacheCluster struct {
 	ID        int    `json:"id"`
 	Name      string `json:"name"`
 	Runtime   string `json:"runtime"`
 	NodeQuota string `json:"nodeQuota"`
 }
 
-// GetInstanceList returns current app's LeanCache instances (NEW)
-func GetInstanceList(appID string) ([]*LeanCacheInstance, error) {
+// GetClusterList returns current app's LeanCache instances (NEW)
+func GetClusterList(appID string) ([]*LeanCacheCluster, error) {
 	client := NewClientByApp(appID)
 
 	url := fmt.Sprintf("/1.1/leandb/apps/%s/clusters", appID)
@@ -96,7 +96,7 @@ func GetInstanceList(appID string) ([]*LeanCacheInstance, error) {
 		return nil, err
 	}
 
-	var result []*LeanCacheInstance
+	var result []*LeanCacheCluster
 	err = resp.JSON(&result)
 
 	if err != nil {
@@ -106,8 +106,8 @@ func GetInstanceList(appID string) ([]*LeanCacheInstance, error) {
 	return result, err
 }
 
-// ExecuteInstanceCommand will send command to LeanCache and excute it
-func ExecuteInstanceCommand(appID string, instance string, db int, command string) (*ExecuteCacheCommandResult, error) {
+// ExecuteClusterCommand will send command to LeanCache and excute it
+func ExecuteClusterCommand(appID string, instance string, db int, command string) (*ExecuteCacheCommandResult, error) {
 	client := NewClientByApp(appID)
 
 	url := fmt.Sprintf("/1.1/leandb/clusters/%s/user-command/exec", instance)
@@ -127,7 +127,7 @@ func ExecuteInstanceCommand(appID string, instance string, db int, command strin
 
 // GetVersion returns current app use LeanDB or LeanCache
 func GetVersion(appID string) (int, error) {
-	_, err := GetInstanceList(appID)
+	_, err := GetClusterList(appID)
 	if err != nil {
 		_, err := GetCacheList(appID)
 		if err != nil {

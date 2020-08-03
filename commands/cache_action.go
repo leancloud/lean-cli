@@ -208,7 +208,7 @@ func runCacheAction(appID string, instanceName string, db int, command string) e
 }
 
 func runInstanceAction(appID string, instanceName string, db int, command string) error {
-	instances, err := api.GetInstanceList(appID)
+	instances, err := api.GetClusterList(appID)
 
 	if err != nil {
 		return err
@@ -239,7 +239,7 @@ func runInstanceAction(appID string, instanceName string, db int, command string
 			return err
 		}
 	} else {
-		result, err := api.ExecuteInstanceCommand(appID, instanceName, db, command)
+		result, err := api.ExecuteClusterCommand(appID, instanceName, db, command)
 		if e, ok := err.(api.Error); ok {
 			fmt.Println(e.Content)
 			return cli.NewExitError("", 1)
@@ -256,8 +256,8 @@ func runInstanceAction(appID string, instanceName string, db int, command string
 	return nil
 }
 
-func selectInstance(cacheList []*api.LeanCacheInstance) (*api.LeanCacheInstance, error) {
-	var selectedInstance *api.LeanCacheInstance
+func selectInstance(cacheList []*api.LeanCacheCluster) (*api.LeanCacheCluster, error) {
+	var selectedInstance *api.LeanCacheCluster
 	question := wizard.Question{
 		Content: "Please choose a LeanCache instance",
 		Answers: []wizard.Answer{},
@@ -267,7 +267,7 @@ func selectInstance(cacheList []*api.LeanCacheInstance) (*api.LeanCacheInstance,
 			Content: fmt.Sprintf("%s - %s", instance.Name, instance.NodeQuota),
 		}
 		// for scope problem
-		func(cache *api.LeanCacheInstance) {
+		func(cache *api.LeanCacheCluster) {
 			answer.Handler = func() {
 				selectedInstance = instance
 			}
@@ -312,7 +312,7 @@ func enterLeanDBREPL(appID string, instance string, db int) error {
 		} else if strings.HasPrefix(line, "select ") {
 		}
 
-		result, err := api.ExecuteInstanceCommand(appID, instance, db, line)
+		result, err := api.ExecuteClusterCommand(appID, instance, db, line)
 		if e, ok := err.(api.Error); ok {
 			fmt.Println(e.Content)
 		} else if err != nil {

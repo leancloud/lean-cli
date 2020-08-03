@@ -55,7 +55,7 @@ func runCacheListAction(appID string) error {
 }
 
 func runInstanceListAction(appID string) error {
-	instances, err := api.GetInstanceList(appID)
+	instances, err := api.GetClusterList(appID)
 	if err != nil {
 		return err
 	}
