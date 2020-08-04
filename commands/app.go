@@ -327,13 +327,11 @@ func Run(args []string) {
 
 	app.Before = func(c *cli.Context) error {
 		disableGA, ok := os.LookupEnv("NO_ANALYTICS")
-		var args []string
 		if !ok || disableGA == "false" {
 			args = []string{"--_collect-stats"}
+			args = append(args, c.Args()...)
+			_ = exec.Command(os.Args[0], args...).Start()
 		}
-		args = append(args, c.Args()...)
-		err := exec.Command(os.Args[0], args...).Start()
-		_ = err
 		return nil
 	}
 
