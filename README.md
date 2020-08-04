@@ -9,6 +9,10 @@ Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
 - via `homebrew`: `$ brew install lean-cli`
 - via `https://releases.leanapp.cn/#/leancloud/lean-cli/releases`(In case of your connection with GitHub cracked)
 
+lean-cli will send stastics information such as your os version and lean-cli version to Google Analytics.
+This stastics information helps us to improve LeanEngine services.
+To opt out, you can set the environment variable `NO_ANALYTICS` to `true`.
+
 ## Develop
 
 Install the toolchains:
@@ -23,7 +27,7 @@ Clone this repo then run `make all` to build releases.
 
 Please run `go mod tidy` and `go mod vendor` to make vendored copy of dependencies after importing new dependencies.
 
-Ensure all codes is formated by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
+Ensure all codes is formatted by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
 
 ## Release
 
