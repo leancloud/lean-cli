@@ -2,6 +2,7 @@ package commands
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strings"
 	"time"
@@ -12,23 +13,27 @@ import (
 	"github.com/urfave/cli"
 )
 
-func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
-	from := time.Time{}
-	var err error
-	if c.String("from") != "" {
-		from, err = time.ParseInLocation("2006-01-02", c.String("from"), time.Now().Location())
-		if err != nil {
-			err = fmt.Errorf("from format error: %s. The correct format is YYYY-MM-DD, e.g., 1926-08-17", c.String("from"))
-			return time.Time{}, time.Time{}, err
-		}
+func parseDateString(str string) (time.Time, error) {
+	if str == "" {
+		return time.Time{}, nil
+	} else if strings.Contains(str, "T") {
+		return time.Parse(time.RFC3339, str)
+	} else {
+		return time.ParseInLocation("2006-01-02", str, time.Now().Location())
 	}
-	to := time.Time{}
-	if c.String("to") != "" {
-		to, err = time.ParseInLocation("2006-01-02", c.String("to"), time.Now().Location())
-		if err != nil {
-			err = fmt.Errorf("to format error: %s. The correct format is YYYY-MM-DD, e.g., 1926-08-17", c.String("to"))
-			return time.Time{}, time.Time{}, err
-		}
+}
+
+func extractDateParams(c *cli.Context) (time.Time, time.Time, error) {
+	dateFormat := "format error. The correct format is YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05Z"
+	from, err := parseDateString(c.String("from"))
+	if err != nil {
+		err = errors.New("from " + dateFormat)
+		return time.Time{}, time.Time{}, err
+	}
+	to, err := parseDateString(c.String("to"))
+	if err != nil {
+		err = errors.New("to " + dateFormat)
+		return time.Time{}, time.Time{}, err
 	}
 	return from, to, nil
 }
