@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strconv"
@@ -221,15 +222,15 @@ func getCommentMessage(message string) string {
 		_, err := exec.LookPath("git")
 
 		if err == nil {
-			messageBuf, err := exec.Command("git", "log", "-1", "--no-color", "--pretty=%B").CombinedOutput()
-			messageStr := string(messageBuf)
+			if _, err := os.Stat("./.git"); !os.IsNotExist(err) {
+				messageBuf, err := exec.Command("git", "log", "-1", "--no-color", "--pretty=%B").CombinedOutput()
+				messageStr := string(messageBuf)
 
-			if err != nil && strings.Contains(messageStr, "Not a git repository") {
-				// Ignore
-			} else if err != nil {
-				logp.Error(err)
-			} else {
-				message = "WIP on: " + strings.TrimSpace(messageStr)
+				if err != nil {
+					logp.Error("failed to load git message: ", err)
+				} else {
+					message = "WIP on: " + strings.TrimSpace(messageStr)
+				}
 			}
 		}
 	}
