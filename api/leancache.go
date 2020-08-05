@@ -77,3 +77,63 @@ func ExecuteCacheCommand(appID string, instance string, db int, command string) 
 
 	return result, err
 }
+
+// LeanCacheCluster is structure of LeanCache DB instannce
+type LeanCacheCluster struct {
+	ID        int    `json:"id"`
+	Name      string `json:"name"`
+	Runtime   string `json:"runtime"`
+	NodeQuota string `json:"nodeQuota"`
+}
+
+// GetClusterList returns current app's LeanCache instances (NEW)
+func GetClusterList(appID string) ([]*LeanCacheCluster, error) {
+	client := NewClientByApp(appID)
+
+	url := fmt.Sprintf("/1.1/leandb/apps/%s/clusters", appID)
+	resp, err := client.get(url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*LeanCacheCluster
+	err = resp.JSON(&result)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return result, err
+}
+
+// ExecuteClusterCommand will send command to LeanCache and excute it
+func ExecuteClusterCommand(appID string, instance string, db int, command string) (*ExecuteCacheCommandResult, error) {
+	client := NewClientByApp(appID)
+
+	url := fmt.Sprintf("/1.1/leandb/clusters/%s/user-command/exec", instance)
+	resp, err := client.post(url, map[string]interface{}{
+		"db":      db,
+		"command": command}, nil)
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := new(ExecuteCacheCommandResult)
+	err = resp.JSON(result)
+
+	return result, err
+}
+
+// GetVersion returns current app use LeanDB or LeanCache
+func GetVersion(appID string) (int, error) {
+	_, err := GetClusterList(appID)
+	if err != nil {
+		_, err := GetCacheList(appID)
+		if err != nil {
+			return -1, err
+		}
+		return 0, nil
+	}
+	return 1, nil
+}
