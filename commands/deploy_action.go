@@ -227,7 +227,7 @@ func getCommentMessage(message string) string {
 				messageStr := string(messageBuf)
 
 				if err != nil {
-					logp.Error(err)
+					logp.Error("failed to load git message: ", err)
 				} else {
 					message = "WIP on: " + strings.TrimSpace(messageStr)
 				}
