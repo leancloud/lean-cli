@@ -1,6 +1,6 @@
 Package: lean-cli
 Section: devel
-Version: 0.22.0
+Version: 0.23.0
 Priority: optional
 Architecture: i386
 Maintainer: LeanCloud <support@leancloud.rocks>
