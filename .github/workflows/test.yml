@@ -32,3 +32,10 @@ jobs:
 
       - name: Test
         run: make test
+        env:
+          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          TEST_REGION:   ${{ secrets.TEST_REGION   }}
+          REPO_URL:      ${{ secrets.REPO_URL      }}
+          TEST_GROUP:    ${{ secrets.TEST_GROUP    }}
+          TEST_APPID:    ${{ secrets.TEST_APPID    }}
