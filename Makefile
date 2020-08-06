@@ -61,7 +61,7 @@ install: resources
 	GOOS=$(GOOS) go install github.com/leancloud/lean-cli/lean
 
 test:
-	sh test.sh
+	go test github.com/leancloud/lean-cli/lean -v
 
 resources:
 	(cd console; $(MAKE))

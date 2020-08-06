@@ -16,7 +16,7 @@ jobs:
       - name: Setup Dependencies
         run: |
           sudo apt-get update -y -qq
-          sudo apt-get install -y -qq wixl
+          sudo apt-get install -y -qq wixl git
         
       - name: Setup Go 1.x
         uses: actions/setup-go@v2
@@ -32,3 +32,10 @@ jobs:
 
       - name: Test
         run: make test
+        env:
+          TEST_USERNAME: "support+leanclici@leancloud.rocks"
+          TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
+          TEST_REGION:   "US"
+          REPO_URL:      "https://github.com/leancloud/node-js-getting-started.git"
+          TEST_GROUP:    "web"
+          TEST_APPID:    "uetxUzhx9aXdaGiRXRFt0py4-MdYXbMMI"
