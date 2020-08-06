@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -17,23 +18,28 @@ func TestMain(m *testing.M) {
 
 	dir, err := ioutil.TempDir("", "*")
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Println(err)
 		panic(err)
 	}
 
 	if err := os.Chdir(dir); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Println(err)
 		panic(err)
 	}
 
-	if err := exec.Command("git", "clone", repoURL, "lean-cli-deployment").Run(); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+	gitExec, err := exec.LookPath("git")
+	if err != nil {
+		fmt.Println("can't find git executable file")
+		panic(errors.New("can't find git executable file"))
+	}
+	if err := exec.Command(gitExec, "clone", repoURL, "lean-cli-deployment").Run(); err != nil {
+		fmt.Println(err)
 		panic(err)
 	}
 
 	gitDir := filepath.Join(dir, "lean-cli-deployment")
 	if err := os.Chdir(gitDir); err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Println(err)
 		panic(err)
 	}
 
