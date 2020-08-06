@@ -33,9 +33,9 @@ jobs:
       - name: Test
         run: make test
         env:
-          TEST_USERNAME: ${{ secrets.TEST_USERNAME }}
+          TEST_USERNAME: "support+leanclici@leancloud.rocks"
           TEST_PASSWORD: ${{ secrets.TEST_PASSWORD }}
-          TEST_REGION:   ${{ secrets.TEST_REGION   }}
-          REPO_URL:      ${{ secrets.REPO_URL      }}
-          TEST_GROUP:    ${{ secrets.TEST_GROUP    }}
-          TEST_APPID:    ${{ secrets.TEST_APPID    }}
+          TEST_REGION:   "US"
+          REPO_URL:      "https://github.com/leancloud/node-js-getting-started.git"
+          TEST_GROUP:    "web"
+          TEST_APPID:    "uetxUzhx9aXdaGiRXRFt0py4-MdYXbMMI"
