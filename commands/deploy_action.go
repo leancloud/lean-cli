@@ -26,6 +26,7 @@ func deployAction(c *cli.Context) error {
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
 	noDepsCache := c.Bool("no-cache")
+	overwriteFuncs := c.Bool("overwrite-functions")
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
@@ -81,6 +82,7 @@ func deployAction(c *cli.Context) error {
 
 	opts := &api.DeployOptions{
 		NoDepsCache: noDepsCache,
+		OverwriteFuncs: overwriteFuncs,
 		Options:     c.String("options"),
 	}
 

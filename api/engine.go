@@ -38,6 +38,7 @@ type GetGroupsResult struct {
 type DeployOptions struct {
 	Message     string
 	NoDepsCache bool
+	OverwriteFuncs bool
 	Options     string // Additional options in urlencode format
 }
 
@@ -224,6 +225,7 @@ func PutEnvironments(appID string, group string, envs map[string]string) error {
 func prepareDeployParams(options *DeployOptions) (map[string]interface{}, error) {
 	params := map[string]interface{}{
 		"noDependenciesCache": options.NoDepsCache,
+		"overwriteFunctions": options.OverwriteFuncs,
 		"async":               true,
 	}
 

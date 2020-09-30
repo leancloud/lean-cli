@@ -139,6 +139,10 @@ func Run(args []string) {
 					Name:  "no-cache",
 					Usage: "Force download dependencies",
 				},
+				cli.BoolFlag{
+					Name:  "overwrite-functions",
+					Usage: "Overwrite cloud functions with the same name in other groups",
+				},
 				cli.StringFlag{
 					Name:  "leanignore",
 					Usage: "Rule file for ignored files in deployment",
@@ -171,6 +175,10 @@ func Run(args []string) {
 			Usage:  "Publish code from staging to production",
 			Action: wrapAction(publishAction),
 			Flags: []cli.Flag{
+				cli.BoolFlag{
+					Name:  "overwrite-functions",
+					Usage: "Overwrite cloud functions with the same name in other groups",
+				},
 				cli.StringFlag{
 					Name:  "options",
 					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app&atomic=true`)",
