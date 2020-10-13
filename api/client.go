@@ -258,7 +258,7 @@ func getSystemLanguage() string {
 	language, err := jibber_jabber.DetectLanguage()
 
 	if err != nil {
-        logp.Info("unsupported locale setting & set to defaults en_US.UTF-8: ", err)
+        logp.Info("unsupported locale setting & set to default en_US.UTF-8: ", err)
         language = "en"
 	}
 
