@@ -160,6 +160,10 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		logp.Info("Static runtime detected")
 		return newStaticRuntime(projectPath)
 	}
+	if utils.IsFileExists(filepath.Join(projectPath, "go.mod")) {
+		logp.Info("Go runtime detected")
+		return newGoRuntime(projectPath)
+	}
 
 	return &Runtime{
 		ProjectPath: projectPath,
@@ -192,7 +196,7 @@ func newPythonRuntime(projectPath string) (*Runtime, error) {
 		} else {
 			parts := strings.SplitN(version, ".", 3)
 			major, minor := parts[0], parts[1]
-			python, _ = lookupBin([]string{"python"+major+"."+minor, "python"+major, "python"})
+			python, _ = lookupBin([]string{"python" + major + "." + minor, "python" + major, "python"})
 		}
 		return &Runtime{
 			ProjectPath: projectPath,
@@ -314,6 +318,16 @@ func newStaticRuntime(projectPath string) (*Runtime, error) {
 		Name:        "static",
 		Exec:        "npx",
 		Args:        []string{"serve", "--listen=3000"},
+		Errors:      make(chan error),
+	}, nil
+}
+
+func newGoRuntime(projectPath string) (*Runtime, error) {
+	return &Runtime{
+		ProjectPath: projectPath,
+		Name:        "go",
+		Exec:        "go",
+		Args:        []string{"run", "main.go"},
 		Errors:      make(chan error),
 	}, nil
 }
