@@ -269,7 +269,7 @@ func selectInstance(cacheList []*api.LeanCacheCluster) (*api.LeanCacheCluster, e
 		// for scope problem
 		func(cache *api.LeanCacheCluster) {
 			answer.Handler = func() {
-				selectedInstance = instance
+				selectedInstance = cache
 			}
 		}(instance)
 		question.Answers = append(question.Answers, answer)
