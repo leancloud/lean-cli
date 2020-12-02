@@ -53,7 +53,8 @@ func checkUpdate() error {
 	latest := semver.New(strings.TrimPrefix(result.Version, "v"))
 
 	if current.LessThan(*latest) {
-		color.Green("New version found: %s. Update message:\r\n%s \r\nYou can upgrade by: %s", result.Version, result.Message, updateCommand())
+		notice := color.New(color.FgGreen).FprintfFunc()
+		notice(os.Stderr, "New version found: %s. Update message:\r\n%s \r\nYou can upgrade by: %s", result.Version, result.Message, updateCommand())
 	}
 
 	return nil
