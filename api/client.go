@@ -21,9 +21,9 @@ import (
 )
 
 var dashboardBaseUrls = map[regions.Region]string{
-	regions.CN:  "https://leancloud.cn",
-	regions.US:  "https://console.leancloud.app",
-	regions.TAB: "https://tab.leancloud.cn",
+	regions.CN:  "https://cn-n1-console-api.leancloud.cn",
+	regions.US:  "https://us-w1-console-api.leancloud.app",
+	regions.TAB: "https://cn-e1-console-api.leancloud.cn",
 }
 
 var (
@@ -258,8 +258,8 @@ func getSystemLanguage() string {
 	language, err := jibber_jabber.DetectLanguage()
 
 	if err != nil {
-        logp.Info("unsupported locale setting & set to default en_US.UTF-8: ", err)
-        language = "en"
+		logp.Info("unsupported locale setting & set to default en_US.UTF-8: ", err)
+		language = "en"
 	}
 
 	return language
