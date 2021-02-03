@@ -2,11 +2,26 @@ package commands
 
 import (
 	"fmt"
+	"github.com/leancloud/lean-cli/apps"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/urfave/cli"
 )
+
+func msgWithRegion(msg string) string {
+	// If failed to detect the current region, just return the error message as is.
+	appID, err := apps.GetCurrentAppID(".")
+	if err != nil {
+		return msg
+	}
+	region, err := apps.GetAppRegion(appID)
+	if err != nil {
+		return msg
+	}
+	return fmt.Sprintf("User doesn't sign in at region %s.", region)
+}
 
 func wrapAction(action cli.ActionFunc) cli.ActionFunc {
 	prefix := color.RedString("[ERROR]")
@@ -16,7 +31,14 @@ func wrapAction(action cli.ActionFunc) cli.ActionFunc {
 		case nil:
 			return nil
 		case api.Error:
-			return cli.NewExitError(fmt.Sprintf("%s %s", prefix, e.Content), 1)
+			var msg string
+			// Make error message more friendly to users having applications at multi regions.
+			if e.Code == 1 && strings.HasPrefix(e.Content, "User doesn't sign in.") {
+				msg = msgWithRegion(e.Content)
+			} else {
+				msg = e.Content
+			}
+			return cli.NewExitError(fmt.Sprintf("%s %s", prefix, msg), 1)
 		case *cli.ExitError:
 			return e
 		default:
