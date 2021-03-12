@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 
 	"github.com/levigross/grequests"
@@ -36,10 +37,10 @@ type GetGroupsResult struct {
 }
 
 type DeployOptions struct {
-	Message     string
-	NoDepsCache bool
+	Message        string
+	NoDepsCache    bool
 	OverwriteFuncs bool
-	Options     string // Additional options in urlencode format
+	Options        string // Additional options in urlencode format
 }
 
 func deploy(appID string, group string, prod int, params map[string]interface{}) (*grequests.Response, error) {
@@ -58,7 +59,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 	case 1:
 		url = "/1.1/engine/groups/" + group + "/production/version"
 	default:
-		return nil, errors.New("invalid prod value " + string(prod))
+		return nil, errors.New("invalid prod value " + fmt.Sprint(prod))
 	}
 
 	return client.post(url, params, opts)
@@ -225,7 +226,7 @@ func PutEnvironments(appID string, group string, envs map[string]string) error {
 func prepareDeployParams(options *DeployOptions) (map[string]interface{}, error) {
 	params := map[string]interface{}{
 		"noDependenciesCache": options.NoDepsCache,
-		"overwriteFunctions": options.OverwriteFuncs,
+		"overwriteFunctions":  options.OverwriteFuncs,
 		"async":               true,
 	}
 

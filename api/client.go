@@ -88,9 +88,8 @@ func (client *Client) GetBaseURL() string {
 
 	if url, ok := dashboardBaseUrls[region]; ok {
 		return url
-	} else {
-		panic("invalid region")
 	}
+	panic("invalid region")
 }
 
 func (client *Client) options() (*grequests.RequestOptions, error) {
