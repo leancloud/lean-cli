@@ -16,59 +16,24 @@ func cacheListAction(c *cli.Context) error {
 		return err
 	}
 
-	ver, err := api.GetVersion(appID)
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("lean cache version: %d\n", ver)
-
-	switch ver {
-	case 0:
-		return runCacheListAction(appID)
-	case 1:
-		return runInstanceListAction(appID)
-	default:
-		return cli.NewExitError("The app cannot use lean cache list.", 1)
-	}
+	return runClusterListAction(appID)
 }
 
-func runCacheListAction(appID string) error {
-	caches, err := api.GetCacheList(appID)
+func runClusterListAction(appID string) error {
+	clusters, err := api.GetClusterList(appID)
 	if err != nil {
 		return err
 	}
 
-	if len(caches) == 0 {
-		return cli.NewExitError("This app doesn't have any LeanCache instance", 1)
-	}
-
-	t := tabwriter.NewWriter(os.Stdout, 0, 1, 3, ' ', 0)
-
-	fmt.Fprintln(t, "InstanceName\tMaxMemory")
-	for _, cache := range caches {
-		fmt.Fprintf(t, "%s\t%dM\r\n", cache.Instance, cache.MaxMemory)
-	}
-	t.Flush()
-
-	return nil
-}
-
-func runInstanceListAction(appID string) error {
-	instances, err := api.GetClusterList(appID)
-	if err != nil {
-		return err
-	}
-
-	if len(instances) == 0 {
+	if len(clusters) == 0 {
 		return cli.NewExitError("This app doesn't have any LeanDB instance", 1)
 	}
 
 	t := tabwriter.NewWriter(os.Stdout, 0, 1, 3, ' ', 0)
 
 	fmt.Fprintln(t, "InstanceName\tQuota")
-	for _, instance := range instances {
-		fmt.Fprintf(t, "%s\t%s\r\n", instance.Name, instance.NodeQuota)
+	for _, cluster := range clusters {
+		fmt.Fprintf(t, "%s\t%s\r\n", cluster.Name, cluster.NodeQuota)
 	}
 	t.Flush()
 
