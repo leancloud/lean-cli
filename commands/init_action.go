@@ -222,3 +222,8 @@ func initAction(c *cli.Context) error {
 
 	return nil
 }
+
+func initActionNext(c *cli.Context) error {
+	c.Set("region", "CN")
+	return initAction(c)
+}
