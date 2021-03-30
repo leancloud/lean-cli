@@ -52,18 +52,52 @@ type Client struct {
 	CookieJar *cookiejar.Jar
 	Region    regions.Region
 	AppID     string
+	AccessKey string
 }
 
 func NewClientByRegion(region regions.Region) *Client {
+	if version.Distro == "legacy" {
+		return &Client{
+			CookieJar: newCookieJar(),
+			Region:    region,
+		}
+	}
+
+	var accessKey string
+	for k, v := range accessKeyCache.Keys {
+		if v == region {
+			accessKey = k
+		}
+	}
 	return &Client{
-		CookieJar: newCookieJar(),
+		AccessKey: accessKey,
 		Region:    region,
 	}
 }
 
 func NewClientByApp(appID string) *Client {
+	if version.Distro == "legacy" {
+		return &Client{
+			CookieJar: newCookieJar(),
+			AppID:     appID,
+		}
+	}
+
+	region, err := apps.GetAppRegion(appID)
+	if err != nil {
+		return &Client{
+			AppID: appID,
+		}
+	}
+
+	var accessKey string
+	for k, v := range accessKeyCache.Keys {
+		if v == region {
+			accessKey = k
+		}
+	}
 	return &Client{
-		CookieJar: newCookieJar(),
+		AccessKey: accessKey,
 		AppID:     appID,
 	}
 }
@@ -97,23 +131,34 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	if err != nil {
 		panic(err)
 	}
-	cookies := client.CookieJar.Cookies(u)
-	xsrf := ""
-	for _, cookie := range cookies {
-		if cookie.Name == "XSRF-TOKEN" {
-			xsrf = cookie.Value
-			break
+
+	if version.Distro == "legacy" {
+		cookies := client.CookieJar.Cookies(u)
+		xsrf := ""
+		for _, cookie := range cookies {
+			if cookie.Name == "XSRF-TOKEN" {
+				xsrf = cookie.Value
+				break
+			}
 		}
+
+		return &grequests.RequestOptions{
+			Headers: map[string]string{
+				"X-XSRF-TOKEN":    xsrf,
+				"Accept-Language": getSystemLanguage(),
+			},
+			CookieJar:    client.CookieJar,
+			UseCookieJar: true,
+			UserAgent:    "LeanCloud-CLI/" + version.Version,
+		}, nil
 	}
 
 	return &grequests.RequestOptions{
 		Headers: map[string]string{
-			"X-XSRF-TOKEN":    xsrf,
 			"Accept-Language": getSystemLanguage(),
+			"Authorization":   fmt.Sprint("Bearer", client.AccessKey),
 		},
-		CookieJar:    client.CookieJar,
-		UseCookieJar: true,
-		UserAgent:    "LeanCloud-CLI/" + version.Version,
+		UserAgent: "TDS-CLI/" + version.Version,
 	}, nil
 }
 
@@ -146,9 +191,12 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	if err != nil {
 		return nil, err
 	}
-	resp, err = client.checkAndDo2FA(resp)
-	if err != nil {
-		return nil, err
+
+	if version.Distro == "legacy" {
+		resp, err = client.checkAndDo2FA(resp)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	if !resp.Ok {
@@ -158,8 +206,10 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
 	}
 
-	if err = client.CookieJar.Save(); err != nil {
-		return nil, err
+	if version.Distro == "legacy" {
+		if err = client.CookieJar.Save(); err != nil {
+			return nil, err
+		}
 	}
 
 	return resp, nil

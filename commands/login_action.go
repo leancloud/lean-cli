@@ -31,6 +31,21 @@ func inputAccountInfo() (string, string, error) {
 	return *email, *password, err
 }
 
+func inputAcessKey() (string, error) {
+	accessKey := new(string)
+	err := wizard.Ask([]wizard.Question{
+		{
+			Content: "AccessKey: ",
+			Input: &wizard.Input{
+				Result: accessKey,
+				Hidden: false,
+			},
+		},
+	})
+
+	return *accessKey, err
+}
+
 func loginWithPassword(username string, password string, region regions.Region) (*api.GetUserInfoResult, error) {
 	if username == "" || password == "" {
 		var err error
@@ -41,6 +56,18 @@ func loginWithPassword(username string, password string, region regions.Region) 
 	}
 
 	return api.Login(username, password, region)
+}
+
+func loginWithAccessKey(key string, region regions.Region) (*api.GetUserInfoResult, error) {
+	if key == "" {
+		var err error
+		key, err = inputAcessKey()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return api.LoginNext(key, region)
 }
 
 func loginAction(c *cli.Context) error {
@@ -78,5 +105,29 @@ func loginAction(c *cli.Context) error {
 	logp.Info("Login succeeded: ")
 	logp.Infof("Username: %s\r\n", userInfo.UserName)
 	logp.Infof("Email: %s\r\n", userInfo.Email)
+	return nil
+}
+
+func loginActionNext(c *cli.Context) error {
+	accessKey := c.String("key")
+	region := regions.CN
+	/*
+		if strings.HasSuffix(accessKey, "-cn") {
+			region = regions.CN
+		} else if strings.HasSuffix(accessKey, "-us") {
+			region = regions.US
+		} else {
+			return cli.NewExitError("Bad format of AccessKey", 1)
+		}
+	*/
+	userInfo, err := loginWithAccessKey(accessKey, region)
+	if err != nil {
+		return err
+	}
+
+	logp.Info("Login succeeded: ")
+	logp.Infof("Username: %s\r\n", userInfo.UserName)
+	logp.Infof("Email: %s\r\n", userInfo.Email)
+
 	return nil
 }

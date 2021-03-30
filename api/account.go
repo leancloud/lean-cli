@@ -49,6 +49,27 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	return result, err
 }
 
+func LoginNext(accessKey string, region regions.Region) (*GetUserInfoResult, error) {
+	client := NewClientByRegion(region)
+	client.AccessKey = accessKey
+
+	resp, err := client.get("/1.1/clients/self", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo := new(GetUserInfoResult)
+	if err := resp.JSON(userInfo); err != nil {
+		return nil, err
+	}
+
+	if err := accessKeyCache.Add(accessKey, region).Save(); err != nil {
+		return nil, err
+	}
+
+	return &GetUserInfoResult{}, nil
+}
+
 // GetUserInfoResult is the return type of GetUserInfo
 type GetUserInfoResult struct {
 	Email    string `json:"email"`

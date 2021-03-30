@@ -23,6 +23,26 @@ func Run(args []string) {
 	app.EnableBashCompletion = true
 
 	app.CommandNotFound = thirdPartyCommand
+	legacyLoginCommand := cli.Command{
+		Name:      "login",
+		Usage:     "Log in to LeanCloud",
+		Action:    wrapAction(loginAction),
+		ArgsUsage: "[-u username -p password (--region <CN> | <US> | <TAB>)]",
+		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:  "username,u",
+				Usage: "Username",
+			},
+			cli.StringFlag{
+				Name:  "password,p",
+				Usage: "Password",
+			},
+			cli.StringFlag{
+				Name:  "region,r",
+				Usage: "The LeanCloud region to log in to (e.g., US, CN)",
+			},
+		},
+	}
 
 	app.Commands = []cli.Command{
 		{
@@ -45,6 +65,9 @@ func Run(args []string) {
 				},
 			},
 		},
+	}
+
+	app.Commands = []cli.Command{
 		{
 			Name:      "metric",
 			Usage:     "Obtain LeanStorage performance metrics of current project",
@@ -331,6 +354,12 @@ func Run(args []string) {
 				return cli.ShowAppHelp(c)
 			},
 		},
+	}
+
+	if version.Distro == "next" {
+		app.Commands = append(app.Commands, nextLoginCommand)
+	} else {
+		app.Commands = append(app.Commands, legacyLoginCommand)
 	}
 
 	app.Before = func(c *cli.Context) error {
