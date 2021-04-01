@@ -5,6 +5,7 @@ import (
 	"github.com/aisk/wizard"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -31,19 +32,19 @@ func inputAccountInfo() (string, string, error) {
 	return *email, *password, err
 }
 
-func inputAcessKey() (string, error) {
-	accessKey := new(string)
+func inputAcessToken() (string, error) {
+	accessToken := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "AccessKey: ",
+			Content: "AccessToken: ",
 			Input: &wizard.Input{
-				Result: accessKey,
+				Result: accessToken,
 				Hidden: false,
 			},
 		},
 	})
 
-	return *accessKey, err
+	return *accessToken, err
 }
 
 func loginWithPassword(username string, password string, region regions.Region) (*api.GetUserInfoResult, error) {
@@ -58,16 +59,16 @@ func loginWithPassword(username string, password string, region regions.Region) 
 	return api.Login(username, password, region)
 }
 
-func loginWithAccessKey(key string, region regions.Region) (*api.GetUserInfoResult, error) {
-	if key == "" {
+func loginWithAccessToken(token string, region regions.Region) (*api.GetUserInfoResult, error) {
+	if token == "" {
 		var err error
-		key, err = inputAcessKey()
+		token, err = inputAcessToken()
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	return api.LoginNext(key, region)
+	return api.LoginNext(token, region)
 }
 
 func loginAction(c *cli.Context) error {
@@ -108,26 +109,12 @@ func loginAction(c *cli.Context) error {
 	return nil
 }
 
-func loginActionNext(c *cli.Context) error {
-	accessKey := c.String("key")
-	region := regions.CN
-	/*
-		if strings.HasSuffix(accessKey, "-cn") {
-			region = regions.CN
-		} else if strings.HasSuffix(accessKey, "-us") {
-			region = regions.US
-		} else {
-			return cli.NewExitError("Bad format of AccessKey", 1)
-		}
-	*/
-	userInfo, err := loginWithAccessKey(accessKey, region)
+	_, err = api.GetAppList(region) // load region cache
 	if err != nil {
 		return err
 	}
-
 	logp.Info("Login succeeded: ")
 	logp.Infof("Username: %s\r\n", userInfo.UserName)
 	logp.Infof("Email: %s\r\n", userInfo.Email)
-
 	return nil
 }

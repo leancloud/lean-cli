@@ -49,9 +49,9 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	return result, err
 }
 
-func LoginNext(accessKey string, region regions.Region) (*GetUserInfoResult, error) {
+func LoginNext(accessToken string, region regions.Region) (*GetUserInfoResult, error) {
 	client := NewClientByRegion(region)
-	client.AccessKey = accessKey
+	client.AccessToken = accessToken
 
 	resp, err := client.get("/1.1/clients/self", nil)
 	if err != nil {
@@ -63,11 +63,11 @@ func LoginNext(accessKey string, region regions.Region) (*GetUserInfoResult, err
 		return nil, err
 	}
 
-	if err := accessKeyCache.Add(accessKey, region).Save(); err != nil {
+	if err := accessTokenCache.Add(accessToken, region).Save(); err != nil {
 		return nil, err
 	}
 
-	return &GetUserInfoResult{}, nil
+	return userInfo, nil
 }
 
 // GetUserInfoResult is the return type of GetUserInfo

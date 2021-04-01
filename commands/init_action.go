@@ -9,6 +9,7 @@ import (
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/boilerplate"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -141,6 +142,8 @@ func initAction(c *cli.Context) error {
 			if err != nil {
 				return err
 			}
+		default:
+			return cli.NewExitError("Invalid region", 1)
 		}
 	} else {
 		region = regions.Parse(regionString)
@@ -221,9 +224,4 @@ func initAction(c *cli.Context) error {
 	}
 
 	return nil
-}
-
-func initActionNext(c *cli.Context) error {
-	c.Set("region", "CN")
-	return initAction(c)
 }

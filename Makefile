@@ -1,7 +1,7 @@
 OUTPUT=./_build
 SRC=$(shell find . -iname "*.go")
 LDFLAGS='-X main.pkgType=binary -s -w'
-LDFLAGS_TDS="-X main.pkgType=binary -X github.com/leancloud/lean-cli/version.Distro=next -s -w"
+LDFLAGS_TDS="-X main.pkgType=binary -X github.com/leancloud/lean-cli/version.Distribution=tds -s -w"
 RESOURCES=$(wildcard ./console/resources/*.html)
 
 all: binaries msi deb

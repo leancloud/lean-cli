@@ -49,34 +49,28 @@ var (
 )
 
 type Client struct {
-	CookieJar *cookiejar.Jar
-	Region    regions.Region
-	AppID     string
-	AccessKey string
+	CookieJar   *cookiejar.Jar
+	Region      regions.Region
+	AppID       string
+	AccessToken string
 }
 
 func NewClientByRegion(region regions.Region) *Client {
-	if version.Distro == "legacy" {
+	if version.Distribution == "lean" {
 		return &Client{
 			CookieJar: newCookieJar(),
 			Region:    region,
 		}
 	}
 
-	var accessKey string
-	for k, v := range accessKeyCache.Keys {
-		if v == region {
-			accessKey = k
-		}
-	}
 	return &Client{
-		AccessKey: accessKey,
-		Region:    region,
+		AccessToken: getAccessTokenRegion(region),
+		Region:      region,
 	}
 }
 
 func NewClientByApp(appID string) *Client {
-	if version.Distro == "legacy" {
+	if version.Distribution == "lean" {
 		return &Client{
 			CookieJar: newCookieJar(),
 			AppID:     appID,
@@ -90,15 +84,9 @@ func NewClientByApp(appID string) *Client {
 		}
 	}
 
-	var accessKey string
-	for k, v := range accessKeyCache.Keys {
-		if v == region {
-			accessKey = k
-		}
-	}
 	return &Client{
-		AccessKey: accessKey,
-		AppID:     appID,
+		AccessToken: getAccessTokenRegion(region),
+		AppID:       appID,
 	}
 }
 
@@ -132,7 +120,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 		panic(err)
 	}
 
-	if version.Distro == "legacy" {
+	if version.Distribution == "lean" {
 		cookies := client.CookieJar.Cookies(u)
 		xsrf := ""
 		for _, cookie := range cookies {
@@ -156,7 +144,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	return &grequests.RequestOptions{
 		Headers: map[string]string{
 			"Accept-Language": getSystemLanguage(),
-			"Authorization":   fmt.Sprint("Bearer", client.AccessKey),
+			"Authorization":   fmt.Sprint("Bearer ", client.AccessToken),
 		},
 		UserAgent: "TDS-CLI/" + version.Version,
 	}, nil
@@ -192,7 +180,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, err
 	}
 
-	if version.Distro == "legacy" {
+	if version.Distribution == "lean" {
 		resp, err = client.checkAndDo2FA(resp)
 		if err != nil {
 			return nil, err
@@ -206,7 +194,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
 	}
 
-	if version.Distro == "legacy" {
+	if version.Distribution == "lean" {
 		if err = client.CookieJar.Save(); err != nil {
 			return nil, err
 		}

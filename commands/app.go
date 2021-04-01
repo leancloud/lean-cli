@@ -43,38 +43,6 @@ func Run(args []string) {
 			},
 		},
 	}
-	legacyInitCommand := cli.Command{
-		Name:      "init",
-		Usage:     "Initialize a LeanEngine project",
-		Action:    wrapAction(initAction),
-		ArgsUsage: "[dest]",
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "region",
-				Usage: "LeanCloud region for the project",
-			},
-			cli.StringFlag{
-				Name:  "group",
-				Usage: "LeanEngine group",
-			},
-		},
-	}
-	legacySwitchCommand := cli.Command{
-		Name:      "switch",
-		Usage:     "Change the associated LeanCloud app",
-		Action:    wrapAction(switchAction),
-		ArgsUsage: "[appID | appName]",
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "region",
-				Usage: "LeanCloud region",
-			},
-			cli.StringFlag{
-				Name:  "group",
-				Usage: "LeanEngine group",
-			},
-		},
-	}
 
 	app.Commands = []cli.Command{
 		{
@@ -95,30 +63,6 @@ func Run(args []string) {
 					Name:  "region,r",
 					Usage: "The LeanCloud region to log in to (e.g., US, CN)",
 				},
-			},
-		},
-	}
-	nextInitCommand := cli.Command{
-		Name:      "init",
-		Usage:     "Initialize a Cloud Engine project",
-		Action:    wrapAction(initActionNext),
-		ArgsUsage: "[dest]",
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "group",
-				Usage: "LeanEngine group",
-			},
-		},
-	}
-	nextSwitchCommand := cli.Command{
-		Name:      "switch",
-		Usage:     "Change the associated TDS app",
-		Action:    wrapAction(switchActionNext),
-		ArgsUsage: "[appID | appName]",
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:  "group",
-				Usage: "LeanEngine group",
 			},
 		},
 	}
@@ -166,6 +110,38 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "cmd",
 					Usage: "Command to start the project, other arguments except --console-port are ignored",
+				},
+			},
+		},
+		{
+			Name:      "init",
+			Usage:     "Initialize a LeanEngine project",
+			Action:    wrapAction(initAction),
+			ArgsUsage: "[dest]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "region",
+					Usage: "LeanCloud region for the project",
+				},
+				cli.StringFlag{
+					Name:  "group",
+					Usage: "LeanEngine group",
+				},
+			},
+		},
+		{
+			Name:      "switch",
+			Usage:     "Change the associated LeanCloud app",
+			Action:    wrapAction(switchAction),
+			ArgsUsage: "[appID | appName]",
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "region",
+					Usage: "LeanCloud region",
+				},
+				cli.StringFlag{
+					Name:  "group",
+					Usage: "LeanEngine group",
 				},
 			},
 		},
@@ -381,9 +357,9 @@ func Run(args []string) {
 	}
 
 	if version.Distro == "next" {
-		app.Commands = append(app.Commands, nextLoginCommand, nextInitCommand, nextSwitchCommand)
+		app.Commands = append(app.Commands, nextLoginCommand)
 	} else {
-		app.Commands = append(app.Commands, legacyLoginCommand, legacyInitCommand, legacySwitchCommand)
+		app.Commands = append(app.Commands, legacyLoginCommand)
 	}
 
 	app.Before = func(c *cli.Context) error {

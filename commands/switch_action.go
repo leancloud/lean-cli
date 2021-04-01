@@ -216,11 +216,6 @@ func switchAction(c *cli.Context) error {
 	return checkOutWithWizard(region, group)
 }
 
-func switchActionNext(c *cli.Context) error {
-	c.Set("region", "CN")
-	return switchAction(c)
-}
-
 func checkOutAction(c *cli.Context) error {
 	logp.Warn("`lean checkout` is deprecated, please use `lean switch` instead")
 	return switchAction(c)
