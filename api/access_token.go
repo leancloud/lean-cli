@@ -28,16 +28,6 @@ func init() {
 	}
 }
 
-func getAccessTokenByRegion(region regions.Region) string {
-	for k, v := range accessTokenCache {
-		if k == region {
-			return v
-		}
-	}
-
-	return ""
-}
-
 func (cache accessTokenMapping) Add(accessToken string, region regions.Region) accessTokenMapping {
 	cache[region] = accessToken
 	return cache
