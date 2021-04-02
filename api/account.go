@@ -49,7 +49,7 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	return result, err
 }
 
-func LoginNext(accessToken string, region regions.Region) (*GetUserInfoResult, error) {
+func LoginWithAccessToken(accessToken string, region regions.Region) (*GetUserInfoResult, error) {
 	client := NewClientByRegion(region)
 	client.AccessToken = accessToken
 

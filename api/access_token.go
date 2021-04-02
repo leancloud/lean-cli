@@ -10,12 +10,12 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 )
 
-type accessTokenMapping map[string]regions.Region
+type accessTokenMapping map[regions.Region]string
 
 var accessTokenCache accessTokenMapping
 
 func init() {
-	accessTokenCache = make(map[string]regions.Region)
+	accessTokenCache = make(map[regions.Region]string)
 	content, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "access-tokens"))
 	if err != nil {
 		if !os.IsNotExist(err) {
@@ -28,28 +28,18 @@ func init() {
 	}
 }
 
-func getAccessTokenRegion(region regions.Region) string {
+func getAccessTokenByRegion(region regions.Region) string {
 	for k, v := range accessTokenCache {
-		if v == region {
-			return k
+		if k == region {
+			return v
 		}
 	}
 
 	return ""
 }
 
-func (cache accessTokenMapping) Add(accessKey string, region regions.Region) accessTokenMapping {
-	for k, v := range cache {
-		if v == region {
-			delete(cache, k)
-		}
-	}
-	cache[accessKey] = region
-	return cache
-}
-
-func (cache accessTokenMapping) Remove(accessKey string) accessTokenMapping {
-	delete(cache, accessKey)
+func (cache accessTokenMapping) Add(accessToken string, region regions.Region) accessTokenMapping {
+	cache[region] = accessToken
 	return cache
 }
 

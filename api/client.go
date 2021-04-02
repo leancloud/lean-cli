@@ -64,7 +64,7 @@ func NewClientByRegion(region regions.Region) *Client {
 	}
 
 	return &Client{
-		AccessToken: getAccessTokenRegion(region),
+		AccessToken: getAccessTokenByRegion(region),
 		Region:      region,
 	}
 }
@@ -85,7 +85,7 @@ func NewClientByApp(appID string) *Client {
 	}
 
 	return &Client{
-		AccessToken: getAccessTokenRegion(region),
+		AccessToken: getAccessTokenByRegion(region),
 		AppID:       appID,
 	}
 }

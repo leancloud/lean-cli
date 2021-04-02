@@ -68,7 +68,7 @@ func loginWithAccessToken(token string, region regions.Region) (*api.GetUserInfo
 		}
 	}
 
-	return api.LoginNext(token, region)
+	return api.LoginWithAccessToken(token, region)
 }
 
 func loginAction(c *cli.Context) error {
