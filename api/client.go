@@ -12,7 +12,7 @@ import (
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/juju/persistent-cookiejar"
+	cookiejar "github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/utils"
@@ -146,6 +146,12 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	resp, err := fn(client.GetBaseURL()+path, options)
 	if err != nil {
 		return nil, err
+	}
+	if !resp.Ok {
+		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
+			return nil, NewErrorFromResponse(resp)
+		}
+		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
 	}
 
 	resp, err = client.checkAndDo2FA(resp)
