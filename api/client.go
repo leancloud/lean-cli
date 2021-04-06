@@ -12,7 +12,7 @@ import (
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/cloudfoundry-attic/jibber_jabber"
-	"github.com/juju/persistent-cookiejar"
+	cookiejar "github.com/juju/persistent-cookiejar"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/utils"
@@ -147,7 +147,6 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	if err != nil {
 		return nil, err
 	}
-
 	resp, err = client.checkAndDo2FA(resp)
 	if err != nil {
 		return nil, err
@@ -169,7 +168,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 
 // check if the requests need two-factor-authentication and then do it.
 func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Response, error) {
-	if resp.StatusCode != 401 {
+	if resp.StatusCode != 401 || strings.Contains(resp.String(), "User doesn't sign in.") {
 		// don't need 2FA
 		return resp, nil
 	}
