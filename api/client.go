@@ -147,13 +147,6 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	if err != nil {
 		return nil, err
 	}
-	if !resp.Ok {
-		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
-			return nil, NewErrorFromResponse(resp)
-		}
-		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
-	}
-
 	resp, err = client.checkAndDo2FA(resp)
 	if err != nil {
 		return nil, err
@@ -175,7 +168,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 
 // check if the requests need two-factor-authentication and then do it.
 func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Response, error) {
-	if resp.StatusCode != 401 {
+	if resp.StatusCode != 401 || strings.Contains(resp.String(), "User doesn't sign in.") {
 		// don't need 2FA
 		return resp, nil
 	}
