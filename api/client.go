@@ -144,7 +144,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	return &grequests.RequestOptions{
 		Headers: map[string]string{
 			"Accept-Language": getSystemLanguage(),
-			"Authorization":   fmt.Sprint("Bearer ", client.AccessToken),
+			"Authorization":   fmt.Sprint("token ", client.AccessToken),
 		},
 		UserAgent: "TDS-CLI/" + version.Version,
 	}, nil
