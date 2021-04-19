@@ -131,12 +131,7 @@ func uploadProject(appID string, region regions.Region, repoPath string, ignoreF
 		return nil, err
 	}
 
-	file, err := api.UploadToRepoStorage(region, archiveFile)
-	if err != nil {
-		return nil, err
-	}
-
-	return file, nil
+	return api.UploadToRepoStorage(region, archiveFile)
 }
 
 func packageWar(repoPath string) (string, error) {
@@ -221,9 +216,9 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 
 	var eventTok string
 	if opts.DirectUpload {
-		eventTok, err = api.DeployAppFromFile(appID, group, prod, file.URL, opts)
-	} else {
 		eventTok, err = api.DeployAppFromFile(appID, group, prod, archiveFilePath, opts)
+	} else {
+		eventTok, err = api.DeployAppFromFile(appID, group, prod, file.URL, opts)
 	}
 	if err != nil {
 		return err
