@@ -37,6 +37,7 @@ type GetGroupsResult struct {
 }
 
 type DeployOptions struct {
+	Direct         bool
 	Message        string
 	NoDepsCache    bool
 	OverwriteFuncs bool
@@ -59,7 +60,27 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 	case 1:
 		url = "/1.1/engine/groups/" + group + "/production/version"
 	default:
-		return nil, errors.New("invalid prod value " + fmt.Sprint(prod))
+		return nil, fmt.Errorf("invalid prod value %d", prod)
+	}
+
+	if params["direct"] == true {
+		opts.Data = func() map[string]string {
+			data := make(map[string]string)
+			for k, v := range params {
+				data[k] = fmt.Sprint(v)
+			}
+			return data
+		}()
+		archiveFilePath, ok := params["zipUrl"].(string)
+		if !ok {
+			return nil, fmt.Errorf("bad archive file path")
+		}
+		archiveFile, err := grequests.FileUploadFromDisk(archiveFilePath)
+		if err != nil {
+			return nil, err
+		}
+		opts.Files = archiveFile
+		return client.post(url, nil, opts)
 	}
 
 	return client.post(url, params, opts)
@@ -117,6 +138,7 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, opt
 		return "", err
 	}
 
+	params["direct"] = opts.Direct
 	params["zipUrl"] = fileURL
 
 	resp, err := deploy(appID, group, prod, params)

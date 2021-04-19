@@ -217,7 +217,7 @@ func Run(args []string) {
 				},
 				cli.BoolFlag{
 					Name:  "direct",
-					Usage: "Upload file of project to remote directly",
+					Usage: "Upload project's tarball to remote directly",
 				},
 			},
 		},
