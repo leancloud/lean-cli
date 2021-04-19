@@ -94,7 +94,7 @@ func deployAction(c *cli.Context) error {
 		}
 	} else {
 		opts.Message = getCommentMessage(message)
-		opts.Direct = isDirect
+		opts.DirectUpload = isDirect
 		err = deployFromLocal(appID, groupName, prod, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
 			return err
@@ -190,19 +190,19 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	var file *upload.File
 	var archiveFilePath string
 	if isDeployFromJavaWar {
-		if opts.Direct {
-			file, err = uploadWar(appID, region, ".")
-		} else {
+		if opts.DirectUpload {
 			archiveFilePath, err = packageWar(".")
+		} else {
+			file, err = uploadWar(appID, region, ".")
 		}
 		if err != nil {
 			return err
 		}
 	} else {
-		if opts.Direct {
-			file, err = uploadProject(appID, region, ".", ignoreFilePath)
-		} else {
+		if opts.DirectUpload {
 			archiveFilePath, err = packageProject(".", ignoreFilePath)
+		} else {
+			file, err = uploadProject(appID, region, ".", ignoreFilePath)
 		}
 		if err != nil {
 			return err
@@ -220,7 +220,7 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	}
 
 	var eventTok string
-	if opts.Direct {
+	if opts.DirectUpload {
 		eventTok, err = api.DeployAppFromFile(appID, group, prod, file.URL, opts)
 	} else {
 		eventTok, err = api.DeployAppFromFile(appID, group, prod, archiveFilePath, opts)

@@ -37,7 +37,7 @@ type GetGroupsResult struct {
 }
 
 type DeployOptions struct {
-	Direct         bool
+	DirectUpload   bool
 	Message        string
 	NoDepsCache    bool
 	OverwriteFuncs bool
@@ -63,7 +63,9 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 		return nil, fmt.Errorf("invalid prod value %d", prod)
 	}
 
-	if params["direct"] == true {
+	directUpload, _ := params["direct"].(bool)
+
+	if directUpload {
 		opts.Data = func() map[string]string {
 			data := make(map[string]string)
 			for k, v := range params {
@@ -83,6 +85,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 		return client.post(url, nil, opts)
 	}
 
+	delete(params, "direct")
 	return client.post(url, params, opts)
 }
 
@@ -138,7 +141,7 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, opt
 		return "", err
 	}
 
-	params["direct"] = opts.Direct
+	params["direct"] = opts.DirectUpload
 	params["zipUrl"] = fileURL
 
 	resp, err := deploy(appID, group, prod, params)
@@ -240,7 +243,7 @@ func PutEnvironments(appID string, group string, envs map[string]string) error {
 		return err
 	}
 	if response.StatusCode != 200 {
-		return errors.New("Error updating environment variable, code: " + string(response.StatusCode))
+		return fmt.Errorf("Error updating environment variable, code: %d", response.StatusCode)
 	}
 	return nil
 }
