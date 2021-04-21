@@ -58,18 +58,18 @@ func Run(args []string) {
 						},
 						cli.BoolFlag{
 							Name:  "use-token",
-							Usage: "Use token to log in",
+							Usage: "Use AccessToken to log in",
 						},
 						cli.StringFlag{
 							Name:  "token,k",
-							Usage: "AccessToken generated from the Console",
+							Usage: "AccessToken generated from the Dashboard",
 						},
 					}
 				} else {
 					return []cli.Flag{
 						cli.StringFlag{
 							Name:  "token,k",
-							Usage: "AccessToken generated from the Console",
+							Usage: "AccessToken generated from the Dashboard",
 						},
 					}
 				}
