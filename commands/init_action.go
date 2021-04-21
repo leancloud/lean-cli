@@ -133,7 +133,7 @@ func initAction(c *cli.Context) error {
 	if regionString == "" {
 		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
-			return cli.NewExitError("Please login first.", 1)
+			return cli.NewExitError("Please create an App first.", 1)
 		} else if len(loginedRegions) == 1 {
 			region = loginedRegions[0]
 		} else {

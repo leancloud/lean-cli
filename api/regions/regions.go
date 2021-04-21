@@ -1,5 +1,14 @@
 package regions
 
+import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+
+	"github.com/leancloud/lean-cli/utils"
+)
+
 // Region is region's type
 type Region int
 
@@ -16,6 +25,20 @@ func Parse(region string) Region {
 	}
 }
 
+var regionLoginStatus = make(map[Region]bool)
+
+func init() {
+	regionStatus, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "logined-regions"))
+	if err != nil {
+		if !os.IsNotExist(err) {
+			panic(err)
+		}
+	} else {
+		if err := json.Unmarshal(regionStatus, &regionLoginStatus); err != nil {
+			panic(err)
+		}
+	}
+}
 func (r Region) String() string {
 	switch r {
 	case ChinaNorth:
@@ -61,3 +84,20 @@ const (
 	USWest
 	ChinaEast
 )
+
+func GetRegionLoginStatus() map[Region]bool {
+	return regionLoginStatus
+}
+
+func SetRegionLoginStatus(region Region) {
+	regionLoginStatus[region] = true
+}
+
+func SaveRegionLoginStatus() error {
+	data, err := json.MarshalIndent(regionLoginStatus, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "logined-regions"), data, 0644)
+}

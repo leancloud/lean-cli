@@ -39,6 +39,11 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 		return nil, err
 	}
 
+	regions.SetRegionLoginStatus(region)
+	if err := regions.SaveRegionLoginStatus(); err != nil {
+		return nil, err
+	}
+
 	result := new(GetUserInfoResult)
 	err = resp.JSON(result)
 	return result, err
