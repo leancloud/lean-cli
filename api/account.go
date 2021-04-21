@@ -50,6 +50,7 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 }
 
 func LoginWithAccessToken(accessToken string, region regions.Region) (*GetUserInfoResult, error) {
+	defaultLoginType = "accessToken"
 	client := NewClientByRegion(region)
 	client.AccessToken = accessToken
 

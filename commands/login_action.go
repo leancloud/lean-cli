@@ -77,37 +77,29 @@ func loginAction(c *cli.Context) error {
 	regionString := c.String("region")
 	var region regions.Region
 	var err error
-	if regionString == "" {
-		region, err = selectRegion([]regions.Region{regions.ChinaNorth, regions.USWest, regions.ChinaEast})
+	var userInfo *api.GetUserInfoResult
+	if version.Distribution == "lean" {
+		if regionString == "" {
+			region, err = selectRegion([]regions.Region{regions.ChinaNorth, regions.USWest, regions.ChinaEast})
+			if err != nil {
+				return err
+			}
+		} else {
+			region = regions.Parse(regionString)
+		}
+
+		if region == regions.Invalid {
+			cli.ShowCommandHelp(c, "login")
+			return cli.NewExitError("Wrong region parameter", 1)
+		}
+
+		userInfo, err = loginWithPassword(username, password, region)
 		if err != nil {
 			return err
 		}
 	} else {
-		region = regions.Parse(regionString)
+		region = regions.ChinaNorth
 	}
-
-	if region == regions.Invalid {
-		cli.ShowCommandHelp(c, "login")
-		return cli.NewExitError("Wrong region parameter", 1)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	userInfo, err := loginWithPassword(username, password, region)
-	if err != nil {
-		return err
-	}
-	_, err = api.GetAppList(region) // load region cache
-	if err != nil {
-		return err
-	}
-	logp.Info("Login succeeded: ")
-	logp.Infof("Username: %s\r\n", userInfo.UserName)
-	logp.Infof("Email: %s\r\n", userInfo.Email)
-	return nil
-}
 
 	_, err = api.GetAppList(region) // load region cache
 	if err != nil {
@@ -116,5 +108,6 @@ func loginAction(c *cli.Context) error {
 	logp.Info("Login succeeded: ")
 	logp.Infof("Username: %s\r\n", userInfo.UserName)
 	logp.Infof("Email: %s\r\n", userInfo.Email)
+
 	return nil
 }

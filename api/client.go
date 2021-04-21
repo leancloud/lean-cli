@@ -20,6 +20,8 @@ import (
 	"github.com/levigross/grequests"
 )
 
+var defaultLoginType = "cookieJar"
+
 var dashboardBaseUrls = map[regions.Region]string{
 	regions.ChinaNorth: "https://cn-n1-console-api.leancloud.cn",
 	regions.USWest:     "https://us-w1-console-api.leancloud.app",
@@ -56,7 +58,7 @@ type Client struct {
 }
 
 func NewClientByRegion(region regions.Region) *Client {
-	if version.Distribution == "lean" {
+	if defaultLoginType == "cookieJar" && len(accessTokenCache) == 0 {
 		return &Client{
 			CookieJar: newCookieJar(),
 			Region:    region,
@@ -70,7 +72,7 @@ func NewClientByRegion(region regions.Region) *Client {
 }
 
 func NewClientByApp(appID string) *Client {
-	if version.Distribution == "lean" {
+	if defaultLoginType == "cookieJar" && len(accessTokenCache) == 0 {
 		return &Client{
 			CookieJar: newCookieJar(),
 			AppID:     appID,
@@ -120,7 +122,7 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 		panic(err)
 	}
 
-	if version.Distribution == "lean" {
+	if defaultLoginType == "cookieJar" && len(accessTokenCache) == 0 {
 		cookies := client.CookieJar.Cookies(u)
 		xsrf := ""
 		for _, cookie := range cookies {
@@ -180,7 +182,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, err
 	}
 
-	if version.Distribution == "lean" {
+	if defaultLoginType == "cookieJar" && len(accessTokenCache) == 0 {
 		resp, err = client.checkAndDo2FA(resp)
 		if err != nil {
 			return nil, err
@@ -194,7 +196,7 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
 	}
 
-	if version.Distribution == "lean" {
+	if defaultLoginType == "cookieJar" && len(accessTokenCache) == 0 {
 		if err = client.CookieJar.Save(); err != nil {
 			return nil, err
 		}
