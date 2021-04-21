@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"strings"
-
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/leancloud/lean-cli/api"
@@ -48,15 +46,15 @@ func loginWithPassword(username string, password string, region regions.Region) 
 func loginAction(c *cli.Context) error {
 	username := c.String("username")
 	password := c.String("password")
-	regionStr := strings.ToUpper(c.String("region"))
+	regionStr := c.String("region")
 	var region regions.Region
 	var err error
 	switch regionStr {
-	case "CN":
+	case "cn", "CN", "cn-n1":
 		region = regions.CN
-	case "US":
+	case "us", "US", "us-w1":
 		region = regions.US
-	case "TAB":
+	case "tab", "TAB", "cn-e1":
 		region = regions.TAB
 	case "":
 		region, err = selectRegion([]regions.Region{regions.CN, regions.US, regions.TAB})

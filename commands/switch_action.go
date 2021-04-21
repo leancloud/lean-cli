@@ -42,11 +42,11 @@ func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*a
 func checkOutWithAppInfo(arg string, regionString string, groupName string) error {
 	var region regions.Region
 	switch regionString {
-	case "cn", "CN", "":
+	case "cn", "CN", "", "cn-n1":
 		region = regions.CN
-	case "us", "US":
+	case "us", "US", "us-w1":
 		region = regions.US
-	case "tab", "TAB":
+	case "tab", "TAB", "cn-e1":
 		region = regions.TAB
 	}
 	currentApps, err := api.GetAppList(region)
@@ -112,11 +112,11 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	var region regions.Region
 	var err error
 	switch regionString {
-	case "tab", "TAB":
+	case "tab", "TAB", "cn-e1":
 		region = regions.TAB
-	case "cn", "CN":
+	case "cn", "CN", "cn-n1":
 		region = regions.CN
-	case "us", "US":
+	case "us", "US", "us-w1":
 		region = regions.US
 	case "":
 		loginedRegions := apps.GetLoginedRegions()

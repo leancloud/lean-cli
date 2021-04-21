@@ -130,11 +130,11 @@ func initAction(c *cli.Context) error {
 	var region regions.Region
 	var err error
 	switch c.String("region") {
-	case "cn", "CN":
+	case "cn", "CN", "cn-n1":
 		region = regions.CN
-	case "us", "US":
+	case "us", "US", "us-w1":
 		region = regions.US
-	case "tab", "TAB":
+	case "tab", "TAB", "cn-e1":
 		region = regions.TAB
 	case "":
 		loginedRegions := apps.GetLoginedRegions()

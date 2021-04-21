@@ -16,6 +16,19 @@ func (r Region) String() string {
 	}
 }
 
+func (r Region) PreciseString() string {
+	switch r {
+	case CN:
+		return "cn-n1"
+	case US:
+		return "us-w1"
+	case TAB:
+		return "cn-e1"
+	default:
+		return "invalid"
+	}
+}
+
 // Description is region's readable description
 func (r Region) Description() string {
 	switch r {

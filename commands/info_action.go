@@ -19,15 +19,15 @@ func infoAction(c *cli.Context) error {
 
 	for _, loginedRegion := range loginedRegions {
 		loginedRegion := loginedRegion
-		logp.Infof("Retrieving user info from region: %s\r\n", loginedRegion)
+		logp.Infof("Retrieving user info from region: %s\r\n", loginedRegion.PreciseString())
 		userInfo, err := api.GetUserInfo(loginedRegion)
 		if err != nil {
 			callbacks = append(callbacks, func() {
-				logp.Errorf("Failed to retrieve user info from region: %s: %v\r\n", loginedRegion, err)
+				logp.Errorf("Failed to retrieve user info from region: %s: %v\r\n", loginedRegion.PreciseString(), err)
 			})
 		} else {
 			callbacks = append(callbacks, func() {
-				logp.Infof("Current region:  %s User: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
+				logp.Infof("Current region:  %s User: %s (%s)\r\n", loginedRegion.PreciseString(), userInfo.UserName, userInfo.Email)
 			})
 		}
 	}
@@ -57,7 +57,7 @@ func infoAction(c *cli.Context) error {
 				})
 			} else {
 				callbacks = append(callbacks, func() {
-					logp.Infof("Current region: %s App: %s (%s)\r\n", region, appInfo.AppName, appInfo.AppID)
+					logp.Infof("Current region: %s App: %s (%s)\r\n", region.PreciseString(), appInfo.AppName, appInfo.AppID)
 				})
 				group, err := apps.GetCurrentGroup(".")
 				if err != nil {
