@@ -3,6 +3,7 @@ package commands
 import (
 	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
+	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/urfave/cli"
 )
@@ -12,9 +13,12 @@ func infoAction(c *cli.Context) error {
 
 	loginedRegions := apps.GetLoginedRegions()
 
+	if len(regions.GetRegionLoginStatus()) == 0 {
+		return cli.NewExitError("Please log in first", 1)
+	}
+
 	if len(loginedRegions) == 0 {
-		logp.Error("Please login first")
-		return nil
+		return cli.NewExitError("No apps available in logined regions", 0)
 	}
 
 	for _, loginedRegion := range loginedRegions {
