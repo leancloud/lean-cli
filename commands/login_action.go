@@ -8,6 +8,24 @@ import (
 	"github.com/urfave/cli"
 )
 
+func inputRegion(c *cli.Context, interactiveCllback func(c *cli.Context) (regions.Region, error)) (regions.Region, error) {
+	region := c.String("region")
+
+	switch region {
+	case "cn", "CN", "cn-n1":
+		return regions.ChinaNorth, nil
+	case "tab", "TAB", "cn-e1":
+		return regions.ChinaEast, nil
+	case "us", "US", "us-w1":
+		return regions.USWest, nil
+	case "":
+		return interactiveCllback(c)
+	default:
+		cli.ShowCommandHelp(c, "login")
+		return regions.Invalid, cli.NewExitError("Wrong region parameter", 1)
+	}
+}
+
 func inputAccountInfo() (string, string, error) {
 	email := new(string)
 	password := new(string)
@@ -46,25 +64,17 @@ func loginWithPassword(username string, password string, region regions.Region) 
 func loginAction(c *cli.Context) error {
 	username := c.String("username")
 	password := c.String("password")
-	regionStr := c.String("region")
-	var region regions.Region
-	var err error
-	switch regionStr {
-	case "cn", "CN", "cn-n1":
-		region = regions.CN
-	case "us", "US", "us-w1":
-		region = regions.US
-	case "tab", "TAB", "cn-e1":
-		region = regions.TAB
-	case "":
-		region, err = selectRegion([]regions.Region{regions.CN, regions.US, regions.TAB})
+	region, err := inputRegion(c, func(c *cli.Context) (regions.Region, error) {
+		regionSelected, err := selectRegion([]regions.Region{regions.ChinaNorth, regions.USWest, regions.ChinaEast})
 		if err != nil {
-			return err
+			return regions.Invalid, err
 		}
-	default:
-		cli.ShowCommandHelp(c, "login")
-		return cli.NewExitError("Wrong region parameter", 1)
+		return regionSelected, nil
+	})
+	if err != nil {
+		return err
 	}
+
 	userInfo, err := loginWithPassword(username, password, region)
 	if err != nil {
 		return err

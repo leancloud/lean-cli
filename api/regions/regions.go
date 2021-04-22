@@ -5,25 +5,23 @@ type Region int
 
 func (r Region) String() string {
 	switch r {
-	case CN:
-		return "cn"
-	case US:
-		return "us"
-	case TAB:
-		return "tab"
+	case ChinaNorth:
+		return "cn-n1"
+	case ChinaEast:
+		return "cn-e1"
+	case USWest:
+		return "us-w1"
 	default:
 		return "invalid"
 	}
 }
 
-func (r Region) PreciseString() string {
+func (r Region) EnvString() string {
 	switch r {
-	case CN:
-		return "cn-n1"
-	case US:
-		return "us-w1"
-	case TAB:
-		return "cn-e1"
+	case ChinaNorth, ChinaEast:
+		return "cn"
+	case USWest:
+		return "us"
 	default:
 		return "invalid"
 	}
@@ -32,11 +30,11 @@ func (r Region) PreciseString() string {
 // Description is region's readable description
 func (r Region) Description() string {
 	switch r {
-	case CN:
+	case ChinaNorth:
 		return "China North"
-	case US:
+	case USWest:
 		return "United States"
-	case TAB:
+	case ChinaEast:
 		return "China East"
 	default:
 		return "invalid"
@@ -46,7 +44,7 @@ func (r Region) Description() string {
 // API server regions
 const (
 	Invalid Region = iota
-	CN
-	US
-	TAB
+	ChinaNorth
+	USWest
+	ChinaEast
 )
