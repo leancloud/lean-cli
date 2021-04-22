@@ -52,7 +52,7 @@ func thirdPartyCommand(c *cli.Context, _cmdName string) {
 			"LEANCLOUD_APP_MASTER_KEY=" + appInfo.MasterKey,
 			"LEANCLOUD_APP_HOOK_KEY=" + appInfo.HookKey,
 			"LEANCLOUD_APP_ENV=" + "development",
-			"LEANCLOUD_REGION=" + region.String(),
+			"LEANCLOUD_REGION=" + region.EnvString(),
 		}
 		for _, env := range envs {
 			cmd.Env = append(cmd.Env, env)
