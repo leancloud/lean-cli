@@ -85,6 +85,17 @@ const (
 	ChinaEast
 )
 
+func GetLoginedRegions() []Region {
+	var region []Region
+	for k, v := range regionLoginStatus {
+		if v {
+			region = append(region, k)
+		}
+	}
+
+	return region
+}
+
 func GetRegionLoginStatus() map[Region]bool {
 	return regionLoginStatus
 }
