@@ -86,14 +86,14 @@ const (
 )
 
 func GetLoginedRegions() []Region {
-	var region []Region
+	var regions []Region
 	for k, v := range regionLoginStatus {
 		if v {
-			region = append(region, k)
+			regions = append(regions, k)
 		}
 	}
 
-	return region
+	return regions
 }
 
 func GetRegionLoginStatus() map[Region]bool {
