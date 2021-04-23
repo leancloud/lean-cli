@@ -3,6 +3,19 @@ package regions
 // Region is region's type
 type Region int
 
+func Parse(region string) Region {
+	switch region {
+	case "cn", "CN", "cn-n1":
+		return ChinaNorth
+	case "tab", "TAB", "cn-e1":
+		return ChinaEast
+	case "us", "US", "us-w1":
+		return USWest
+	default:
+		return Invalid
+	}
+}
+
 func (r Region) String() string {
 	switch r {
 	case ChinaNorth:
@@ -19,9 +32,9 @@ func (r Region) String() string {
 func (r Region) EnvString() string {
 	switch r {
 	case ChinaNorth, ChinaEast:
-		return "cn"
+		return "CN"
 	case USWest:
-		return "us"
+		return "US"
 	default:
 		return "invalid"
 	}

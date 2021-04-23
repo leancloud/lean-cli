@@ -39,13 +39,12 @@ func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*a
 	return selectedApp, err
 }
 
-func checkOutWithAppInfo(arg string, c *cli.Context, groupName string) error {
-	region, err := inputRegion(c, func(c *cli.Context) (regions.Region, error) {
-		return regions.Invalid, nil
-	})
-	if err != nil {
-		return err
+func checkOutWithAppInfo(arg string, regionString string, groupName string) error {
+	region := regions.Parse(regionString)
+	if region == regions.Invalid {
+		region = regions.ChinaNorth
 	}
+
 	currentApps, err := api.GetAppList(region)
 	if err != nil {
 		return err
@@ -105,17 +104,28 @@ func checkOutWithAppInfo(arg string, c *cli.Context, groupName string) error {
 	return cli.NewExitError("Failed to find the designated app.", 1)
 }
 
-func checkOutWithWizard(c *cli.Context, groupName string) error {
-	region, err := inputRegion(c, func(c *cli.Context) (regions.Region, error) {
+func checkOutWithWizard(regionString string, groupName string) error {
+	var region regions.Region
+	var err error
+	if regionString == "" {
 		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
-			return regions.Invalid, cli.NewExitError("No apps available in logged regions.", 1)
+			return cli.NewExitError("No apps available in logged regions", 1)
 		} else if len(loginedRegions) == 1 {
-			return loginedRegions[0], nil
+			region = loginedRegions[0]
 		} else {
-			return selectRegion(loginedRegions)
+			region, err = selectRegion(loginedRegions)
+			if err != nil {
+				return err
+			}
 		}
-	})
+	} else {
+		region = regions.Parse(regionString)
+	}
+
+	if region == regions.Invalid {
+		return cli.NewExitError("Wrong region parameter", 1)
+	}
 
 	logp.Info("Retrieve app list ...")
 	appList, err := api.GetAppList(region)
@@ -186,15 +196,16 @@ func checkOutWithWizard(c *cli.Context, groupName string) error {
 
 func switchAction(c *cli.Context) error {
 	group := c.String("group")
+	region := c.String("region")
 	if c.NArg() > 0 {
 		arg := c.Args()[0]
-		err := checkOutWithAppInfo(arg, c, group)
+		err := checkOutWithAppInfo(arg, region, group)
 		if err != nil {
 			return err
 		}
 		return nil
 	}
-	return checkOutWithWizard(c, group)
+	return checkOutWithWizard(region, group)
 }
 
 func checkOutAction(c *cli.Context) error {
