@@ -16,7 +16,7 @@ var accessTokenCache accessTokenMapping
 
 func init() {
 	accessTokenCache = make(map[regions.Region]string)
-	content, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "access-tokens"))
+	content, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "access_tokens.json"))
 	if err != nil {
 		if !os.IsNotExist(err) {
 			panic(err)
@@ -43,7 +43,7 @@ func (cache accessTokenMapping) Save() error {
 		return err
 	}
 
-	if err := ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "access-tokens"), keysCache, 0600); err != nil {
+	if err := ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "access_tokens.json"), keysCache, 0600); err != nil {
 		return err
 	}
 
