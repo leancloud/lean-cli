@@ -111,15 +111,8 @@ func checkOutWithWizard(regionString string, groupName string) error {
 		loginedRegions := regions.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("Please login first.", 1)
-		}
-
-		loginedRegionsApps := apps.GetRegionCache()
-		if len(loginedRegionsApps) == 0 {
-			return cli.NewExitError("No apps available in logged regions", 1)
-		} else if len(loginedRegionsApps) == 1 {
-			for _, v := range loginedRegionsApps {
-				region = v
-			}
+		} else if len(loginedRegions) == 1 {
+			region = loginedRegions[0]
 		} else {
 			region, err = selectRegion(loginedRegions)
 			if err != nil {
