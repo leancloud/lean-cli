@@ -131,9 +131,9 @@ func initAction(c *cli.Context) error {
 	var region regions.Region
 	var err error
 	if regionString == "" {
-		loginedRegions := apps.GetLoginedRegions()
+		loginedRegions := regions.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
-			return cli.NewExitError("Please login first.", 1)
+			return cli.NewExitError("Please log in first.", 1)
 		} else if len(loginedRegions) == 1 {
 			region = loginedRegions[0]
 		} else {
@@ -153,6 +153,10 @@ func initAction(c *cli.Context) error {
 	appList, err := api.GetAppList(region)
 	if err != nil {
 		return err
+	}
+
+	if len(apps.GetRegionCache()) == 0 {
+		return cli.NewExitError("Please create an app first.", 1)
 	}
 
 	var orderedAppList []*api.GetAppListResult

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/leancloud/lean-cli/api/regions"
@@ -22,14 +23,8 @@ func GetAppRegion(appID string) (regions.Region, error) {
 	}
 }
 
-func GetLoginedRegions() (result []regions.Region) {
-	for _, region := range regionCache {
-		if !regionInArray(region, result) {
-			result = append(result, region)
-		}
-	}
-
-	return result
+func GetRegionCache() map[string]regions.Region {
+	return regionCache
 }
 
 func SetRegionCache(appID string, region regions.Region) {
@@ -47,9 +42,14 @@ func SaveRegionCache() error {
 func init() {
 	data, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "app_router.json"))
 	if err != nil {
-		return
+		if !os.IsNotExist(err) {
+			panic(err)
+		}
+	} else {
+		if err := json.Unmarshal(data, &regionCache); err != nil {
+			panic(err)
+		}
 	}
-	json.Unmarshal(data, &regionCache)
 }
 
 func regionInArray(region regions.Region, list []regions.Region) bool {
