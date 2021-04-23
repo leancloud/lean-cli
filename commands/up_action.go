@@ -108,7 +108,7 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_APP_PORT=" + strconv.Itoa(rtmPort),
 		"LEANCLOUD_API_SERVER=" + apiServer,
 		"LEANCLOUD_APP_ENV=" + "development",
-		"LEANCLOUD_REGION=" + region.String(),
+		"LEANCLOUD_REGION=" + region.EnvString(),
 		"LEANCLOUD_APP_DOMAIN=" + groupInfo.Domain,
 		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
 	}...)

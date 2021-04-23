@@ -1,8 +1,6 @@
 package commands
 
 import (
-	"strings"
-
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/leancloud/lean-cli/api"
@@ -48,25 +46,27 @@ func loginWithPassword(username string, password string, region regions.Region) 
 func loginAction(c *cli.Context) error {
 	username := c.String("username")
 	password := c.String("password")
-	regionStr := strings.ToUpper(c.String("region"))
+	regionString := c.String("region")
 	var region regions.Region
 	var err error
-	switch regionStr {
-	case "CN":
-		region = regions.CN
-	case "US":
-		region = regions.US
-	case "TAB":
-		region = regions.TAB
-	case "":
-		region, err = selectRegion([]regions.Region{regions.CN, regions.US, regions.TAB})
+	if regionString == "" {
+		region, err = selectRegion([]regions.Region{regions.ChinaNorth, regions.USWest, regions.ChinaEast})
 		if err != nil {
 			return err
 		}
-	default:
+	} else {
+		region = regions.Parse(regionString)
+	}
+
+	if region == regions.Invalid {
 		cli.ShowCommandHelp(c, "login")
 		return cli.NewExitError("Wrong region parameter", 1)
 	}
+
+	if err != nil {
+		return err
+	}
+
 	userInfo, err := loginWithPassword(username, password, region)
 	if err != nil {
 		return err

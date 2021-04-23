@@ -11,9 +11,9 @@ import (
 )
 
 var defaultAPIURL = map[regions.Region]string{
-	regions.CN:  "https://api.leancloud.cn",
-	regions.US:  "https://us-api.leancloud.cn",
-	regions.TAB: "https://tab.leancloud.cn",
+	regions.ChinaNorth: "https://api.leancloud.cn",
+	regions.USWest:     "https://us-api.leancloud.cn",
+	regions.ChinaEast:  "https://tab.leancloud.cn",
 }
 
 type RouterResponse struct {
@@ -32,7 +32,7 @@ func GetAppAPIURL(region regions.Region, appID string) string {
 		return envAPIURL
 	}
 
-	if region != regions.US {
+	if region != regions.USWest {
 		routerInfo, err := QueryAppRouter(appID)
 
 		if err != nil {

@@ -86,21 +86,21 @@ func envAction(c *cli.Context) error {
 	}
 
 	envs := []map[string]string{
-		map[string]string{"name": "LC_APP_ID", "value": appInfo.AppID},
-		map[string]string{"name": "LC_APP_KEY", "value": appInfo.AppKey},
-		map[string]string{"name": "LC_APP_MASTER_KEY", "value": appInfo.MasterKey},
-		map[string]string{"name": "LC_APP_PORT", "value": port},
-		map[string]string{"name": "LC_API_SERVER", "value": apiServer},
-		map[string]string{"name": "LEANCLOUD_APP_ID", "value": appInfo.AppID},
-		map[string]string{"name": "LEANCLOUD_APP_KEY", "value": appInfo.AppKey},
-		map[string]string{"name": "LEANCLOUD_APP_MASTER_KEY", "value": appInfo.MasterKey},
-		map[string]string{"name": "LEANCLOUD_APP_HOOK_KEY", "value": appInfo.HookKey},
-		map[string]string{"name": "LEANCLOUD_APP_PORT", "value": port},
-		map[string]string{"name": "LEANCLOUD_API_SERVER", "value": apiServer},
-		map[string]string{"name": "LEANCLOUD_APP_ENV", "value": "development"},
-		map[string]string{"name": "LEANCLOUD_REGION", "value": region.String()},
-		map[string]string{"name": "LEANCLOUD_APP_DOMAIN", "value": groupInfo.Domain},
-		map[string]string{"name": "LEAN_CLI_HAVE_STAGING", "value": haveStaging},
+		{"name": "LC_APP_ID", "value": appInfo.AppID},
+		{"name": "LC_APP_KEY", "value": appInfo.AppKey},
+		{"name": "LC_APP_MASTER_KEY", "value": appInfo.MasterKey},
+		{"name": "LC_APP_PORT", "value": port},
+		{"name": "LC_API_SERVER", "value": apiServer},
+		{"name": "LEANCLOUD_APP_ID", "value": appInfo.AppID},
+		{"name": "LEANCLOUD_APP_KEY", "value": appInfo.AppKey},
+		{"name": "LEANCLOUD_APP_MASTER_KEY", "value": appInfo.MasterKey},
+		{"name": "LEANCLOUD_APP_HOOK_KEY", "value": appInfo.HookKey},
+		{"name": "LEANCLOUD_APP_PORT", "value": port},
+		{"name": "LEANCLOUD_API_SERVER", "value": apiServer},
+		{"name": "LEANCLOUD_APP_ENV", "value": "development"},
+		{"name": "LEANCLOUD_REGION", "value": region.EnvString()},
+		{"name": "LEANCLOUD_APP_DOMAIN", "value": groupInfo.Domain},
+		{"name": "LEAN_CLI_HAVE_STAGING", "value": haveStaging},
 	}
 
 	for name, value := range groupInfo.Environments {

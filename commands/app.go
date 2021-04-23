@@ -29,7 +29,7 @@ func Run(args []string) {
 			Name:      "login",
 			Usage:     "Log in to LeanCloud",
 			Action:    wrapAction(loginAction),
-			ArgsUsage: "[-u username -p password (--region <CN> | <US> | <TAB>)]",
+			ArgsUsage: "[-u username -p password (--region <cn-n1> | <us-w1> | <cn-e1>)]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "username,u",

@@ -40,15 +40,11 @@ func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*a
 }
 
 func checkOutWithAppInfo(arg string, regionString string, groupName string) error {
-	var region regions.Region
-	switch regionString {
-	case "cn", "CN", "":
-		region = regions.CN
-	case "us", "US":
-		region = regions.US
-	case "tab", "TAB":
-		region = regions.TAB
+	region := regions.Parse(regionString)
+	if region == regions.Invalid {
+		region = regions.ChinaNorth
 	}
+
 	currentApps, err := api.GetAppList(region)
 	if err != nil {
 		return err
@@ -111,14 +107,7 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 func checkOutWithWizard(regionString string, groupName string) error {
 	var region regions.Region
 	var err error
-	switch regionString {
-	case "tab", "TAB":
-		region = regions.TAB
-	case "cn", "CN":
-		region = regions.CN
-	case "us", "US":
-		region = regions.US
-	case "":
+	if regionString == "" {
 		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("No apps available in logged regions", 1)
@@ -130,7 +119,11 @@ func checkOutWithWizard(regionString string, groupName string) error {
 				return err
 			}
 		}
-	default:
+	} else {
+		region = regions.Parse(regionString)
+	}
+
+	if region == regions.Invalid {
 		return cli.NewExitError("Wrong region parameter", 1)
 	}
 
@@ -202,8 +195,8 @@ func checkOutWithWizard(regionString string, groupName string) error {
 }
 
 func switchAction(c *cli.Context) error {
-	region := c.String("region")
 	group := c.String("group")
+	region := c.String("region")
 	if c.NArg() > 0 {
 		arg := c.Args()[0]
 		err := checkOutWithAppInfo(arg, region, group)

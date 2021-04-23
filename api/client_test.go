@@ -17,7 +17,7 @@ func TestClient(t *testing.T) {
 			t.FailNow()
 		}
 	}
-	f(regions.CN)
-	f(regions.US)
-	f(regions.TAB)
+	f(regions.ChinaNorth)
+	f(regions.USWest)
+	f(regions.ChinaEast)
 }

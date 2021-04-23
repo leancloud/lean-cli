@@ -127,16 +127,10 @@ func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
 
 func initAction(c *cli.Context) error {
 	groupName := c.String("group")
+	regionString := c.String("region")
 	var region regions.Region
 	var err error
-	switch c.String("region") {
-	case "cn", "CN":
-		region = regions.CN
-	case "us", "US":
-		region = regions.US
-	case "tab", "TAB":
-		region = regions.TAB
-	case "":
+	if regionString == "" {
 		loginedRegions := apps.GetLoginedRegions()
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("Please login first.", 1)
@@ -148,8 +142,12 @@ func initAction(c *cli.Context) error {
 				return err
 			}
 		}
-	default:
-		return cli.NewExitError("Invalid region", 1)
+	} else {
+		region = regions.Parse(regionString)
+	}
+
+	if region == regions.Invalid {
+		cli.NewExitError("Invalid region", 1)
 	}
 
 	appList, err := api.GetAppList(region)
