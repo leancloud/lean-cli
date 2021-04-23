@@ -131,7 +131,8 @@ func initAction(c *cli.Context) error {
 	var region regions.Region
 	var err error
 	if regionString == "" {
-		loginedRegions := apps.GetLoginedRegions()
+		loginedRegions := regions.GetLoginedRegions()
+		loginedRegionsApps := apps.GetRegionCache()
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("Please create an App first.", 1)
 		} else if len(loginedRegionsApps) == 1 {

@@ -28,7 +28,7 @@ func Parse(region string) Region {
 var regionLoginStatus = make(map[Region]bool)
 
 func init() {
-	regionStatus, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "logined-regions"))
+	regionStatus, err := ioutil.ReadFile(filepath.Join(utils.ConfigDir(), "leancloud", "logined_regions.json"))
 	if err != nil {
 		if !os.IsNotExist(err) {
 			panic(err)
@@ -110,5 +110,5 @@ func SaveRegionLoginStatus() error {
 		return err
 	}
 
-	return ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "logined-regions"), data, 0644)
+	return ioutil.WriteFile(filepath.Join(utils.ConfigDir(), "leancloud", "logined_regions.json"), data, 0644)
 }

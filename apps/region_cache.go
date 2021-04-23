@@ -23,7 +23,7 @@ func GetAppRegion(appID string) (regions.Region, error) {
 	}
 }
 
-func GetLoginedRegionsApps() map[string]regions.Region {
+func GetRegionCache() map[string]regions.Region {
 	return regionCache
 }
 

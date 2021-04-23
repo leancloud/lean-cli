@@ -11,15 +11,10 @@ import (
 func infoAction(c *cli.Context) error {
 	callbacks := make([]func(), 0)
 
-	loginedRegionsApps := apps.GetLoginedRegionsApps()
 	loginedRegions := regions.GetLoginedRegions()
 
 	if len(loginedRegions) == 0 {
 		return cli.NewExitError("Please log in first", 1)
-	}
-
-	if len(loginedRegionsApps) == 0 {
-		return cli.NewExitError("No apps available in logined regions", 0)
 	}
 
 	for _, loginedRegion := range loginedRegions {
