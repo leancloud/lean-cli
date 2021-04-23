@@ -50,6 +50,10 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 		return err
 	}
 
+	if len(apps.GetRegionCache()) == 0 {
+		return cli.NewExitError("Please create an app first.", 1)
+	}
+
 	// check if arg is an app id
 	for _, app := range currentApps {
 		if app.AppID == arg {
@@ -131,6 +135,10 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	appList, err := api.GetAppList(region)
 	if err != nil {
 		return err
+	}
+
+	if len(apps.GetRegionCache()) == 0 {
+		return cli.NewExitError("Please create an app first.", 1)
 	}
 
 	var sortedAppList []*api.GetAppListResult

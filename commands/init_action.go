@@ -155,6 +155,10 @@ func initAction(c *cli.Context) error {
 		return err
 	}
 
+	if len(apps.GetRegionCache()) == 0 {
+		return cli.NewExitError("Please create an app first.", 1)
+	}
+
 	var orderedAppList []*api.GetAppListResult
 	linq.From(appList).OrderBy(func(in interface{}) interface{} {
 		return in.(*api.GetAppListResult).AppName[0]
