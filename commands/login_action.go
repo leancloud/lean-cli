@@ -75,6 +75,8 @@ func loginAction(c *cli.Context) error {
 	username := c.String("username")
 	password := c.String("password")
 	regionString := c.String("region")
+	useToken := c.Bool("use-token")
+	token := c.String("token")
 	var region regions.Region
 	var err error
 	var userInfo *api.GetUserInfoResult
@@ -92,13 +94,27 @@ func loginAction(c *cli.Context) error {
 			cli.ShowCommandHelp(c, "login")
 			return cli.NewExitError("Wrong region parameter", 1)
 		}
+	} else {
+		region = regions.ChinaNorth
+	}
 
-		userInfo, err = loginWithPassword(username, password, region)
+	if useToken || token != "" {
+		if token == "" {
+			token, err = inputAcessToken()
+			if err != nil {
+				return err
+			}
+		}
+
+		userInfo, err = loginWithAccessToken(token, region)
 		if err != nil {
 			return err
 		}
 	} else {
-		region = regions.ChinaNorth
+		userInfo, err = loginWithPassword(username, password, region)
+		if err != nil {
+			return err
+		}
 	}
 
 	_, err = api.GetAppList(region) // load region cache

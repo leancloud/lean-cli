@@ -67,6 +67,10 @@ func LoginWithAccessToken(accessToken string, region regions.Region) (*GetUserIn
 	if err := accessTokenCache.Add(accessToken, region).Save(); err != nil {
 		return nil, err
 	}
+	regions.SetRegionLoginStatus(region)
+	if err := regions.SaveRegionLoginStatus(); err != nil {
+		return nil, err
+	}
 
 	return userInfo, nil
 }
