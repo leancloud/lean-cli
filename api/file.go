@@ -113,6 +113,6 @@ func getRepoStorageInfo(region regions.Region) (appId string, appKey string, upl
 	case regions.USWest:
 		return "iuuztdrr4mj683kbsmwoalt1roaypb5d25eu0f23lrfsthgn", "exhqkdnvtjw34p5670r4zlofdsc91likhzfxmr9jz7vnbc07", regions.USWest
 	default:
-		return "x7WmVG0x63V6u8MCYM8qxKo8-gzGzoHsz", "PcDNOjiEpYc0DTz2E9kb5fvu", regions.USWest
+		return "x7WmVG0x63V6u8MCYM8qxKo8-gzGzoHsz", "PcDNOjiEpYc0DTz2E9kb5fvu", regions.ChinaNorth
 	}
 }
