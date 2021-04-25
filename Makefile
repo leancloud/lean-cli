@@ -39,6 +39,7 @@ binaries: $(SRC)
 	make $(OUTPUT)/lean-windows-x86.exe
 	make $(OUTPUT)/lean-windows-x64.exe
 	make $(OUTPUT)/lean-macos-x64
+	make $(OUTPUT)/lean-macos-arm64
 	make $(OUTPUT)/lean-linux-x86
 	make $(OUTPUT)/lean-linux-x64
 
@@ -50,6 +51,9 @@ $(OUTPUT)/lean-windows-x64.exe: $(SRC) resources
 
 $(OUTPUT)/lean-macos-x64: $(SRC) resources
 	GOOS=darwin GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
+
+$(OUTPUT)/lean-macos-arm64: $(SRC) resources
+	GOOS=darwin GOARCH=arm64 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
 $(OUTPUT)/lean-linux-x86: $(SRC) resources
 	GOOS=linux GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
