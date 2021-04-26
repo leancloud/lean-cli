@@ -75,10 +75,8 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 			}
 			return data
 		}()
-		archiveFilePath, ok := params["zipUrl"].(string)
-		if !ok {
-			return nil, fmt.Errorf("bad archive file path")
-		}
+		archiveFilePath := opts.Data["zipUrl"]
+		delete(opts.Data, "zipUrl")
 		fd, err := os.Open(archiveFilePath)
 		if err != nil {
 			return nil, err
@@ -92,7 +90,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 			{
 				FileName:     "leanengine.zip",
 				FileContents: fd,
-				FieldName:    "tarball",
+				FieldName:    "deploy",
 			},
 		}
 
