@@ -4,7 +4,9 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 
+	"github.com/aisk/logp"
 	"github.com/levigross/grequests"
 )
 
@@ -64,7 +66,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 	}
 
 	directUpload, _ := params["direct"].(bool)
-
+	delete(params, "direct")
 	if directUpload {
 		opts.Data = func() map[string]string {
 			data := make(map[string]string)
@@ -77,15 +79,25 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 		if !ok {
 			return nil, fmt.Errorf("bad archive file path")
 		}
-		archiveFile, err := grequests.FileUploadFromDisk(archiveFilePath)
+		fd, err := os.Open(archiveFilePath)
 		if err != nil {
 			return nil, err
 		}
-		opts.Files = archiveFile
+		defer func() {
+			if err := fd.Close(); err != nil {
+				logp.Error(err)
+			}
+		}()
+		opts.Files = []grequests.FileUpload{
+			{
+				FileName:     "leanengine.zip",
+				FileContents: fd,
+				FieldName:    "tarball",
+			},
+		}
+
 		return client.post(url, nil, opts)
 	}
-
-	delete(params, "direct")
 	return client.post(url, params, opts)
 }
 
