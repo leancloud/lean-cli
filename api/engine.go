@@ -7,7 +7,10 @@ import (
 	"os"
 
 	"github.com/aisk/logp"
+	"github.com/cheggaaa/pb"
+	"github.com/fatih/color"
 	"github.com/levigross/grequests"
+	"github.com/mattn/go-colorable"
 )
 
 type EngineInfo struct {
@@ -86,15 +89,33 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 				logp.Error(err)
 			}
 		}()
+
+		stats, err := fd.Stat()
+		if err != nil {
+			return nil, err
+		}
+
+		bar := pb.New(int(stats.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+		bar.Output = colorable.NewColorableStderr()
+		bar.Prefix(color.GreenString("[INFO]") + " Uploading file")
+		bar.Start()
+		barProxy := bar.NewProxyReader(fd)
+
 		opts.Files = []grequests.FileUpload{
 			{
 				FileName:     "leanengine.zip",
-				FileContents: fd,
+				FileContents: barProxy,
 				FieldName:    "deploy",
 			},
 		}
 
-		return client.post(url, nil, opts)
+		resp, err := client.post(url, nil, opts)
+		if err != nil {
+			return nil, err
+		}
+		bar.Finish()
+
+		return resp, nil
 	}
 	return client.post(url, params, opts)
 }
