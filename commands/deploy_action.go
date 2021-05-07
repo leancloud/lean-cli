@@ -204,14 +204,16 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 		}
 	}
 
-	if !keepFile {
-		defer func() {
-			logp.Info("Deleting temporary files")
-			err := api.DeleteFromRepoStorage(region, file.ObjectID)
-			if err != nil {
-				logp.Error(err)
-			}
-		}()
+	if !opts.DirectUpload {
+		if !keepFile {
+			defer func() {
+				logp.Info("Deleting temporary files")
+				err := api.DeleteFromRepoStorage(region, file.ObjectID)
+				if err != nil {
+					logp.Error(err)
+				}
+			}()
+		}
 	}
 
 	var eventTok string

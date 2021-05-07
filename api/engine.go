@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"os"
 
-	"github.com/aisk/logp"
 	"github.com/cheggaaa/pb"
 	"github.com/fatih/color"
 	"github.com/levigross/grequests"
@@ -84,11 +83,6 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 		if err != nil {
 			return nil, err
 		}
-		defer func() {
-			if err := fd.Close(); err != nil {
-				logp.Error(err)
-			}
-		}()
 
 		stats, err := fd.Stat()
 		if err != nil {
@@ -105,7 +99,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 			{
 				FileName:     "leanengine.zip",
 				FileContents: barProxy,
-				FieldName:    "deploy",
+				FieldName:    "tarball",
 			},
 		}
 
