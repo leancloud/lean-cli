@@ -99,7 +99,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 			{
 				FileName:     "leanengine.zip",
 				FileContents: barProxy,
-				FieldName:    "tarball",
+				FieldName:    "zip",
 			},
 		}
 
