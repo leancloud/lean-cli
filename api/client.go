@@ -20,6 +20,8 @@ import (
 	"github.com/levigross/grequests"
 )
 
+var requestsCount = 0
+
 var defaultLoginType = "cookieJar"
 
 var dashboardBaseUrls = map[regions.Region]string{
@@ -153,6 +155,9 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 }
 
 func doRequest(client *Client, method string, path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+	requestsCount += 1
+	requestId := requestsCount
+
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
@@ -177,7 +182,19 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	default:
 		panic("invalid method: " + method)
 	}
-	resp, err := fn(client.GetBaseURL()+path, options)
+
+	url := client.GetBaseURL() + path
+
+	if debuggingRequests() {
+		fmt.Printf("request(%v) [%s %s] %v %v\n", requestId, method, url, params, options.Headers)
+	}
+
+	resp, err := fn(url, options)
+
+	if debuggingRequests() {
+		fmt.Printf("response(%v) [%s %s] %v %v %v\n", requestId, method, url, resp.StatusCode, resp.String(), resp.Header)
+	}
+
 	if err != nil {
 		return nil, err
 	}
@@ -301,4 +318,8 @@ func getSystemLanguage() string {
 	}
 
 	return language
+}
+
+func debuggingRequests() bool {
+	return strings.Contains(os.Getenv("DEBUG"), "lean") || strings.Contains(os.Getenv("DEBUG"), "tds")
 }
