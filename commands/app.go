@@ -170,22 +170,6 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:      "switch",
-			Usage:     "Change the associated LeanCloud app",
-			Action:    wrapAction(switchAction),
-			ArgsUsage: "[appID | appName]",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "region",
-					Usage: "LeanCloud region",
-				},
-				cli.StringFlag{
-					Name:  "group",
-					Usage: "LeanEngine group",
-				},
-			},
-		},
-		{
 			Name:   "deploy",
 			Usage:  "Deploy the project to LeanEngine",
 			Action: wrapAction(deployAction),
