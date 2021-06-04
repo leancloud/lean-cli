@@ -17,7 +17,7 @@ func Run(args []string) {
 	cli.SubcommandHelpTemplate = logo.Logo() + cli.SubcommandHelpTemplate
 
 	app := cli.NewApp()
-	app.Name = "lean"
+	app.Name = version.Distribution
 	app.Version = version.Version
 	app.Usage = "Command line to manage and deploy LeanCloud apps"
 	app.EnableBashCompletion = true
@@ -36,9 +36,9 @@ func Run(args []string) {
 			Action: wrapAction(loginAction),
 			ArgsUsage: func() string {
 				if version.Distribution == "lean" {
-					return "[-u username -p password --use-token -k token (--region <cn-n1> | <cn-e1> | <us-w1>)]"
+					return "[-u <username>] [-p <password>] [--use-token] [--token <token>] [--region (cn-n1 | cn-e1 | us-w1)]"
 				} else {
-					return "[-k token]"
+					return "[--token [<token>]]"
 				}
 			}(),
 			Flags: func() []cli.Flag {
@@ -54,21 +54,21 @@ func Run(args []string) {
 						},
 						cli.StringFlag{
 							Name:  "region,r",
-							Usage: "The LeanCloud region to log in to (e.g., US, CN)",
+							Usage: "The LeanCloud region to log in to (e.g., cn-n1, us-w1)",
 						},
 						cli.BoolFlag{
 							Name:  "use-token",
 							Usage: "Use AccessToken to log in",
 						},
 						cli.StringFlag{
-							Name:  "token,k",
+							Name:  "token",
 							Usage: "AccessToken generated from the Dashboard",
 						},
 					}
 				} else {
 					return []cli.Flag{
 						cli.StringFlag{
-							Name:  "token,k",
+							Name:  "token",
 							Usage: "AccessToken generated from the Dashboard",
 						},
 					}

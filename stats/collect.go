@@ -30,26 +30,27 @@ type Event struct {
 
 // ClientType is collect payload's client field type
 type ClientType struct {
-	ID         string `json:"id"`
-	Platform   string `json:"platform"`
-	AppVersion string `json:"app_version"`
-	AppChannel string `json:"app_channel"`
+	ID           string `json:"id"`
+	Platform     string `json:"platform"`
+	AppVersion   string `json:"app_version"`
+	AppChannel   string `json:"app_channel"`
+	Distribution string `json:"distribution"`
 }
 
 // Collect the user's stats
 func Collect(event Event) {
 	_, err := grequests.Post("https://www.google-analytics.com/collect", &grequests.RequestOptions{
 		Data: map[string]string{
-			"aid": Client.Platform,
+			"aid":  Client.Platform,
 			"aiid": Client.AppChannel,
-			"an": "lean",
-			"av": Client.AppVersion,
-			"cid": Client.ID,
-			"ea": event.Event,
-			"ec": "run",
-			"t": "event",
-			"tid": GA_TRACK_ID,
-			"v": "1",
+			"an":   Client.Distribution,
+			"av":   Client.AppVersion,
+			"cid":  Client.ID,
+			"ea":   event.Event,
+			"ec":   "run",
+			"t":    "event",
+			"tid":  GA_TRACK_ID,
+			"v":    "1",
 		},
 	})
 	if err != nil {
