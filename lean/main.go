@@ -44,7 +44,7 @@ func run() {
 }
 
 func init() {
-	err := raven.SetDSN("https://985d436efdb544c49e9389e59724ddce:6a831597d45b4309923f2567bbe7db82@sentry.lean.sh/9")
+	err := raven.SetDSN("https://985d436efdb544c49e9389e59724ddce:6a831597d45b4309923f2567bbe7db82@sentry.lcops.cn/9")
 	if err != nil {
 		panic(err)
 	}
