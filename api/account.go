@@ -17,7 +17,7 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 		},
 		CookieJar:    jar,
 		UseCookieJar: true,
-		UserAgent:    "LeanCloud-CLI/" + version.Version,
+		UserAgent:    version.GetUserAgent(),
 	}
 	client := NewClientByRegion(region)
 
@@ -50,7 +50,6 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 }
 
 func LoginWithAccessToken(accessToken string, region regions.Region) (*GetUserInfoResult, error) {
-	defaultLoginType = "accessToken"
 	client := NewClientByRegion(region)
 	client.AccessToken = accessToken
 

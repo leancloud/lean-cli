@@ -25,10 +25,6 @@ func init() {
 		if err := json.Unmarshal(content, &(accessTokenCache)); err != nil {
 			panic(err)
 		}
-
-		if len(accessTokenCache) != 0 {
-			defaultLoginType = "accessToken"
-		}
 	}
 }
 

@@ -36,7 +36,7 @@ func inputAcessToken() (string, error) {
 	accessToken := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "AccessToken: ",
+			Content: "AccessToken from the Dashboard: ",
 			Input: &wizard.Input{
 				Result: accessToken,
 				Hidden: false,
@@ -80,9 +80,10 @@ func loginAction(c *cli.Context) error {
 	var region regions.Region
 	var err error
 	var userInfo *api.GetUserInfoResult
-	if version.Distribution == "lean" {
+
+	if len(version.AvailableRegions) > 1 {
 		if regionString == "" {
-			region, err = selectRegion([]regions.Region{regions.ChinaNorth, regions.USWest, regions.ChinaEast})
+			region, err = selectRegion(version.AvailableRegions)
 			if err != nil {
 				return err
 			}
@@ -95,10 +96,10 @@ func loginAction(c *cli.Context) error {
 			return cli.NewExitError("Wrong region parameter", 1)
 		}
 	} else {
-		region = regions.ChinaNorth
+		region = version.AvailableRegions[0]
 	}
 
-	if useToken || token != "" {
+	if version.LoginViaAccessTokenOnly || useToken || token != "" {
 		if token == "" {
 			token, err = inputAcessToken()
 			if err != nil {

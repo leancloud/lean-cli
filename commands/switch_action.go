@@ -11,6 +11,7 @@ import (
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -40,9 +41,16 @@ func selectCheckOutApp(appList []*api.GetAppListResult, currentAppID string) (*a
 }
 
 func checkOutWithAppInfo(arg string, regionString string, groupName string) error {
-	region := regions.Parse(regionString)
-	if region == regions.Invalid {
-		region = regions.ChinaNorth
+	var region regions.Region
+
+	if regionString != "" {
+		region = regions.Parse(regionString)
+
+		if region == regions.Invalid {
+			return cli.NewExitError("Wrong region parameter", 1)
+		}
+	} else {
+		region = version.DefaultRegion
 	}
 
 	currentApps, err := api.GetAppList(region)
