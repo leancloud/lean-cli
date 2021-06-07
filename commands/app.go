@@ -17,33 +17,96 @@ func Run(args []string) {
 	cli.SubcommandHelpTemplate = logo.Logo() + cli.SubcommandHelpTemplate
 
 	app := cli.NewApp()
-	app.Name = "lean"
+	app.Name = version.Distribution
 	app.Version = version.Version
 	app.Usage = "Command line to manage and deploy LeanCloud apps"
 	app.EnableBashCompletion = true
 
 	app.CommandNotFound = thirdPartyCommand
-
 	app.Commands = []cli.Command{
 		{
-			Name:      "login",
-			Usage:     "Log in to LeanCloud",
-			Action:    wrapAction(loginAction),
-			ArgsUsage: "[-u username -p password (--region <cn-n1> | <us-w1> | <cn-e1>)]",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "username,u",
-					Usage: "Username",
-				},
-				cli.StringFlag{
-					Name:  "password,p",
-					Usage: "Password",
-				},
-				cli.StringFlag{
-					Name:  "region,r",
-					Usage: "The LeanCloud region to log in to (e.g., US, CN)",
-				},
-			},
+			Name: "login",
+			Usage: func() string {
+				if version.Distribution == "lean" {
+					return "Log in to LeanCloud"
+				} else {
+					return "Log in to TapTap Developer Services"
+				}
+			}(),
+			Action: wrapAction(loginAction),
+			ArgsUsage: func() string {
+				if version.Distribution == "lean" {
+					return "[-u <username>] [-p <password>] [--use-token] [--token <token>] [--region (cn-n1 | cn-e1 | us-w1)]"
+				} else {
+					return "[--token [<token>]]"
+				}
+			}(),
+			Flags: func() []cli.Flag {
+				if version.Distribution == "lean" {
+					return []cli.Flag{
+						cli.StringFlag{
+							Name:  "username,u",
+							Usage: "Username",
+						},
+						cli.StringFlag{
+							Name:  "password,p",
+							Usage: "Password",
+						},
+						cli.StringFlag{
+							Name:  "region,r",
+							Usage: "The LeanCloud region to log in to (e.g., cn-n1, us-w1)",
+						},
+						cli.BoolFlag{
+							Name:  "use-token",
+							Usage: "Use AccessToken to log in",
+						},
+						cli.StringFlag{
+							Name:  "token",
+							Usage: "AccessToken generated from the Dashboard",
+						},
+					}
+				} else {
+					return []cli.Flag{
+						cli.StringFlag{
+							Name:  "token",
+							Usage: "AccessToken generated from the Dashboard",
+						},
+					}
+				}
+			}(),
+		},
+		{
+			Name: "switch",
+			Usage: func() string {
+				if version.Distribution == "lean" {
+					return "Change the associated LeanCloud app"
+				} else {
+					return "Change the associated CloudEngine app"
+				}
+			}(),
+			Action:    wrapAction(switchAction),
+			ArgsUsage: "[appID | appName]",
+			Flags: func() []cli.Flag {
+				if version.Distribution == "lean" {
+					return []cli.Flag{
+						cli.StringFlag{
+							Name:  "region",
+							Usage: "LeanCloud region",
+						},
+						cli.StringFlag{
+							Name:  "group",
+							Usage: "LeanEngine group",
+						},
+					}
+				} else {
+					return []cli.Flag{
+						cli.StringFlag{
+							Name:  "group",
+							Usage: "CloudEngine group",
+						},
+					}
+				}
+			}(),
 		},
 		{
 			Name:      "metric",
@@ -99,22 +162,6 @@ func Run(args []string) {
 				cli.StringFlag{
 					Name:  "region",
 					Usage: "LeanCloud region for the project",
-				},
-				cli.StringFlag{
-					Name:  "group",
-					Usage: "LeanEngine group",
-				},
-			},
-		},
-		{
-			Name:      "switch",
-			Usage:     "Change the associated LeanCloud app",
-			Action:    wrapAction(switchAction),
-			ArgsUsage: "[appID | appName]",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "region",
-					Usage: "LeanCloud region",
 				},
 				cli.StringFlag{
 					Name:  "group",

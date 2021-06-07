@@ -5,6 +5,7 @@ import (
 	"github.com/aisk/wizard"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -31,6 +32,21 @@ func inputAccountInfo() (string, string, error) {
 	return *email, *password, err
 }
 
+func inputAcessToken() (string, error) {
+	accessToken := new(string)
+	err := wizard.Ask([]wizard.Question{
+		{
+			Content: "AccessToken from the Dashboard: ",
+			Input: &wizard.Input{
+				Result: accessToken,
+				Hidden: false,
+			},
+		},
+	})
+
+	return *accessToken, err
+}
+
 func loginWithPassword(username string, password string, region regions.Region) (*api.GetUserInfoResult, error) {
 	if username == "" || password == "" {
 		var err error
@@ -43,34 +59,65 @@ func loginWithPassword(username string, password string, region regions.Region) 
 	return api.Login(username, password, region)
 }
 
+func loginWithAccessToken(token string, region regions.Region) (*api.GetUserInfoResult, error) {
+	if token == "" {
+		var err error
+		token, err = inputAcessToken()
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return api.LoginWithAccessToken(token, region)
+}
+
 func loginAction(c *cli.Context) error {
 	username := c.String("username")
 	password := c.String("password")
 	regionString := c.String("region")
+	useToken := c.Bool("use-token")
+	token := c.String("token")
 	var region regions.Region
 	var err error
-	if regionString == "" {
-		region, err = selectRegion([]regions.Region{regions.ChinaNorth, regions.USWest, regions.ChinaEast})
+	var userInfo *api.GetUserInfoResult
+
+	if len(version.AvailableRegions) > 1 {
+		if regionString == "" {
+			region, err = selectRegion(version.AvailableRegions)
+			if err != nil {
+				return err
+			}
+		} else {
+			region = regions.Parse(regionString)
+		}
+
+		if region == regions.Invalid {
+			cli.ShowCommandHelp(c, "login")
+			return cli.NewExitError("Wrong region parameter", 1)
+		}
+	} else {
+		region = version.AvailableRegions[0]
+	}
+
+	if version.LoginViaAccessTokenOnly || useToken || token != "" {
+		if token == "" {
+			token, err = inputAcessToken()
+			if err != nil {
+				return err
+			}
+		}
+
+		userInfo, err = loginWithAccessToken(token, region)
 		if err != nil {
 			return err
 		}
 	} else {
-		region = regions.Parse(regionString)
+		userInfo, err = loginWithPassword(username, password, region)
+		if err != nil {
+			return err
+		}
 	}
 
-	if region == regions.Invalid {
-		cli.ShowCommandHelp(c, "login")
-		return cli.NewExitError("Wrong region parameter", 1)
-	}
-
-	if err != nil {
-		return err
-	}
-
-	userInfo, err := loginWithPassword(username, password, region)
-	if err != nil {
-		return err
-	}
 	_, err = api.GetAppList(region) // load region cache
 	if err != nil {
 		return err
@@ -78,5 +125,6 @@ func loginAction(c *cli.Context) error {
 	logp.Info("Login succeeded: ")
 	logp.Infof("Username: %s\r\n", userInfo.UserName)
 	logp.Infof("Email: %s\r\n", userInfo.Email)
+
 	return nil
 }

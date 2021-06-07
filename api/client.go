@@ -20,10 +20,13 @@ import (
 	"github.com/levigross/grequests"
 )
 
+var requestsCount = 0
+
 var dashboardBaseUrls = map[regions.Region]string{
 	regions.ChinaNorth: "https://cn-n1-console-api.leancloud.cn",
 	regions.USWest:     "https://us-w1-console-api.leancloud.app",
 	regions.ChinaEast:  "https://cn-e1-console-api.leancloud.cn",
+	regions.ChinaTDS1:  "https://tds-console-api.leancloud.cn",
 }
 
 var (
@@ -49,22 +52,30 @@ var (
 )
 
 type Client struct {
-	CookieJar *cookiejar.Jar
-	Region    regions.Region
-	AppID     string
+	CookieJar   *cookiejar.Jar
+	Region      regions.Region
+	AppID       string
+	AccessToken string
 }
 
 func NewClientByRegion(region regions.Region) *Client {
 	return &Client{
-		CookieJar: newCookieJar(),
-		Region:    region,
+		AccessToken: accessTokenCache[region],
+		Region:      region,
 	}
 }
 
 func NewClientByApp(appID string) *Client {
+	region, err := apps.GetAppRegion(appID)
+
+	if err != nil {
+		panic(err)
+	}
+
 	return &Client{
-		CookieJar: newCookieJar(),
-		AppID:     appID,
+		AppID:       appID,
+		AccessToken: accessTokenCache[region],
+		Region:      region,
 	}
 }
 
@@ -77,54 +88,61 @@ func (client *Client) GetBaseURL() string {
 
 	region := client.Region
 
-	if client.AppID != "" {
-		var err error
-		region, err = apps.GetAppRegion(client.AppID)
-
-		if err != nil {
-			panic(err) // This error should be catch at top level
-		}
-	}
-
 	if url, ok := dashboardBaseUrls[region]; ok {
 		return url
-	} else {
-		panic("invalid region")
 	}
+
+	panic("invalid region")
 }
 
 func (client *Client) options() (*grequests.RequestOptions, error) {
-	u, err := url.Parse(client.GetBaseURL())
-	if err != nil {
-		panic(err)
-	}
-	cookies := client.CookieJar.Cookies(u)
-	xsrf := ""
-	for _, cookie := range cookies {
-		if cookie.Name == "XSRF-TOKEN" {
-			xsrf = cookie.Value
-			break
-		}
-	}
-
 	return &grequests.RequestOptions{
+		UserAgent: version.GetUserAgent(),
 		Headers: map[string]string{
-			"X-XSRF-TOKEN":    xsrf,
 			"Accept-Language": getSystemLanguage(),
 		},
-		CookieJar:    client.CookieJar,
-		UseCookieJar: true,
-		UserAgent:    "LeanCloud-CLI/" + version.Version,
 	}, nil
 }
 
 func doRequest(client *Client, method string, path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+	requestsCount += 1
+	requestId := requestsCount
+
+	if !version.LoginViaAccessTokenOnly && client.AccessToken == "" {
+		client.CookieJar = newCookieJar()
+	}
+
 	var err error
 	if options == nil {
 		if options, err = client.options(); err != nil {
 			return nil, err
 		}
 	}
+
+	if client.AccessToken != "" {
+		options.Headers["Authorization"] = fmt.Sprint("Token ", client.AccessToken)
+	} else if client.CookieJar != nil {
+		url, err := url.Parse(client.GetBaseURL())
+
+		if err != nil {
+			panic(err)
+		}
+
+		cookies := client.CookieJar.Cookies(url)
+		xsrf := ""
+
+		for _, cookie := range cookies {
+			if cookie.Name == "XSRF-TOKEN" {
+				xsrf = cookie.Value
+				break
+			}
+		}
+
+		options.Headers["X-XSRF-TOKEN"] = xsrf
+		options.CookieJar = client.CookieJar
+		options.UseCookieJar = true
+	}
+
 	if params != nil {
 		options.JSON = params
 	}
@@ -143,10 +161,23 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	default:
 		panic("invalid method: " + method)
 	}
-	resp, err := fn(client.GetBaseURL()+path, options)
+
+	url := client.GetBaseURL() + path
+
+	if debuggingRequests() {
+		fmt.Printf("request(%v) [%s %s] %v %v\n", requestId, method, url, params, options.Headers)
+	}
+
+	resp, err := fn(url, options)
+
+	if debuggingRequests() {
+		fmt.Printf("response(%v) [%s %s] %v %v %v\n", requestId, method, url, resp.StatusCode, resp.String(), resp.Header)
+	}
+
 	if err != nil {
 		return nil, err
 	}
+
 	resp, err = client.checkAndDo2FA(resp)
 	if err != nil {
 		return nil, err
@@ -159,8 +190,10 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, method, path)
 	}
 
-	if err = client.CookieJar.Save(); err != nil {
-		return nil, err
+	if client.CookieJar != nil {
+		if err = client.CookieJar.Save(); err != nil {
+			return nil, err
+		}
 	}
 
 	return resp, nil
@@ -262,4 +295,8 @@ func getSystemLanguage() string {
 	}
 
 	return language
+}
+
+func debuggingRequests() bool {
+	return strings.Contains(os.Getenv("DEBUG"), "lean") || strings.Contains(os.Getenv("DEBUG"), "tds")
 }

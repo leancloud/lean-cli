@@ -20,6 +20,8 @@ func Parse(region string) Region {
 		return ChinaEast
 	case "us", "US", "us-w1":
 		return USWest
+	case "cn-tds1":
+		return ChinaTDS1
 	default:
 		return Invalid
 	}
@@ -47,6 +49,8 @@ func (r Region) String() string {
 		return "cn-e1"
 	case USWest:
 		return "us-w1"
+	case ChinaTDS1:
+		return "cn-tds1"
 	default:
 		return "invalid"
 	}
@@ -54,7 +58,7 @@ func (r Region) String() string {
 
 func (r Region) EnvString() string {
 	switch r {
-	case ChinaNorth, ChinaEast:
+	case ChinaNorth, ChinaEast, ChinaTDS1:
 		return "CN"
 	case USWest:
 		return "US"
@@ -72,6 +76,8 @@ func (r Region) Description() string {
 		return "United States"
 	case ChinaEast:
 		return "China East"
+	case ChinaTDS1:
+		return "China TDS"
 	default:
 		return "invalid"
 	}
@@ -83,6 +89,7 @@ const (
 	ChinaNorth
 	USWest
 	ChinaEast
+	ChinaTDS1
 )
 
 func GetLoginedRegions() []Region {

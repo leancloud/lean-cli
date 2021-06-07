@@ -17,7 +17,7 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 		},
 		CookieJar:    jar,
 		UseCookieJar: true,
-		UserAgent:    "LeanCloud-CLI/" + version.Version,
+		UserAgent:    version.GetUserAgent(),
 	}
 	client := NewClientByRegion(region)
 
@@ -47,6 +47,31 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	result := new(GetUserInfoResult)
 	err = resp.JSON(result)
 	return result, err
+}
+
+func LoginWithAccessToken(accessToken string, region regions.Region) (*GetUserInfoResult, error) {
+	client := NewClientByRegion(region)
+	client.AccessToken = accessToken
+
+	resp, err := client.get("/1.1/clients/self", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	userInfo := new(GetUserInfoResult)
+	if err := resp.JSON(userInfo); err != nil {
+		return nil, err
+	}
+
+	if err := accessTokenCache.Add(accessToken, region).Save(); err != nil {
+		return nil, err
+	}
+	regions.SetRegionLoginStatus(region)
+	if err := regions.SaveRegionLoginStatus(); err != nil {
+		return nil, err
+	}
+
+	return userInfo, nil
 }
 
 // GetUserInfoResult is the return type of GetUserInfo
