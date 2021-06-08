@@ -31,6 +31,7 @@ func deployAction(c *cli.Context) error {
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
 	prodString := c.String("prod")
+	isDirect := c.Bool("direct")
 
 	var prod int
 
@@ -81,9 +82,9 @@ func deployAction(c *cli.Context) error {
 	}
 
 	opts := &api.DeployOptions{
-		NoDepsCache: noDepsCache,
+		NoDepsCache:    noDepsCache,
 		OverwriteFuncs: overwriteFuncs,
-		Options:     c.String("options"),
+		Options:        c.String("options"),
 	}
 
 	if isDeployFromGit {
@@ -93,7 +94,7 @@ func deployAction(c *cli.Context) error {
 		}
 	} else {
 		opts.Message = getCommentMessage(message)
-
+		opts.DirectUpload = isDirect
 		err = deployFromLocal(appID, groupName, prod, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
 			return err
@@ -102,10 +103,10 @@ func deployAction(c *cli.Context) error {
 	return nil
 }
 
-func uploadProject(appID string, region regions.Region, repoPath string, ignoreFilePath string) (*upload.File, error) {
+func packageProject(repoPath, ignoreFilePath string) (string, error) {
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	archiveFile := filepath.Join(fileDir, "leanengine.zip")
@@ -114,27 +115,30 @@ func uploadProject(appID string, region regions.Region, repoPath string, ignoreF
 	if err == runtimes.ErrRuntimeNotFound {
 		logp.Warn("Failed to recognize project type. Please inspect the directory structure if the deployment failed.")
 	} else if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	err = runtime.ArchiveUploadFiles(archiveFile, ignoreFilePath)
-	if err != nil {
-		return nil, err
+	if err := runtime.ArchiveUploadFiles(archiveFile, ignoreFilePath); err != nil {
+		return "", err
 	}
 
-	file, err := api.UploadToRepoStorage(region, archiveFile)
-	if err != nil {
-		return nil, err
-	}
-
-	return file, nil
+	return archiveFile, nil
 }
 
-func uploadWar(appID string, region regions.Region, repoPath string) (*upload.File, error) {
+func uploadProject(appID string, region regions.Region, repoPath string, ignoreFilePath string) (*upload.File, error) {
+	archiveFile, err := packageProject(repoPath, ignoreFilePath)
+	if err != nil {
+		return nil, err
+	}
+
+	return api.UploadToRepoStorage(region, archiveFile)
+}
+
+func packageWar(repoPath string) (string, error) {
 	var warPath string
 	files, err := ioutil.ReadDir(filepath.Join(repoPath, "target"))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	for _, file := range files {
 		if strings.HasSuffix(file.Name(), ".war") && !file.IsDir() {
@@ -142,14 +146,14 @@ func uploadWar(appID string, region regions.Region, repoPath string) (*upload.Fi
 		}
 	}
 	if warPath == "" {
-		return nil, errors.New("Cannot find .war file in ./target")
+		return "", errors.New("cannot find .war file in ./target")
 	}
 
 	logp.Info("Found .war file:", warPath)
 
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	archivePath := filepath.Join(fileDir, "ROOT.war.zip")
 
@@ -158,9 +162,17 @@ func uploadWar(appID string, region regions.Region, repoPath string) (*upload.Fi
 		Path: warPath,
 	}}
 	if err = utils.ArchiveFiles(archivePath, file); err != nil {
-		return nil, err
+		return "", err
 	}
 
+	return archivePath, nil
+}
+
+func uploadWar(appID string, region regions.Region, repoPath string) (*upload.File, error) {
+	archivePath, err := packageWar(repoPath)
+	if err != nil {
+		return nil, err
+	}
 	return api.UploadToRepoStorage(region, archivePath)
 }
 
@@ -171,26 +183,45 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	}
 
 	var file *upload.File
+	var archiveFilePath string
 	if isDeployFromJavaWar {
-		file, err = uploadWar(appID, region, ".")
+		if opts.DirectUpload {
+			archiveFilePath, err = packageWar(".")
+		} else {
+			file, err = uploadWar(appID, region, ".")
+		}
+		if err != nil {
+			return err
+		}
 	} else {
-		file, err = uploadProject(appID, region, ".", ignoreFilePath)
+		if opts.DirectUpload {
+			archiveFilePath, err = packageProject(".", ignoreFilePath)
+		} else {
+			file, err = uploadProject(appID, region, ".", ignoreFilePath)
+		}
 		if err != nil {
 			return err
 		}
 	}
 
-	if !keepFile {
-		defer func() {
-			logp.Info("Deleting temporary files")
-			err := api.DeleteFromRepoStorage(region, file.ObjectID)
-			if err != nil {
-				logp.Error(err)
-			}
-		}()
+	if !opts.DirectUpload {
+		if !keepFile {
+			defer func() {
+				logp.Info("Deleting temporary files")
+				err := api.DeleteFromRepoStorage(region, file.ObjectID)
+				if err != nil {
+					logp.Error(err)
+				}
+			}()
+		}
 	}
 
-	eventTok, err := api.DeployAppFromFile(appID, group, prod, file.URL, opts)
+	var eventTok string
+	if opts.DirectUpload {
+		eventTok, err = api.DeployAppFromFile(appID, group, prod, archiveFilePath, opts)
+	} else {
+		eventTok, err = api.DeployAppFromFile(appID, group, prod, file.URL, opts)
+	}
 	if err != nil {
 		return err
 	}

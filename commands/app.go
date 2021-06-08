@@ -215,6 +215,10 @@ func Run(args []string) {
 					Name:  "prod",
 					Usage: "Deploy to production(`--prod 1`) or staging(`--prod 0`) environment, default to staging if it exists",
 				},
+				cli.BoolFlag{
+					Name:  "direct",
+					Usage: "Upload project's tarball to remote directly",
+				},
 			},
 		},
 		{

@@ -4,8 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"net/url"
+	"os"
 
+	"github.com/cheggaaa/pb"
+	"github.com/fatih/color"
 	"github.com/levigross/grequests"
+	"github.com/mattn/go-colorable"
 )
 
 type EngineInfo struct {
@@ -37,6 +41,7 @@ type GetGroupsResult struct {
 }
 
 type DeployOptions struct {
+	DirectUpload   bool
 	Message        string
 	NoDepsCache    bool
 	OverwriteFuncs bool
@@ -59,9 +64,53 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 	case 1:
 		url = "/1.1/engine/groups/" + group + "/production/version"
 	default:
-		return nil, errors.New("invalid prod value " + fmt.Sprint(prod))
+		return nil, fmt.Errorf("invalid prod value %d", prod)
 	}
 
+	directUpload, _ := params["direct"].(bool)
+	delete(params, "direct")
+	if directUpload {
+		opts.Data = func() map[string]string {
+			data := make(map[string]string)
+			for k, v := range params {
+				data[k] = fmt.Sprint(v)
+			}
+			return data
+		}()
+		archiveFilePath := opts.Data["zipUrl"]
+		delete(opts.Data, "zipUrl")
+		fd, err := os.Open(archiveFilePath)
+		if err != nil {
+			return nil, err
+		}
+
+		stats, err := fd.Stat()
+		if err != nil {
+			return nil, err
+		}
+
+		bar := pb.New(int(stats.Size())).SetUnits(pb.U_BYTES).SetMaxWidth(80)
+		bar.Output = colorable.NewColorableStderr()
+		bar.Prefix(color.GreenString("[INFO]") + " Uploading file")
+		bar.Start()
+		barProxy := bar.NewProxyReader(fd)
+
+		opts.Files = []grequests.FileUpload{
+			{
+				FileName:     "leanengine.zip",
+				FileContents: barProxy,
+				FieldName:    "zip",
+			},
+		}
+
+		resp, err := client.post(url, nil, opts)
+		if err != nil {
+			return nil, err
+		}
+		bar.Finish()
+
+		return resp, nil
+	}
 	return client.post(url, params, opts)
 }
 
@@ -117,6 +166,7 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, opt
 		return "", err
 	}
 
+	params["direct"] = opts.DirectUpload
 	params["zipUrl"] = fileURL
 
 	resp, err := deploy(appID, group, prod, params)
@@ -218,7 +268,7 @@ func PutEnvironments(appID string, group string, envs map[string]string) error {
 		return err
 	}
 	if response.StatusCode != 200 {
-		return errors.New("Error updating environment variable, code: " + string(response.StatusCode))
+		return fmt.Errorf("Error updating environment variable, code: %d", response.StatusCode)
 	}
 	return nil
 }
