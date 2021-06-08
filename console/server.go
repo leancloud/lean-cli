@@ -79,7 +79,12 @@ func (server *Server) resourcesHandler(w http.ResponseWriter, req *http.Request)
 
 func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
 	url := fmt.Sprintf("%s/1.1/functions/_ops/metadatas", server.RemoteURL)
-	response, err := grequests.Options(url, &grequests.RequestOptions{})
+	response, err := grequests.Options(url, &grequests.RequestOptions{
+		Headers: map[string]string{
+			"Access-Control-Request-Method": "GET",
+			"Origin":                        fmt.Sprint("http://localhost:", server.ConsolePort),
+		},
+	})
 	if err != nil {
 		panic(err)
 	}
