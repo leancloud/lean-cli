@@ -94,6 +94,9 @@ $(OUTPUT)/tds-windows-x64.exe: $(SRC) resources
 $(OUTPUT)/tds-macos-x64: $(SRC) resources
 	GOOS=darwin GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
+$(OUTPUT)/tds-macos-arm64: $(SRC) resources
+	GOOS=darwin GOARCH=arm64 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
+
 $(OUTPUT)/tds-linux-x86: $(SRC) resources
 	GOOS=linux GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
