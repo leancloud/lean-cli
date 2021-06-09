@@ -120,7 +120,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 	var region regions.Region
 	var err error
 	if regionString == "" {
-		loginedRegions := regions.GetLoginedRegions()
+		loginedRegions := regions.GetLoginedRegions(version.AvailableRegions)
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("Please login first.", 1)
 		} else if len(loginedRegions) == 1 {
