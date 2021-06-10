@@ -92,11 +92,16 @@ const (
 	ChinaTDS1
 )
 
-func GetLoginedRegions() []Region {
+// Only return available regions
+func GetLoginedRegions(availableRegions []Region) []Region {
 	var regions []Region
-	for k, v := range regionLoginStatus {
-		if v {
-			regions = append(regions, k)
+	for region, logged := range regionLoginStatus {
+		if logged {
+			for _, v := range availableRegions {
+				if region == v {
+					regions = append(regions, region)
+				}
+			}
 		}
 	}
 

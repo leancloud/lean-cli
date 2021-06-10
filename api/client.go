@@ -165,13 +165,13 @@ func doRequest(client *Client, method string, path string, params map[string]int
 	url := client.GetBaseURL() + path
 
 	if debuggingRequests() {
-		fmt.Printf("request(%v) [%s %s] %v %v\n", requestId, method, url, params, options.Headers)
+		fmt.Fprintf(os.Stderr, "request(%v) [%s %s] %v %v\n", requestId, method, url, params, options.Headers)
 	}
 
 	resp, err := fn(url, options)
 
 	if debuggingRequests() {
-		fmt.Printf("response(%v) [%s %s] %v %v %v\n", requestId, method, url, resp.StatusCode, resp.String(), resp.Header)
+		fmt.Fprintf(os.Stderr, "response(%v) [%s %s] %v %v %v\n", requestId, method, url, resp.StatusCode, resp.String(), resp.Header)
 	}
 
 	if err != nil {

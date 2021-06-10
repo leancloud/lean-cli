@@ -9,6 +9,7 @@ import (
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/boilerplate"
+	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
@@ -131,7 +132,7 @@ func initAction(c *cli.Context) error {
 	var region regions.Region
 	var err error
 	if regionString == "" {
-		loginedRegions := regions.GetLoginedRegions()
+		loginedRegions := regions.GetLoginedRegions(version.AvailableRegions)
 		if len(loginedRegions) == 0 {
 			return cli.NewExitError("Please log in first.", 1)
 		} else if len(loginedRegions) == 1 {
