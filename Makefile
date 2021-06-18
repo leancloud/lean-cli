@@ -9,12 +9,20 @@ all: binaries msi deb
 msi:
 	make $(OUTPUT)/lean-cli-setup-x86.msi
 	make $(OUTPUT)/lean-cli-setup-x64.msi
+	make $(OUTPUT)/tds-cli-setup-x86.msi
+	make $(OUTPUT)/tds-cli-setup-x64.msi
 
 $(OUTPUT)/lean-cli-setup-x86.msi: $(OUTPUT)/lean-windows-x86.exe
 	wixl -a x86 packaging/msi/lean-cli-x86.wxs -o $@
 
 $(OUTPUT)/lean-cli-setup-x64.msi: $(OUTPUT)/lean-windows-x64.exe
 	wixl -a x64 packaging/msi/lean-cli-x64.wxs -o $@
+
+$(OUTPUT)/tds-cli-setup-x86.msi: $(OUTPUT)/tds-windows-x86.exe
+	wixl -a x86 packaging/msi/tds-cli-x86.wxs -o $@
+
+$(OUTPUT)/tds-cli-setup-x64.msi: $(OUTPUT)/tds-windows-x64.exe
+	wixl -a x64 packaging/msi/tds-cli-x64.wxs -o $@
 
 deb:
 	make $(OUTPUT)/lean-cli-x86.deb
@@ -64,6 +72,7 @@ binaries: $(SRC)
 	make $(OUTPUT)/tds-windows-x86.exe
 	make $(OUTPUT)/tds-windows-x64.exe
 	make $(OUTPUT)/tds-macos-x64
+	make $(OUTPUT)/tds-macos-arm64
 	make $(OUTPUT)/tds-linux-x86
 	make $(OUTPUT)/tds-linux-x64
 
