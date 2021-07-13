@@ -1,10 +1,13 @@
 package console
 
 import (
+	"embed"
 	"encoding/json"
 	"fmt"
+	"mime"
 	"net/http"
-	"path/filepath"
+	"os"
+	"path"
 	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
@@ -35,6 +38,15 @@ type Server struct {
 	Errors      chan error
 }
 
+//go:embed resources
+var resources embed.FS
+
+func init() {
+	// for Windows compatibility
+	mime.AddExtensionType(".js", "text/javascript; charset=utf-8")
+	mime.AddExtensionType(".css", "text/css; charset=utf-8")
+}
+
 func (server *Server) getFunctions() ([]string, error) {
 	url := fmt.Sprintf("%s/1.1/functions/_ops/metadatas", server.RemoteURL)
 	response, err := grequests.Get(url, &grequests.RequestOptions{
@@ -62,19 +74,30 @@ func (server *Server) getFunctions() ([]string, error) {
 }
 
 func (server *Server) indexHandler(w http.ResponseWriter, req *http.Request) {
-	fmt.Fprintf(w, resources["index.html"])
+	bytes, err := resources.ReadFile("resources/index.html")
+
+	if err != nil {
+		panic(err)
+	}
+
+	w.Write(bytes)
 }
 
 func (server *Server) resourcesHandler(w http.ResponseWriter, req *http.Request) {
-	resourceName := mux.Vars(req)["resourceName"]
-	if resource, ok := resources[resourceName]; ok {
-		if filepath.Ext(resourceName) == ".js" {
-			w.Header().Set("Content-Type", "application/javascript")
+	filename := mux.Vars(req)["filename"]
+
+	bytes, err := resources.ReadFile(path.Join("resources", filename))
+
+	if err != nil {
+		if os.IsNotExist(err) {
+			http.NotFound(w, req)
+		} else {
+			panic(err)
 		}
-		fmt.Fprintf(w, resource)
-	} else {
-		http.NotFound(w, req)
 	}
+
+	w.Header().Set("Content-Type", mime.TypeByExtension(path.Ext(filename)))
+	w.Write(bytes)
 }
 
 func (server *Server) appInfoHandler(w http.ResponseWriter, req *http.Request) {
@@ -230,7 +253,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/__engine/1/functions", server.functionsHandler)
 	router.HandleFunc("/__engine/1/classes", server.classesHandler)
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
-	router.HandleFunc("/{resourceName}", server.resourcesHandler)
+	router.HandleFunc("/resources/{filename}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort
 	logp.Info("Cloud function debug console (if available) is accessible at: http://" + addr)

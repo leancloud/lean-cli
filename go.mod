@@ -1,6 +1,6 @@
 module github.com/leancloud/lean-cli
 
-go 1.14
+go 1.16
 
 require (
 	github.com/ahmetalpbalkan/go-linq v2.0.0-rc0.0.20161205073338-ba42ddae458c+incompatible
