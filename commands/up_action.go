@@ -113,11 +113,10 @@ func upAction(c *cli.Context) error {
 		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
 	}...)
 
-	for k, v := range groupInfo.Environments {
+	for k := range groupInfo.Environments {
 		localVar := os.Getenv(k)
 		if localVar == "" {
-			logp.Info("Exporting custome environment variables from server: ", k)
-			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
+			logp.Warn("Exporting custom environment variables from server is no longer supported: ", k)
 		} else {
 			logp.Info("Using local environment variables: ", k)
 			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, localVar))
