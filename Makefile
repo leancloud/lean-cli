@@ -64,6 +64,7 @@ binaries: $(SRC)
 	make $(OUTPUT)/tds-windows-x86.exe
 	make $(OUTPUT)/tds-windows-x64.exe
 	make $(OUTPUT)/tds-macos-x64
+	make $(OUTPUT)/tds-macos-arm64
 	make $(OUTPUT)/tds-linux-x86
 	make $(OUTPUT)/tds-linux-x64
 
