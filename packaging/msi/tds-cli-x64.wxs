@@ -1,0 +1,28 @@
+<?xml version='1.0' encoding='windows-1252'?>
+<Wix xmlns='http://schemas.microsoft.com/wix/2006/wi'>
+  <Product Name='LeanCloud Command Line Tool (x64)' Id='*' UpgradeCode='2ED83D96-E449-4CD4-8655-3ED47886E48D'
+    Language='1033' Codepage='1252' Version='0.25.0.0' Manufacturer='LeanCloud'>
+
+    <Package Id='*' Keywords='Installer' Description="LeanCloud Command Line Tool Installer"
+      Comments='LeanCLoud Command Line Tool Installer' Manufacturer='leancloud.cn' InstallerVersion='200' Languages='1033' Compressed='yes' SummaryCodepage='1252' />
+
+    <Media Id='1' Cabinet='LeanCLI.cab' EmbedCab='yes' DiskPrompt="CD-ROM #1" />
+    <Property Id='DiskPrompt' Value="LeanCloud Command Line Tool Installer [1]" />
+
+    <Directory Id='TARGETDIR' Name='SourceDir'>
+      <Directory Id="System64Folder" Name="SystemFolder">
+        <Component Id='MainExecutable' Guid="*">
+          <File Id='LeanEXE' Name='lean.exe' DiskId='1' Source='_build/tds-windows-x64.exe' KeyPath='yes'/>
+        </Component>
+      </Directory>
+    </Directory>
+
+    <Feature Id='Complete' Level='1'>
+      <ComponentRef Id='MainExecutable' />
+    </Feature>
+
+    <MajorUpgrade
+      DowngradeErrorMessage="A later version of [ProductName] is already installed. Setup will now exit." />
+
+  </Product>
+</Wix>
