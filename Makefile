@@ -2,7 +2,6 @@ OUTPUT=./_build
 SRC=$(shell find . -iname "*.go")
 LDFLAGS='-X main.pkgType=binary -s -w'
 LDFLAGS_TDS="-X main.pkgType=binary -X github.com/leancloud/lean-cli/version.Distribution=tds -s -w"
-RESOURCES=$(wildcard ./console/resources/*.html)
 
 all: binaries msi deb
 
@@ -76,52 +75,49 @@ binaries: $(SRC)
 	make $(OUTPUT)/tds-linux-x86
 	make $(OUTPUT)/tds-linux-x64
 
-$(OUTPUT)/lean-windows-x86.exe: $(SRC) resources
+$(OUTPUT)/lean-windows-x86.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/lean-windows-x64.exe: $(SRC) resources
+$(OUTPUT)/lean-windows-x64.exe: $(SRC)
 	GOOS=windows GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/lean-macos-x64: $(SRC) resources
+$(OUTPUT)/lean-macos-x64: $(SRC)
 	GOOS=darwin GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/lean-macos-arm64: $(SRC) resources
+$(OUTPUT)/lean-macos-arm64: $(SRC)
 	GOOS=darwin GOARCH=arm64 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/lean-linux-x86: $(SRC) resources
+$(OUTPUT)/lean-linux-x86: $(SRC)
 	GOOS=linux GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/lean-linux-x64: $(SRC) resources
+$(OUTPUT)/lean-linux-x64: $(SRC)
 	GOOS=linux GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/tds-windows-x86.exe: $(SRC) resources
+$(OUTPUT)/tds-windows-x86.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/tds-windows-x64.exe: $(SRC) resources
+$(OUTPUT)/tds-windows-x64.exe: $(SRC)
 	GOOS=windows GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/tds-macos-x64: $(SRC) resources
+$(OUTPUT)/tds-macos-x64: $(SRC)
 	GOOS=darwin GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/tds-macos-arm64: $(SRC) resources
+$(OUTPUT)/tds-macos-arm64: $(SRC)
 	GOOS=darwin GOARCH=arm64 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/tds-linux-x86: $(SRC) resources
+$(OUTPUT)/tds-linux-x86: $(SRC)
 	GOOS=linux GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
-$(OUTPUT)/tds-linux-x64: $(SRC) resources
+$(OUTPUT)/tds-linux-x64: $(SRC)
 	GOOS=linux GOARCH=amd64 go build -o $@ -ldflags=$(LDFLAGS_TDS) github.com/leancloud/lean-cli/lean
 
-install: resources
+install:
 	GOOS=$(GOOS) go install github.com/leancloud/lean-cli/lean
 
 test:
 	go test github.com/leancloud/lean-cli/lean -v
 
-resources:
-	(cd console; $(MAKE))
-
 clean:
 	rm -rf $(OUTPUT)
 
-.PHONY: test msi deb install clean resources
+.PHONY: test msi deb install clean
