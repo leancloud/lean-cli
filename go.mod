@@ -15,7 +15,6 @@ require (
 	github.com/cloudfoundry-attic/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
 	github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21 // indirect
 	github.com/coreos/go-semver v0.2.0
-	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c // indirect
 	github.com/facebookgo/parseignore v0.0.0-20150727182244-41ebb753c47c
 	github.com/facebookgo/stack v0.0.0-20160209184415-751773369052 // indirect
@@ -34,7 +33,6 @@ require (
 	github.com/leancloud/go-upload v0.0.0-20180201132422-99b47d07b1d1
 	github.com/levigross/grequests v0.0.0-20161120011735-14e4175cc49c
 	github.com/mattn/go-colorable v0.0.8-0.20170210172801-5411d3eea597
-	github.com/mattn/go-isatty v0.0.2-0.20170307163044-57fdcb988a5c // indirect
 	github.com/mattn/go-runewidth v0.0.2-0.20161012013512-737072b4e32b // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
@@ -44,4 +42,5 @@ require (
 	gopkg.in/errgo.v1 v1.0.0-20151007153157-66cb46252b94 // indirect
 	gopkg.in/retry.v1 v1.0.0-20161025181430-c09f6b86ba4d // indirect
 	launchpad.net/gocheck v0.0.0-20140225173054-000000000087 // indirect
+	nhooyr.io/websocket v1.8.7
 )

@@ -237,6 +237,42 @@ func Run(args []string) {
 			},
 		},
 		{
+			Name:   "db",
+			Usage:  "List LeanDB instances under current app (include share instances)",
+			Action: wrapAction(dbListAction),
+			Flags: []cli.Flag{
+				cli.StringFlag{
+					Name:  "app-id",
+					Usage: "Specific appId for same name share instance",
+				},
+				cli.IntFlag{
+					Name:  "port,p",
+					Usage: "Specific local proxy port",
+					Value: 3002,
+				},
+			},
+			Subcommands: []cli.Command{
+				{
+					Name:      "list",
+					Usage:     "List LeanDB instances under current app (include share instances)",
+					Action:    wrapAction(dbListAction),
+					ArgsUsage: "[instance-name]",
+				},
+				{
+					Name:      "proxy",
+					Usage:     "Proxy LeanDB instance to local port",
+					Action:    wrapAction(dbProxyAction),
+					ArgsUsage: "[instance-name]",
+				},
+				{
+					Name:      "shell",
+					Usage:     "Proxy LeanDB instance to local port and connect using local cli",
+					Action:    wrapAction(dbShellAction),
+					ArgsUsage: "[instance-name]",
+				},
+			},
+		},
+		{
 			Name:      "upload",
 			Usage:     "Upload files to the current application (available in the '_File' class)",
 			Action:    uploadAction,

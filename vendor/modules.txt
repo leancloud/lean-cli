@@ -31,8 +31,6 @@ github.com/cloudfoundry-attic/jibber_jabber
 # github.com/coreos/go-semver v0.2.0
 ## explicit
 github.com/coreos/go-semver/semver
-# github.com/davecgh/go-spew v1.1.1
-## explicit
 # github.com/facebookgo/ensure v0.0.0-20200202191622-63f1cf65ac4c
 ## explicit
 # github.com/facebookgo/parseignore v0.0.0-20150727182244-41ebb753c47c
@@ -73,6 +71,8 @@ github.com/juju/go4/lock
 github.com/juju/persistent-cookiejar
 # github.com/juju/testing v0.0.0-20200706033705-4c23f9c453cd
 ## explicit
+# github.com/klauspost/compress v1.10.3
+github.com/klauspost/compress/flate
 # github.com/leancloud/go-upload v0.0.0-20180201132422-99b47d07b1d1
 ## explicit
 github.com/leancloud/go-upload
@@ -82,8 +82,7 @@ github.com/levigross/grequests
 # github.com/mattn/go-colorable v0.0.8-0.20170210172801-5411d3eea597
 ## explicit
 github.com/mattn/go-colorable
-# github.com/mattn/go-isatty v0.0.2-0.20170307163044-57fdcb988a5c
-## explicit
+# github.com/mattn/go-isatty v0.0.12
 github.com/mattn/go-isatty
 # github.com/mattn/go-runewidth v0.0.2-0.20161012013512-737072b4e32b
 ## explicit
@@ -112,3 +111,10 @@ gopkg.in/errgo.v1
 gopkg.in/retry.v1
 # launchpad.net/gocheck v0.0.0-20140225173054-000000000087
 ## explicit
+# nhooyr.io/websocket v1.8.7
+## explicit
+nhooyr.io/websocket
+nhooyr.io/websocket/internal/bpool
+nhooyr.io/websocket/internal/errd
+nhooyr.io/websocket/internal/wsjs
+nhooyr.io/websocket/internal/xsync
