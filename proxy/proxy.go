@@ -7,14 +7,11 @@ import (
 	"log"
 	"net"
 	"net/http"
-	"net/http/httputil"
-	"net/url"
 	"strings"
 	"time"
 
 	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
-	"github.com/urfave/cli"
 	"nhooyr.io/websocket"
 )
 
@@ -39,63 +36,6 @@ func Run(proxyInfo *ProxyInfo) error {
 	proxyInfo.headers = client.GetAuthHeaders()
 	proxyInfo.cookieJar = client.CookieJar
 
-	switch proxyInfo.Runtime {
-	case "redis":
-	case "mongo":
-	case "udb":
-		return proxyTcp(proxyInfo)
-	case "es":
-		return proxyHttp(proxyInfo)
-	default:
-		return cli.NewExitError(fmt.Sprintf("proxy not support runtime %s", proxyInfo.Runtime), 1)
-	}
-	return nil
-}
-
-//
-// http
-//
-func proxyHttp(proxyInfo *ProxyInfo) error {
-	path := fmt.Sprintf("/1.1/leandb/proxy/http?clusterid=%d", proxyInfo.ClusterId)
-	remoteURL := proxyInfo.baseURL + path
-
-	logp.Infof("Now, you can connect instance via [127.0.0.1:%s]", proxyInfo.LocalPort)
-
-	http.HandleFunc("/", newHttpProxyHandler(remoteURL, proxyInfo))
-	log.Fatal(http.ListenAndServe(":"+proxyInfo.LocalPort, nil))
-
-	return nil
-}
-
-func newHttpProxyHandler(remoteURL string, proxyInfo *ProxyInfo) func(http.ResponseWriter, *http.Request) {
-	url, err := url.Parse(remoteURL)
-	if err != nil {
-		panic(err)
-	}
-
-	reverseProxy := httputil.NewSingleHostReverseProxy(url)
-	originDirector := reverseProxy.Director
-	reverseProxy.Director = func(r *http.Request) {
-		originDirector(r)
-		for k, v := range proxyInfo.headers {
-			r.Header.Add(k, v)
-		}
-		if proxyInfo.cookieJar != nil {
-			for _, c := range proxyInfo.cookieJar.Cookies(url) {
-				r.AddCookie(c)
-			}
-		}
-	}
-
-	return func(w http.ResponseWriter, r *http.Request) {
-		reverseProxy.ServeHTTP(w, r)
-	}
-}
-
-//
-// tcp
-//
-func proxyTcp(proxyInfo *ProxyInfo) error {
 	path := fmt.Sprintf("/1.1/leandb/proxy/ws?clusterid=%d", proxyInfo.ClusterId)
 	remoteURL := strings.Replace(proxyInfo.baseURL, "https", "wss", 1) + path
 
@@ -111,11 +51,11 @@ func proxyTcp(proxyInfo *ProxyInfo) error {
 		if err != nil {
 			return err
 		}
-		go handleTcpProxy(conn, remoteURL, proxyInfo)
+		go proxy(conn, remoteURL, proxyInfo)
 	}
 }
 
-func handleTcpProxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
+func proxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
 	defer conn.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Hour)
