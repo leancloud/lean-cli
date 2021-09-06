@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api/regions"
@@ -32,7 +33,8 @@ func GetAppAPIURL(region regions.Region, appID string) string {
 		return envAPIURL
 	}
 
-	if region != regions.USWest {
+	switch region {
+	case regions.ChinaNorth, regions.ChinaEast:
 		routerInfo, err := QueryAppRouter(appID)
 
 		if err != nil {
@@ -40,6 +42,8 @@ func GetAppAPIURL(region regions.Region, appID string) string {
 		} else {
 			return "https://" + routerInfo.APIServer
 		}
+	case regions.ChinaTDS1:
+		return "https://" + strings.ToLower(appID[0:8]) + ".cloud.tds1.tapapis.cn"
 	}
 
 	return defaultAPIURL[region]
