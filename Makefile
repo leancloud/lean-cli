@@ -48,7 +48,7 @@ $(OUTPUT)/lean-cli-x64.deb: $(OUTPUT)/lean-linux-x64
 $(OUTPUT)/tds-cli-x86.deb: $(OUTPUT)/tds-linux-x86
 	mkdir -p $(OUTPUT)/x86-deb/DEBIAN/
 	mkdir -p $(OUTPUT)/x86-deb/usr/bin/
-	cp $(OUTPUT)/tds-linux-x86 $(OUTPUT)/x86-deb/usr/bin/lean
+	cp $(OUTPUT)/tds-linux-x86 $(OUTPUT)/x86-deb/usr/bin/tds
 	cp packaging/deb/control-x86 $(OUTPUT)/x86-deb/DEBIAN/control
 	dpkg-deb --build $(OUTPUT)/x86-deb $@
 	rm -rf $(OUTPUT)/x86-deb
@@ -56,7 +56,7 @@ $(OUTPUT)/tds-cli-x86.deb: $(OUTPUT)/tds-linux-x86
 $(OUTPUT)/tds-cli-x64.deb: $(OUTPUT)/tds-linux-x64
 	mkdir -p $(OUTPUT)/x64-deb/DEBIAN/
 	mkdir -p $(OUTPUT)/x64-deb/usr/bin/
-	cp $(OUTPUT)/tds-linux-x64 $(OUTPUT)/x64-deb/usr/bin/lean
+	cp $(OUTPUT)/tds-linux-x64 $(OUTPUT)/x64-deb/usr/bin/tds
 	cp packaging/deb/control-x64 $(OUTPUT)/x64-deb/DEBIAN/control
 	dpkg-deb --build $(OUTPUT)/x64-deb $@
 	rm -rf $(OUTPUT)/x64-deb
