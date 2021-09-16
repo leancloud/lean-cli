@@ -44,7 +44,10 @@ func Run(proxyInfo *ProxyInfo) error {
 		return err
 	}
 
-	logp.Infof("Now, you can connect instance via [127.0.0.1:%s] with username [%s] password [%s]", proxyInfo.LocalPort, proxyInfo.AuthUser, proxyInfo.AuthPassword)
+	logp.Infof("Now, you can connect instance via [127.0.0.1:%s] with username [%s] password [%s]\r\n", proxyInfo.LocalPort, proxyInfo.AuthUser, proxyInfo.AuthPassword)
+
+	// notify shell proxy action
+	proxyInfo.Connected <- true
 
 	for {
 		conn, err := l.Accept()
@@ -69,18 +72,14 @@ func proxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
 		opts.HTTPHeader.Add(k, v)
 	}
 	if proxyInfo.cookieJar != nil {
-		opts.HTTPClient.Jar = proxyInfo.cookieJar
+		// TODO
+		// opts.HTTPClient.Jar = proxyInfo.cookieJar
 	}
 
 	c, _, err := websocket.Dial(ctx, remoteURL, opts)
 	if err != nil {
 		log.Println(err)
 		return
-	}
-
-	// notify shell proxy action
-	if proxyInfo.Connected != nil {
-		proxyInfo.Connected <- true
 	}
 
 	remote := websocket.NetConn(ctx, c, websocket.MessageBinary)

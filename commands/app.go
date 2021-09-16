@@ -240,17 +240,6 @@ func Run(args []string) {
 			Name:   "db",
 			Usage:  "List LeanDB instances under current app (include share instances)",
 			Action: wrapAction(dbListAction),
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "app-id",
-					Usage: "Specific appId for same name share instance",
-				},
-				cli.IntFlag{
-					Name:  "port,p",
-					Usage: "Specific local proxy port",
-					Value: 3002,
-				},
-			},
 			Subcommands: []cli.Command{
 				{
 					Name:      "list",
@@ -259,15 +248,37 @@ func Run(args []string) {
 					ArgsUsage: "[instance-name]",
 				},
 				{
-					Name:      "proxy",
-					Usage:     "Proxy LeanDB instance to local port",
-					Action:    wrapAction(dbProxyAction),
+					Name:   "proxy",
+					Usage:  "Proxy LeanDB instance to local port",
+					Action: wrapAction(dbProxyAction),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "app-id",
+							Usage: "Specific appId for same name share instance",
+						},
+						cli.IntFlag{
+							Name:  "port, p",
+							Usage: "Specific local proxy port",
+							Value: 5678,
+						},
+					},
 					ArgsUsage: "[instance-name]",
 				},
 				{
-					Name:      "shell",
-					Usage:     "Proxy LeanDB instance to local port and connect using local cli",
-					Action:    wrapAction(dbShellAction),
+					Name:   "shell",
+					Usage:  "Proxy LeanDB instance to local port and connect using local cli",
+					Action: wrapAction(dbShellAction),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "app-id",
+							Usage: "Specific appId for same name share instance",
+						},
+						cli.IntFlag{
+							Name:  "port, p",
+							Usage: "Specific local proxy port",
+							Value: 5678,
+						},
+					},
 					ArgsUsage: "[instance-name]",
 				},
 			},

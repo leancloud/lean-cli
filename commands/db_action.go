@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"sort"
+	"strconv"
 	"syscall"
 	"text/tabwriter"
 
@@ -72,7 +73,7 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 		return nil, cli.NewExitError("This app doesn't have any LeanDB instance", 1)
 	}
 
-	localPort := c.String("port")
+	localPort := c.Int("port")
 	proxyAppID := c.String("app-id")
 	if proxyAppID == "" {
 		proxyAppID = appID
@@ -98,7 +99,8 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 		Runtime:      cluster.Runtime,
 		AuthUser:     cluster.AuthUser,
 		AuthPassword: cluster.AuthPassword,
-		LocalPort:    localPort,
+		LocalPort:    strconv.Itoa(localPort),
+		Connected:    make(chan bool, 1),
 	}
 
 	return proxyInfo, nil
@@ -110,33 +112,30 @@ func dbProxyAction(c *cli.Context) error {
 		return err
 	}
 
-	logp.Infof("Proxy to LeanDB instance %s(%s) on local port %s", proxyInfo.Name, proxyInfo.AppID, proxyInfo.LocalPort)
+	logp.Infof("Proxy to LeanDB instance %s(%s) on local port %s\r\n", proxyInfo.Name, proxyInfo.AppID, proxyInfo.LocalPort)
 
 	return proxy.Run(proxyInfo)
 }
 
-func getRuntimeArgs(proxyInfo *proxy.ProxyInfo) []string {
-	switch proxyInfo.Runtime {
+func getRuntimeArgs(p *proxy.ProxyInfo) []string {
+	switch p.Runtime {
 	case "redis":
-		// TODO
-		user := fmt.Sprintf("--user%s", proxyInfo.AuthUser)
-		pass := fmt.Sprintf("-a%s", proxyInfo.AuthPassword)
-		port := fmt.Sprintf("-p%s", proxyInfo.LocalPort)
-		return []string{"-h127.0.0.1", user, pass, port}
+		user := p.AuthUser
+		if user == "" {
+			user = "default"
+		}
+		return []string{"redis-cli", "-h", "127.0.0.1", "--user", user, "-a", p.AuthPassword, "-p", p.LocalPort}
 	case "mongo":
-		user := fmt.Sprintf("-u%s", proxyInfo.AuthUser)
-		pass := fmt.Sprintf("-p%s", proxyInfo.AuthPassword)
-		port := fmt.Sprintf("-port%s", proxyInfo.LocalPort)
-		return []string{"--host127.0.0.1", user, pass, port}
+		return []string{"mongo", "--host", "127.0.0.1", "-u", p.AuthUser, "-p", p.AuthPassword, "-port", p.LocalPort}
 	case "udb":
+		pass := fmt.Sprintf("-p%s", p.AuthPassword)
+		return []string{"mysql", "-h", "127.0.0.1", "-u", p.AuthUser, pass, "-P", p.LocalPort}
 	case "mysql":
-		user := fmt.Sprintf("-u%s", proxyInfo.AuthUser)
-		pass := fmt.Sprintf("-p%s", proxyInfo.AuthPassword)
-		port := fmt.Sprintf("-P%s", proxyInfo.LocalPort)
-		return []string{"-h127.0.0.1", user, pass, port}
+		pass := fmt.Sprintf("-p%s", p.AuthPassword)
+		return []string{"mysql", "-h", "127.0.0.1", "-u", p.AuthUser, pass, "-P", p.LocalPort}
 	}
 
-	panic(fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", proxyInfo.Runtime))
+	panic(fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", p.Runtime))
 }
 
 func forkExecCli(proxyInfo *proxy.ProxyInfo) {
@@ -161,10 +160,17 @@ func forkExecCli(proxyInfo *proxy.ProxyInfo) {
 		Env:   os.Environ(),
 		Files: []uintptr{0, 1, 2},
 	}
-	_, err := syscall.ForkExec(cli, getRuntimeArgs(proxyInfo), procAttr)
+	args := getRuntimeArgs(proxyInfo)
+	logp.Info(args)
+	_, err := syscall.ForkExec(cli, args, procAttr)
 	if err != nil {
 		panic(err)
 	}
+}
+
+// TODO `syscall.ForkExec` not support windows, cmd := exec.Command("cmd.exe", "/C", "start", `c:\path\to\your\app\myapp.exe`)
+func windowsStartComd(proxyInfo *proxy.ProxyInfo) {
+	return
 }
 
 func dbShellAction(c *cli.Context) error {
@@ -173,7 +179,6 @@ func dbShellAction(c *cli.Context) error {
 		return err
 	}
 
-	proxyInfo.Connected = make(chan bool, 1)
 	go func() {
 		<-proxyInfo.Connected
 		forkExecCli(proxyInfo)
