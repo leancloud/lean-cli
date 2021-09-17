@@ -20,7 +20,6 @@ func dbListAction(c *cli.Context) error {
 		return err
 	}
 
-	// TODO filter not running instances
 	clusters, err := api.GetLeanDBClusterList(appID)
 	if err != nil {
 		return err
@@ -30,14 +29,20 @@ func dbListAction(c *cli.Context) error {
 		return cli.NewExitError("This app doesn't have any LeanDB instance", 1)
 	}
 
-	sort.Sort(clusters)
+	sort.Sort(sort.Reverse(clusters))
 
 	t := tabwriter.NewWriter(os.Stdout, 0, 1, 3, ' ', 0)
 
+	m := make(map[string]bool)
 	fmt.Fprintln(t, "InstanceName\t\t\tQuota")
 	for _, cluster := range clusters {
-		// TODO show appId
-		fmt.Fprintf(t, "%s\t\t\t%s\r\n", cluster.Name, cluster.NodeQuota)
+		runtimeName := fmt.Sprintf("%s-%s", cluster.Runtime, cluster.Name)
+		if ok := m[runtimeName]; ok {
+			fmt.Fprintf(t, "%s (shared from %s)\t\t\t%s\r\n", cluster.Name, cluster.AppID, cluster.NodeQuota)
+		} else {
+			fmt.Fprintf(t, "%s\t\t\t%s\r\n", cluster.Name, cluster.NodeQuota)
+		}
+		m[runtimeName] = true
 	}
 	t.Flush()
 
@@ -73,13 +78,16 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 	instanceName := c.Args().Get(0)
 	var cluster *api.LeanDBCluster
 	for _, c := range clusters {
-		if c.Name == instanceName && c.Status == "running" && c.AppID == proxyAppID {
+		if c.Name == instanceName && c.AppID == proxyAppID {
 			cluster = c
 		}
 	}
 
 	if cluster == nil {
-		s := fmt.Sprintf("No running instance for %s", instanceName)
+		s := fmt.Sprintf("No instance for name [%s]", instanceName)
+		return nil, cli.NewExitError(s, 1)
+	} else if cluster.Status != "running" {
+		s := fmt.Sprintf("instance [%s] is not in running status", instanceName)
 		return nil, cli.NewExitError(s, 1)
 	}
 
