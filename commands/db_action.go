@@ -51,8 +51,8 @@ func dbListAction(c *cli.Context) error {
 
 func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 	if c.NArg() < 1 {
-		// TODO show subcommand help
-		cli.ShowCommandHelp(c, "")
+		cli.ShowSubcommandHelp(c)
+		return nil, cli.NewExitError("", 1)
 	}
 
 	appID, err := apps.GetCurrentAppID(".")
@@ -84,7 +84,7 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 	}
 
 	if cluster == nil {
-		s := fmt.Sprintf("No instance for name [%s]", instanceName)
+		s := fmt.Sprintf("No instance for [%s (%s)]", instanceName, proxyAppID)
 		return nil, cli.NewExitError(s, 1)
 	} else if cluster.Status != "running" {
 		s := fmt.Sprintf("instance [%s] is not in running status", instanceName)
@@ -116,16 +116,27 @@ func dbProxyAction(c *cli.Context) error {
 	return proxy.Run(proxyInfo)
 }
 
+var runtimeShell = map[string]bool{
+	"redis": true,
+	"udb":   true,
+	"mysql": true,
+	"mongo": true,
+}
+
 func dbShellAction(c *cli.Context) error {
-	proxyInfo, err := parseProxyInfo(c)
+	p, err := parseProxyInfo(c)
 	if err != nil {
 		return err
 	}
+	if ok := runtimeShell[p.Runtime]; !ok {
+		msg := fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", p.Runtime)
+		return cli.NewExitError(msg, 1)
+	}
 
 	go func() {
-		<-proxyInfo.Connected
-		proxy.ForkExecCli(proxyInfo)
+		<-p.Connected
+		proxy.ForkExecCli(p)
 	}()
 
-	return proxy.Run(proxyInfo)
+	return proxy.Run(p)
 }

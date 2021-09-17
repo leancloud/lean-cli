@@ -10,7 +10,7 @@ import (
 
 func forkExec(proxyInfo *ProxyInfo) {
 	cli := getCli(proxyInfo)
-	args := getRuntimeArgs(proxyInfo)
+	args := getCliArgs(proxyInfo)
 	procAttr := &syscall.ProcAttr{
 		Env:   os.Environ(),
 		Files: []uintptr{0, 1, 2},

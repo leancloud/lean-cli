@@ -12,7 +12,7 @@ var runtimeClis = map[string][]string{
 	"mongo": {"mongo"},
 }
 
-func getRuntimeArgs(p *ProxyInfo) []string {
+func getCliArgs(p *ProxyInfo) []string {
 	switch p.Runtime {
 	case "redis":
 		user := p.AuthUser
@@ -28,9 +28,11 @@ func getRuntimeArgs(p *ProxyInfo) []string {
 	case "mysql":
 		pass := fmt.Sprintf("-p%s", p.AuthPassword)
 		return []string{"mysql", "-h", "127.0.0.1", "-u", p.AuthUser, pass, "-P", p.LocalPort}
+	case "es":
+		return []string{"curl", p.AuthUser, ":", p.AuthPassword, "@", "127.0.0.1", ":", p.LocalPort}
 	}
 
-	panic(fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", p.Runtime))
+	panic("invalid runtime")
 }
 
 func getCli(proxyInfo *ProxyInfo) string {

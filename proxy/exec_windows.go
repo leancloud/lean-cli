@@ -8,7 +8,7 @@ import (
 // TODO test on windows
 func forkExec(proxyInfo *ProxyInfo) {
 	cli := getCli(proxyInfo)
-	// args := getRuntimeArgs(proxyInfo)
+	// args := getCliArgs(proxyInfo)
 	cmd := exec.Command("cmd.exe", "/C", "start", cli)
 	if err := cmd.Run(); err != nil {
 		log.Println("Error:", err)

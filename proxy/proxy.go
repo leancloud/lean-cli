@@ -44,10 +44,20 @@ func Run(proxyInfo *ProxyInfo) error {
 		return err
 	}
 
-	logp.Infof("Now, you can connect instance via [127.0.0.1:%s] with username [%s] password [%s]\r\n", proxyInfo.LocalPort, proxyInfo.AuthUser, proxyInfo.AuthPassword)
+	logp.Infof("Now, you can connect instance via %s\r\n", getCliArgs(proxyInfo))
 
 	// notify shell proxy action
 	proxyInfo.Connected <- true
+
+	// TODO shell proxy need two Ctrl-C
+	// sigs := make(chan os.Signal, 1)
+	// done := make(chan bool, 1)
+	// signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
+	//
+	// go func() {
+	// <-sigs
+	// done <- true
+	// }()
 
 	for {
 		conn, err := l.Accept()
@@ -61,7 +71,7 @@ func Run(proxyInfo *ProxyInfo) error {
 func proxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), time.Hour)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Hour)
 	defer cancel()
 
 	opts := &websocket.DialOptions{
@@ -82,9 +92,27 @@ func proxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
 		return
 	}
 
+	pingWithTicker(ctx, c)
+
 	remote := websocket.NetConn(ctx, c, websocket.MessageBinary)
 	defer remote.Close()
 
 	go io.Copy(remote, conn)
 	io.Copy(conn, remote)
+}
+
+func pingWithTicker(ctx context.Context, c *websocket.Conn) {
+	ticker := time.NewTicker(4 * time.Minute)
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				ticker.Stop()
+				return
+			case <-ticker.C:
+				c.Ping(ctx)
+			}
+		}
+	}()
 }
