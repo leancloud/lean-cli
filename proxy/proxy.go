@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
 	"nhooyr.io/websocket"
 )
@@ -23,31 +22,18 @@ type ProxyInfo struct {
 	AuthUser     string
 	AuthPassword string
 	LocalPort    string
-	Connected    chan bool
-
-	baseURL   string
-	headers   map[string]string
-	cookieJar http.CookieJar
 }
 
-func Run(proxyInfo *ProxyInfo) error {
-	client := api.NewClientByApp(proxyInfo.AppID)
-	proxyInfo.baseURL = client.GetBaseURL()
-	proxyInfo.headers = client.GetAuthHeaders()
-	proxyInfo.cookieJar = client.CookieJar
-
-	path := fmt.Sprintf("/1.1/leandb/proxy/ws?clusterid=%d", proxyInfo.ClusterId)
-	remoteURL := strings.Replace(proxyInfo.baseURL, "https", "wss", 1) + path
-
-	l, err := net.Listen("tcp", ":"+proxyInfo.LocalPort)
+func Run(p *ProxyInfo, started chan bool) error {
+	l, err := net.Listen("tcp", ":"+p.LocalPort)
 	if err != nil {
 		return err
 	}
 
-	logp.Infof("Now, you can connect instance via %s\r\n", getCliArgs(proxyInfo))
-
 	// notify shell proxy action
-	proxyInfo.Connected <- true
+	if started != nil {
+		started <- true
+	}
 
 	// TODO shell proxy need two Ctrl-C
 	// sigs := make(chan os.Signal, 1)
@@ -64,29 +50,21 @@ func Run(proxyInfo *ProxyInfo) error {
 		if err != nil {
 			return err
 		}
-		go proxy(conn, remoteURL, proxyInfo)
+		go proxy(conn, p)
 	}
 }
 
-func proxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
+func proxy(conn net.Conn, p *ProxyInfo) {
+	client := api.NewClientByApp(p.AppID)
+	path := fmt.Sprintf("/1.1/leandb/proxy/ws?clusterid=%d", p.ClusterId)
+	remoteURL := strings.Replace(client.GetBaseURL(), "https", "wss", 1) + path
+
 	defer conn.Close()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Hour)
 	defer cancel()
 
-	opts := &websocket.DialOptions{
-		HTTPHeader: http.Header{},
-		HTTPClient: &http.Client{},
-	}
-	for k, v := range proxyInfo.headers {
-		opts.HTTPHeader.Add(k, v)
-	}
-	if proxyInfo.cookieJar != nil {
-		// TODO
-		// opts.HTTPClient.Jar = proxyInfo.cookieJar
-	}
-
-	c, _, err := websocket.Dial(ctx, remoteURL, opts)
+	c, _, err := websocket.Dial(ctx, remoteURL, buildOpts(p, client))
 	if err != nil {
 		log.Println(err)
 		return
@@ -99,6 +77,21 @@ func proxy(conn net.Conn, remoteURL string, proxyInfo *ProxyInfo) {
 
 	go io.Copy(remote, conn)
 	io.Copy(conn, remote)
+}
+
+func buildOpts(p *ProxyInfo, client *api.Client) *websocket.DialOptions {
+	opts := &websocket.DialOptions{
+		HTTPHeader: http.Header{},
+		HTTPClient: &http.Client{},
+	}
+	for k, v := range client.GetAuthHeaders() {
+		opts.HTTPHeader.Add(k, v)
+	}
+	if client.AccessToken == "" && client.CookieJar != nil {
+		opts.HTTPClient.Jar = client.CookieJar
+	}
+
+	return opts
 }
 
 func pingWithTicker(ctx context.Context, c *websocket.Conn) {

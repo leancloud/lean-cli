@@ -5,6 +5,7 @@ import (
 	"os"
 	"sort"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/aisk/logp"
@@ -99,21 +100,25 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 		AuthUser:     cluster.AuthUser,
 		AuthPassword: cluster.AuthPassword,
 		LocalPort:    strconv.Itoa(localPort),
-		Connected:    make(chan bool, 1),
 	}
 
 	return proxyInfo, nil
 }
 
 func dbProxyAction(c *cli.Context) error {
-	proxyInfo, err := parseProxyInfo(c)
+	p, err := parseProxyInfo(c)
 	if err != nil {
 		return err
 	}
 
-	logp.Infof("Proxy to LeanDB instance %s(%s) on local port %s\r\n", proxyInfo.Name, proxyInfo.AppID, proxyInfo.LocalPort)
+	sep := " "
+	if p.Runtime == "es" {
+		sep = ""
+	}
 
-	return proxy.Run(proxyInfo)
+	logp.Infof("Now, you can connect instance via [%s]\r\n", strings.Join(proxy.GetCliArgs(p), sep))
+
+	return proxy.Run(p, nil)
 }
 
 var runtimeShell = map[string]bool{
@@ -133,10 +138,11 @@ func dbShellAction(c *cli.Context) error {
 		return cli.NewExitError(msg, 1)
 	}
 
+	started := make(chan bool, 1)
 	go func() {
-		<-p.Connected
+		<-started
 		proxy.ForkExecCli(p)
 	}()
 
-	return proxy.Run(p)
+	return proxy.Run(p, started)
 }
