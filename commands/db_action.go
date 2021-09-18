@@ -118,7 +118,7 @@ func dbProxyAction(c *cli.Context) error {
 
 	logp.Infof("Now, you can connect instance via [%s]\r\n", strings.Join(proxy.GetCliArgs(p), sep))
 
-	return proxy.Run(p, nil)
+	return proxy.RunProxy(p)
 }
 
 var runtimeShell = map[string]bool{
@@ -139,14 +139,15 @@ func dbShellAction(c *cli.Context) error {
 	}
 
 	started := make(chan bool, 1)
+	term := make(chan bool, 1)
 	go func() {
 		<-started
-		err := proxy.ForkExecCli(p)
+		err := proxy.ForkExecCli(p, term)
 		if err != nil {
 			logp.Warnf("Start cli get error: %s", err)
-			os.Exit(1)
+			term <- true
 		}
 	}()
 
-	return proxy.Run(p, started)
+	return proxy.RunShellProxy(p, started, term)
 }

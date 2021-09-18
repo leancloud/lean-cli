@@ -6,6 +6,7 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -24,16 +25,37 @@ type ProxyInfo struct {
 	LocalPort    string
 }
 
-func Run(p *ProxyInfo, started chan bool) error {
+var connTimeout = 2 * time.Hour
+var pingInterval = 4 * time.Minute
+
+func RunProxy(p *ProxyInfo) error {
 	l, err := net.Listen("tcp", ":"+p.LocalPort)
 	if err != nil {
 		return err
 	}
 
-	// notify shell proxy action
-	if started != nil {
-		started <- true
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			return err
+		}
+		go proxy(conn, p)
 	}
+}
+
+func RunShellProxy(p *ProxyInfo, started, term chan bool) error {
+	l, err := net.Listen("tcp", ":"+p.LocalPort)
+	if err != nil {
+		return err
+	}
+
+	started <- true
+	go func() {
+		select {
+		case <-term:
+			os.Exit(0)
+		}
+	}()
 
 	for {
 		conn, err := l.Accept()
@@ -51,7 +73,7 @@ func proxy(conn net.Conn, p *ProxyInfo) {
 
 	defer conn.Close()
 
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Hour)
+	ctx, cancel := context.WithTimeout(context.Background(), connTimeout)
 	defer cancel()
 
 	c, _, err := websocket.Dial(ctx, remoteURL, buildOpts(p, client))
@@ -85,7 +107,7 @@ func buildOpts(p *ProxyInfo, client *api.Client) *websocket.DialOptions {
 }
 
 func pingWithTicker(ctx context.Context, c *websocket.Conn) {
-	ticker := time.NewTicker(4 * time.Minute)
+	ticker := time.NewTicker(pingInterval)
 
 	go func() {
 		for {

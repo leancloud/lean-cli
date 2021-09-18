@@ -58,6 +58,6 @@ func GetCliArgs(p *ProxyInfo) []string {
 	panic("invalid runtime")
 }
 
-func ForkExecCli(proxyInfo *ProxyInfo) error {
-	return forkExec(proxyInfo)
+func ForkExecCli(proxyInfo *ProxyInfo, term chan bool) error {
+	return forkExec(proxyInfo, term)
 }

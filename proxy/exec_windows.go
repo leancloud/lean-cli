@@ -6,7 +6,7 @@ import (
 )
 
 // TODO test on windows
-func forkExec(proxyInfo *ProxyInfo) error {
+func forkExec(proxyInfo *ProxyInfo, done chan bool) error {
 	cli, err := getCli(proxyInfo)
 	if err != nil {
 		return err
