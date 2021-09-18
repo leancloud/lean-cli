@@ -5,7 +5,6 @@ import (
 	"os"
 	"sort"
 	"strconv"
-	"strings"
 	"text/tabwriter"
 
 	"github.com/aisk/logp"
@@ -92,7 +91,7 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 		return nil, cli.NewExitError(s, 1)
 	}
 
-	proxyInfo := &proxy.ProxyInfo{
+	p := &proxy.ProxyInfo{
 		AppID:        proxyAppID,
 		ClusterId:    cluster.ID,
 		Name:         cluster.Name,
@@ -102,7 +101,7 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 		LocalPort:    strconv.Itoa(localPort),
 	}
 
-	return proxyInfo, nil
+	return p, nil
 }
 
 func dbProxyAction(c *cli.Context) error {
@@ -110,13 +109,6 @@ func dbProxyAction(c *cli.Context) error {
 	if err != nil {
 		return err
 	}
-
-	sep := " "
-	if p.Runtime == "es" {
-		sep = ""
-	}
-
-	logp.Infof("Now, you can connect instance via [%s]\r\n", strings.Join(proxy.GetCliArgs(p), sep))
 
 	return proxy.RunProxy(p)
 }

@@ -34,6 +34,13 @@ func RunProxy(p *ProxyInfo) error {
 		return err
 	}
 
+	sep := " "
+	if p.Runtime == "es" {
+		sep = ""
+	}
+
+	logp.Infof("Now, you can connect instance via [%s]\r\n", strings.Join(GetCliArgs(p), sep))
+
 	for {
 		conn, err := l.Accept()
 		if err != nil {

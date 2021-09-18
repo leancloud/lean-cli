@@ -20,25 +20,6 @@ type LeanCacheCluster struct {
 	NodeQuota string `json:"nodeQuota"`
 }
 
-// {
-// "id": 415,
-// "appId": "hIksfdh8IFpkeDsoceTR5Hwu-gzGzoHsz",
-// "name": "yqiu_test_es",
-// "runtime": "es",
-// "nodeQuota": "es-512",
-// "storageQuota": "1H",
-// "dataNodes": 1,
-// "status": "running",
-// "proxyPort": 27214,
-// "authUser": "elasticsearch",
-// "authPassword": "g08pBQ0XknasKy1w",
-// "createdAt": "2021-08-10T07:56:01.000Z",
-// "updatedAt": "2021-08-10T08:00:50.000Z",
-// "version": 3,
-// "versionTag": "7.9.2",
-// "proxyHost": "engine-stateful-proxy.engine.svc.cn-n1"
-// }
-
 type LeanDBCluster struct {
 	ID           int    `json:"id"`
 	AppID        string `json:"appId"`

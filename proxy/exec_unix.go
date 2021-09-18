@@ -8,12 +8,12 @@ import (
 	"syscall"
 )
 
-func forkExec(proxyInfo *ProxyInfo, term chan bool) error {
-	cli, err := getCli(proxyInfo)
+func forkExec(p *ProxyInfo, term chan bool) error {
+	cli, err := getCli(p)
 	if err != nil {
 		return err
 	}
-	args := GetCliArgs(proxyInfo)
+	args := GetCliArgs(p)
 	procAttr := &syscall.ProcAttr{
 		Env:   os.Environ(),
 		Files: []uintptr{0, 1, 2},

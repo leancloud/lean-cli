@@ -1,19 +1,24 @@
 package proxy
 
 import (
-	"log"
 	"os/exec"
+	"strings"
+	"syscall"
 )
 
-// TODO test on windows
-func forkExec(proxyInfo *ProxyInfo, done chan bool) error {
-	cli, err := getCli(proxyInfo)
+// reference https://stackoverflow.com/questions/50531370/start-a-detached-process-on-windows-using-golang
+func forkExec(p *ProxyInfo, _ chan bool) error {
+	cli, err := getCli(p)
 	if err != nil {
 		return err
 	}
 
-	// args := GetCliArgs(proxyInfo)
-	cmd := exec.Command("cmd.exe", "/C", "start", cli)
+	args := []string{"/C", "start", cli}
+	args = append(args, GetCliArgs(p)[1:]...)
+	cmd := exec.Command("cmd.exe")
+	cmd.SysProcAttr = &syscall.SysProcAttr{
+		CmdLine: strings.Join(args, " "),
+	}
 	if err := cmd.Run(); err != nil {
 		return err
 	}

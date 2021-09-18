@@ -13,8 +13,8 @@ var runtimeClis = map[string][]string{
 	"mongo": {"mongo"},
 }
 
-func getCli(proxyInfo *ProxyInfo) (string, error) {
-	clis := runtimeClis[proxyInfo.Runtime]
+func getCli(p *ProxyInfo) (string, error) {
+	clis := runtimeClis[p.Runtime]
 	if clis == nil {
 		panic("invalid runtime")
 	}
@@ -28,7 +28,7 @@ func getCli(proxyInfo *ProxyInfo) (string, error) {
 		}
 	}
 	if cli == "" {
-		msg := fmt.Sprintf("No cli client for LeanDB runtime %s. Please install cli for runtime first.", proxyInfo.Runtime)
+		msg := fmt.Sprintf("No cli client for LeanDB runtime %s. Please install cli for runtime first.", p.Runtime)
 		return "", errors.New(msg)
 	}
 
@@ -38,11 +38,7 @@ func getCli(proxyInfo *ProxyInfo) (string, error) {
 func GetCliArgs(p *ProxyInfo) []string {
 	switch p.Runtime {
 	case "redis":
-		user := p.AuthUser
-		if user == "" {
-			user = "default"
-		}
-		return []string{"redis-cli", "-h", "127.0.0.1", "--user", user, "-a", p.AuthPassword, "-p", p.LocalPort}
+		return []string{"redis-cli", "-h", "127.0.0.1", "-a", p.AuthPassword, "-p", p.LocalPort}
 	case "mongo":
 		return []string{"mongo", "--host", "127.0.0.1", "-u", p.AuthUser, "-p", p.AuthPassword, "-port", p.LocalPort}
 	case "udb":
@@ -52,12 +48,12 @@ func GetCliArgs(p *ProxyInfo) []string {
 		pass := fmt.Sprintf("-p%s", p.AuthPassword)
 		return []string{"mysql", "-h", "127.0.0.1", "-u", p.AuthUser, pass, "-P", p.LocalPort}
 	case "es":
-		return []string{"curl", p.AuthUser, ":", p.AuthPassword, "@", "127.0.0.1", ":", p.LocalPort}
+		return []string{"curl ", p.AuthUser, ":", p.AuthPassword, "@", "127.0.0.1", ":", p.LocalPort}
 	}
 
 	panic("invalid runtime")
 }
 
-func ForkExecCli(proxyInfo *ProxyInfo, term chan bool) error {
-	return forkExec(proxyInfo, term)
+func ForkExecCli(p *ProxyInfo, term chan bool) error {
+	return forkExec(p, term)
 }

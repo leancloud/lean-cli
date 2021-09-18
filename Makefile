@@ -75,12 +75,6 @@ binaries: $(SRC)
 	make $(OUTPUT)/tds-linux-x86
 	make $(OUTPUT)/tds-linux-x64
 
-macos: $(SRC)
-	make $(OUTPUT)/lean-macos-x64
-
-windows: $(SRC)
-	make $(OUTPUT)/lean-windows-x64.exe
-
 $(OUTPUT)/lean-windows-x86.exe: $(SRC)
 	GOOS=windows GOARCH=386 go build -o $@ -ldflags=$(LDFLAGS) github.com/leancloud/lean-cli/lean
 
