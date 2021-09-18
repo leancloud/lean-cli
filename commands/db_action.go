@@ -141,7 +141,11 @@ func dbShellAction(c *cli.Context) error {
 	started := make(chan bool, 1)
 	go func() {
 		<-started
-		proxy.ForkExecCli(p)
+		err := proxy.ForkExecCli(p)
+		if err != nil {
+			logp.Warnf("Start cli get error: %s", err)
+			os.Exit(1)
+		}
 	}()
 
 	return proxy.Run(p, started)

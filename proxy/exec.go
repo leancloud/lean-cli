@@ -1,6 +1,7 @@
 package proxy
 
 import (
+	"errors"
 	"fmt"
 	"os/exec"
 )
@@ -12,10 +13,10 @@ var runtimeClis = map[string][]string{
 	"mongo": {"mongo"},
 }
 
-func getCli(proxyInfo *ProxyInfo) string {
+func getCli(proxyInfo *ProxyInfo) (string, error) {
 	clis := runtimeClis[proxyInfo.Runtime]
 	if clis == nil {
-		panic(fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", proxyInfo.Runtime))
+		panic("invalid runtime")
 	}
 
 	var cli string
@@ -27,9 +28,11 @@ func getCli(proxyInfo *ProxyInfo) string {
 		}
 	}
 	if cli == "" {
-		panic(fmt.Sprintf("No cli client for LeanDB runtime %s. Please install cli for runtime first.", proxyInfo.Runtime))
+		msg := fmt.Sprintf("No cli client for LeanDB runtime %s. Please install cli for runtime first.", proxyInfo.Runtime)
+		return "", errors.New(msg)
 	}
-	return cli
+
+	return cli, nil
 }
 
 func GetCliArgs(p *ProxyInfo) []string {
@@ -55,6 +58,6 @@ func GetCliArgs(p *ProxyInfo) []string {
 	panic("invalid runtime")
 }
 
-func ForkExecCli(proxyInfo *ProxyInfo) {
-	forkExec(proxyInfo)
+func ForkExecCli(proxyInfo *ProxyInfo) error {
+	return forkExec(proxyInfo)
 }

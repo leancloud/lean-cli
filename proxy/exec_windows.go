@@ -6,12 +6,17 @@ import (
 )
 
 // TODO test on windows
-func forkExec(proxyInfo *ProxyInfo) {
-	cli := getCli(proxyInfo)
+func forkExec(proxyInfo *ProxyInfo) error {
+	cli, err := getCli(proxyInfo)
+	if err != nil {
+		return err
+	}
+
 	// args := GetCliArgs(proxyInfo)
 	cmd := exec.Command("cmd.exe", "/C", "start", cli)
 	if err := cmd.Run(); err != nil {
-		log.Println("Error:", err)
+		return err
 	}
-	return
+
+	return nil
 }

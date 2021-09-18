@@ -8,15 +8,20 @@ import (
 	"syscall"
 )
 
-func forkExec(proxyInfo *ProxyInfo) {
-	cli := getCli(proxyInfo)
+func forkExec(proxyInfo *ProxyInfo) error {
+	cli, err := getCli(proxyInfo)
+	if err != nil {
+		return err
+	}
 	args := GetCliArgs(proxyInfo)
 	procAttr := &syscall.ProcAttr{
 		Env:   os.Environ(),
 		Files: []uintptr{0, 1, 2},
 	}
-	_, err := syscall.ForkExec(cli, args, procAttr)
+	_, err = syscall.ForkExec(cli, args, procAttr)
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }

@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"strings"
 	"time"
 
+	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
 	"nhooyr.io/websocket"
 )
@@ -35,16 +35,6 @@ func Run(p *ProxyInfo, started chan bool) error {
 		started <- true
 	}
 
-	// TODO shell proxy need two Ctrl-C
-	// sigs := make(chan os.Signal, 1)
-	// done := make(chan bool, 1)
-	// signal.Notify(sigs, syscall.SIGINT, syscall.SIGTERM)
-	//
-	// go func() {
-	// <-sigs
-	// done <- true
-	// }()
-
 	for {
 		conn, err := l.Accept()
 		if err != nil {
@@ -66,7 +56,7 @@ func proxy(conn net.Conn, p *ProxyInfo) {
 
 	c, _, err := websocket.Dial(ctx, remoteURL, buildOpts(p, client))
 	if err != nil {
-		log.Println(err)
+		logp.Warnf("Dial remote websocket endpoint get error: %s", err)
 		return
 	}
 
