@@ -49,6 +49,12 @@ func dbListAction(c *cli.Context) error {
 	return nil
 }
 
+var accessibleStatus = map[string]bool{
+	"running":    true,
+	"updating":   true,
+	"recovering": true,
+}
+
 func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 	if c.NArg() < 1 {
 		cli.ShowSubcommandHelp(c)
@@ -86,8 +92,8 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 	if cluster == nil {
 		s := fmt.Sprintf("No instance for [%s (%s)]", instanceName, proxyAppID)
 		return nil, cli.NewExitError(s, 1)
-	} else if cluster.Status != "running" {
-		s := fmt.Sprintf("instance [%s] is not in running status", instanceName)
+	} else if ok := accessibleStatus[cluster.Status]; !ok {
+		s := fmt.Sprintf("instance [%s] is in [%s] status, not one of accessible status [running, updating, recovering]", instanceName, cluster.Status)
 		return nil, cli.NewExitError(s, 1)
 	}
 

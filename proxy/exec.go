@@ -7,9 +7,9 @@ import (
 )
 
 var runtimeClis = map[string][]string{
-	"udb":   {"mysql", "mycli"},
-	"mysql": {"mysql", "mycli"},
-	"redis": {"redis-cli", "iredis"},
+	"udb":   {"mycli", "mysql"},
+	"mysql": {"mycli", "mysql"},
+	"redis": {"iredis", "redis-cli"},
 	"mongo": {"mongo"},
 }
 
@@ -48,7 +48,7 @@ func GetCliArgs(p *ProxyInfo) []string {
 		pass := fmt.Sprintf("-p%s", p.AuthPassword)
 		return []string{"mysql", "-h", "127.0.0.1", "-u", p.AuthUser, pass, "-P", p.LocalPort}
 	case "es":
-		return []string{"curl ", p.AuthUser, ":", p.AuthPassword, "@", "127.0.0.1", ":", p.LocalPort}
+		return []string{"curl", p.AuthUser + ":" + p.AuthPassword + "@" + "127.0.0.1" + ":" + p.LocalPort}
 	}
 
 	panic("invalid runtime")
