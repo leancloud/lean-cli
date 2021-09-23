@@ -8,11 +8,27 @@ import (
 	"text/tabwriter"
 
 	"github.com/aisk/logp"
+	"github.com/aisk/wizard"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/proxy"
 	"github.com/urfave/cli"
 )
+
+func getLeanDBClusterList(appID string) (api.LeanDBClusterSlice, error) {
+	clusters, err := api.GetLeanDBClusterList(appID)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(clusters) == 0 {
+		return nil, cli.NewExitError("This app doesn't have any LeanDB instance", 1)
+	}
+
+	sort.Sort(sort.Reverse(clusters))
+
+	return clusters, nil
+}
 
 func dbListAction(c *cli.Context) error {
 	appID, err := apps.GetCurrentAppID(".")
@@ -20,16 +36,10 @@ func dbListAction(c *cli.Context) error {
 		return err
 	}
 
-	clusters, err := api.GetLeanDBClusterList(appID)
+	clusters, err := getLeanDBClusterList(appID)
 	if err != nil {
 		return err
 	}
-
-	if len(clusters) == 0 {
-		return cli.NewExitError("This app doesn't have any LeanDB instance", 1)
-	}
-
-	sort.Sort(sort.Reverse(clusters))
 
 	t := tabwriter.NewWriter(os.Stdout, 0, 1, 3, ' ', 0)
 
@@ -55,50 +65,81 @@ var accessibleStatus = map[string]bool{
 	"recovering": true,
 }
 
-func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
-	if c.NArg() < 1 {
-		cli.ShowSubcommandHelp(c)
-		return nil, cli.NewExitError("", 1)
+func selectDbCluster(clusters []*api.LeanDBCluster) (*api.LeanDBCluster, error) {
+	var selectedCluster *api.LeanDBCluster
+	question := wizard.Question{
+		Content: "Please choose a LeanDB instance",
+		Answers: []wizard.Answer{},
 	}
+	m := make(map[string]bool)
+	for _, cluster := range clusters {
+		runtimeName := fmt.Sprintf("%s-%s", cluster.Runtime, cluster.Name)
+		var content string
+		if ok := m[runtimeName]; ok {
+			content = fmt.Sprintf("%s (shared from %s) - %s", cluster.Name, cluster.AppID, cluster.NodeQuota)
+		} else {
+			content = fmt.Sprintf("%s - %s", cluster.Name, cluster.NodeQuota)
+		}
+		m[runtimeName] = true
 
+		answer := wizard.Answer{
+			Content: content,
+		}
+		// for scope problem
+		func(cluster *api.LeanDBCluster) {
+			answer.Handler = func() {
+				selectedCluster = cluster
+			}
+		}(cluster)
+		question.Answers = append(question.Answers, answer)
+	}
+	err := wizard.Ask([]wizard.Question{question})
+	return selectedCluster, err
+}
+
+func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
 		return nil, err
 	}
-
-	clusters, err := api.GetLeanDBClusterList(appID)
+	clusters, err := getLeanDBClusterList(appID)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(clusters) == 0 {
-		return nil, cli.NewExitError("This app doesn't have any LeanDB instance", 1)
-	}
-
-	localPort := c.Int("port")
-	proxyAppID := c.String("app-id")
-	if proxyAppID == "" {
-		proxyAppID = appID
-	}
-
-	instanceName := c.Args().Get(0)
 	var cluster *api.LeanDBCluster
-	for _, c := range clusters {
-		if c.Name == instanceName && c.AppID == proxyAppID {
-			cluster = c
+	localPort := c.Int("port")
+	instanceName := c.Args().Get(0)
+
+	if instanceName == "" {
+		instance, err := selectDbCluster(clusters)
+		if err != nil {
+			return nil, err
+		}
+		cluster = instance
+	} else {
+		proxyAppID := c.String("app-id")
+		if proxyAppID == "" {
+			proxyAppID = appID
+		}
+		for _, c := range clusters {
+			if c.Name == instanceName && c.AppID == proxyAppID {
+				cluster = c
+			}
+		}
+		if cluster == nil {
+			s := fmt.Sprintf("No instance for [%s (%s)]", instanceName, proxyAppID)
+			return nil, cli.NewExitError(s, 1)
 		}
 	}
 
-	if cluster == nil {
-		s := fmt.Sprintf("No instance for [%s (%s)]", instanceName, proxyAppID)
-		return nil, cli.NewExitError(s, 1)
-	} else if ok := accessibleStatus[cluster.Status]; !ok {
+	if ok := accessibleStatus[cluster.Status]; !ok {
 		s := fmt.Sprintf("instance [%s] is in [%s] status, not one of accessible status [running, updating, recovering]", instanceName, cluster.Status)
 		return nil, cli.NewExitError(s, 1)
 	}
 
 	p := &proxy.ProxyInfo{
-		AppID:        proxyAppID,
+		AppID:        cluster.AppID,
 		ClusterId:    cluster.ID,
 		Name:         cluster.Name,
 		Runtime:      cluster.Runtime,
