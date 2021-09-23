@@ -6,7 +6,7 @@ import (
 )
 
 // Version is lean-cli's version.
-const Version = "0.25.1"
+const Version = "0.26.0"
 
 var Distribution = "lean"
 
