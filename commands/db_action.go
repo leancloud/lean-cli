@@ -59,12 +59,6 @@ func dbListAction(c *cli.Context) error {
 	return nil
 }
 
-var accessibleStatus = map[string]bool{
-	"running":    true,
-	"updating":   true,
-	"recovering": true,
-}
-
 func selectDbCluster(clusters []*api.LeanDBCluster) (*api.LeanDBCluster, error) {
 	var selectedCluster *api.LeanDBCluster
 	question := wizard.Question{
@@ -133,8 +127,8 @@ func parseProxyInfo(c *cli.Context) (*proxy.ProxyInfo, error) {
 		}
 	}
 
-	if ok := accessibleStatus[cluster.Status]; !ok {
-		s := fmt.Sprintf("instance [%s] is in [%s] status, not one of accessible status [running, updating, recovering]", instanceName, cluster.Status)
+	if cluster.Status != "running" && cluster.Status != "updating" && cluster.Status != "recovering" {
+		s := fmt.Sprintf("instance [%s] is in [%s] status, not one of accessible status [running, updating, recovering]", cluster.Name, cluster.Status)
 		return nil, cli.NewExitError(s, 1)
 	}
 
@@ -160,21 +154,14 @@ func dbProxyAction(c *cli.Context) error {
 	return proxy.RunProxy(p)
 }
 
-var runtimeShell = map[string]bool{
-	"redis": true,
-	"udb":   true,
-	"mysql": true,
-	"mongo": true,
-}
-
 func dbShellAction(c *cli.Context) error {
 	p, err := parseProxyInfo(c)
 	if err != nil {
 		return err
 	}
-	if ok := runtimeShell[p.Runtime]; !ok {
-		msg := fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", p.Runtime)
-		return cli.NewExitError(msg, 1)
+	if clis := proxy.RuntimeClis[p.Runtime]; clis == nil {
+		s := fmt.Sprintf("LeanDB runtime %s don't support shell proxy.", p.Runtime)
+		return cli.NewExitError(s, 1)
 	}
 
 	started := make(chan bool, 1)

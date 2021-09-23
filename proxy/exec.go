@@ -6,7 +6,7 @@ import (
 	"os/exec"
 )
 
-var runtimeClis = map[string][]string{
+var RuntimeClis = map[string][]string{
 	"udb":   {"mycli", "mysql"},
 	"mysql": {"mycli", "mysql"},
 	"redis": {"iredis", "redis-cli"},
@@ -14,7 +14,7 @@ var runtimeClis = map[string][]string{
 }
 
 func getCli(p *ProxyInfo) (string, error) {
-	clis := runtimeClis[p.Runtime]
+	clis := RuntimeClis[p.Runtime]
 	if clis == nil {
 		panic("invalid runtime")
 	}
