@@ -59,10 +59,16 @@ type Client struct {
 }
 
 func NewClientByRegion(region regions.Region) *Client {
-	return &Client{
+	client := &Client{
 		AccessToken: accessTokenCache[region],
 		Region:      region,
 	}
+
+	if !version.LoginViaAccessTokenOnly && client.AccessToken == "" {
+		client.CookieJar = newCookieJar()
+	}
+
+	return client
 }
 
 func NewClientByApp(appID string) *Client {
@@ -72,11 +78,17 @@ func NewClientByApp(appID string) *Client {
 		panic(err)
 	}
 
-	return &Client{
+	client := &Client{
 		AppID:       appID,
 		AccessToken: accessTokenCache[region],
 		Region:      region,
 	}
+
+	if !version.LoginViaAccessTokenOnly && client.AccessToken == "" {
+		client.CookieJar = newCookieJar()
+	}
+
+	return client
 }
 
 func (client *Client) GetBaseURL() string {
@@ -104,23 +116,11 @@ func (client *Client) options() (*grequests.RequestOptions, error) {
 	}, nil
 }
 
-func doRequest(client *Client, method string, path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
-	requestsCount += 1
-	requestId := requestsCount
-
-	if !version.LoginViaAccessTokenOnly && client.AccessToken == "" {
-		client.CookieJar = newCookieJar()
-	}
-
-	var err error
-	if options == nil {
-		if options, err = client.options(); err != nil {
-			return nil, err
-		}
-	}
+func (client *Client) GetAuthHeaders() map[string]string {
+	headers := make(map[string]string)
 
 	if client.AccessToken != "" {
-		options.Headers["Authorization"] = fmt.Sprint("Token ", client.AccessToken)
+		headers["Authorization"] = fmt.Sprint("Token ", client.AccessToken)
 	} else if client.CookieJar != nil {
 		url, err := url.Parse(client.GetBaseURL())
 
@@ -138,7 +138,28 @@ func doRequest(client *Client, method string, path string, params map[string]int
 			}
 		}
 
-		options.Headers["X-XSRF-TOKEN"] = xsrf
+		headers["X-XSRF-TOKEN"] = xsrf
+	}
+
+	return headers
+}
+
+func doRequest(client *Client, method string, path string, params map[string]interface{}, options *grequests.RequestOptions) (*grequests.Response, error) {
+	requestsCount += 1
+	requestId := requestsCount
+
+	var err error
+	if options == nil {
+		if options, err = client.options(); err != nil {
+			return nil, err
+		}
+	}
+
+	for k, v := range client.GetAuthHeaders() {
+		options.Headers[k] = v
+	}
+
+	if client.CookieJar != nil {
 		options.CookieJar = client.CookieJar
 		options.UseCookieJar = true
 	}
