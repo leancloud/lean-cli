@@ -24,7 +24,12 @@ var hookNames = map[string]string{
 	"__after_update_for_":  "afterUpdate",
 	"__before_delete_for_": "beforeDelete",
 	"__after_delete_for_":  "afterDelete",
-	"__on_login_":          "onLogin",
+}
+var specialHookNames = map[string]string{
+	"__on_authdata_":      "onAuthData",
+	"__on_login_":         "onLogin",
+	"__on_verified_sms":   "onVerifiedSms",
+	"__on_verified_email": "onVerifiedEmail",
 }
 
 // Server is a struct for develoment console server
@@ -244,6 +249,41 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 	w.Write(j)
 }
 
+func (server *Server) specialHooksHandler(w http.ResponseWriter, req *http.Request) {
+	functions, err := server.getFunctions()
+	if err != nil {
+		fmt.Println("get functions error: ", err)
+		return
+	}
+
+	result := linq.From(functions).Where(func(in interface{}) bool {
+		funcName := in.(string)
+		for key := range specialHookNames {
+			if strings.HasPrefix(funcName, key) {
+				return true
+			}
+		}
+		return false
+	}).Select(func(in interface{}) interface{} {
+		funcName := in.(string)
+		action := ""
+		for key, value := range specialHookNames {
+			if strings.HasPrefix(funcName, key) {
+				action = value
+			}
+		}
+		return map[string]string{
+			"className": "_User",
+			"action":    action,
+			"sign":      signCloudFunc(server.MasterKey, funcName, timeStamp()),
+		}
+	}).Results()
+
+	w.Header().Set("Content-Type", "application/json")
+	j, _ := json.MarshalIndent(result, "", "  ")
+	w.Write(j)
+}
+
 // Run the dev server
 func (server *Server) Run() {
 	router := mux.NewRouter()
@@ -253,6 +293,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/__engine/1/functions", server.functionsHandler)
 	router.HandleFunc("/__engine/1/classes", server.classesHandler)
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
+	router.HandleFunc("/__engine/1/special-hooks", server.specialHooksHandler)
 	router.HandleFunc("/resources/{filename}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort

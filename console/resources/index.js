@@ -87,6 +87,12 @@ function getHookClasses() {
   });
 }
 
+function getSpecialHooks() {
+  return $.get("/__engine/1/special-hooks").then(function(hooks) {
+    return _.indexBy(hooks, 'action')
+  });
+}
+
 function getUser(uid) {
   if (!uid || uid.trim() === '') {
     return AV.Promise.resolve(null);
@@ -147,12 +153,8 @@ function getHookObjectByContent(content) {
   });
 }
 
-function callCloudHook(appInfo, hookInfo, obj, user) {
+function callCloudHook(appInfo, hookInfo, data, user) {
   var url = appInfo.remoteUrl + "/1.1/functions/" + hookInfo.className + "/" + hookInfo.action;
-  var data = {
-    object: obj,
-  };
-
   if (user) {
     data.user = user.toJSON();
     data.user.sessionToken = user._sessionToken;
@@ -209,6 +211,8 @@ $(document).ready(function() {
       warnings: [],
       result: '',
 
+      selectedPanel: 0,
+
       // cloud function related:
       cloudFunctions: [],
       selectedFunction: 0,
@@ -225,6 +229,12 @@ $(document).ready(function() {
       updatedKeys: '',
       selectedClass: 0,
       selectedHook: 0,
+
+      specialHooks: [],
+      authData: null,
+      onVerifiedUserId: null,
+      onVerifiedType: null,
+      onLoginUserId: null,
 
       // history related:
       showHistoryPanel: false,
@@ -293,12 +303,61 @@ $(document).ready(function() {
               obj._updatedKeys = keys;
             }
           }
-          return callCloudHook(this.appInfo, hookInfo, obj, user);
+          return callCloudHook(this.appInfo, hookInfo, {object: obj}, user);
         }).bind(this)).then((function(result) {
           this.result = result;
         }).bind(this)).catch((function(err) {
           this.result = err.responseText || err.message;
         }).bind(this));
+      },
+      executeOnAuthData: function() {
+        const hookInfo = this.specialHooks.onAuthData;
+        addToHistoryOperations(this.historyOperations, {
+          type: 'onAuthData',
+          className: hookInfo.className,
+          hookName: hookInfo.action,
+          params: this.authData,
+        });
+        callCloudHook(this.appInfo, hookInfo, {authData: JSON.parse(this.authData)}).then((function(result) {
+          this.result = result;
+        }).bind(this)).fail((function(err) {
+          this.result = err.responseText || err.message;
+        }).bind(this));
+      },
+      executeOnLogin: function() {
+        const hookInfo = this.specialHooks.onLogin;
+        addToHistoryOperations(this.historyOperations, {
+          type: 'onLogin',
+          className: hookInfo.className,
+          hookName: hookInfo.action,
+          userId: this.onLoginUserId,
+        });
+        const that = this;
+        getUser(this.onLoginUserId).then(function(user) {
+          return callCloudHook(that.appInfo, hookInfo, null, user)
+        }).then(function(result) {
+          that.result = result;
+        }).catch(function(err) {
+          that.result = err.responseText || err.message;
+        })
+      },
+      executeOnVerified: function(type) {
+        const hookInfo = this.specialHooks['onVerified' + type];
+        hookInfo.name = 'onVerified/' + type.toLowerCase()
+        addToHistoryOperations(this.historyOperations, {
+          type: hookInfo.action,
+          className: hookInfo.className,
+          hookName: hookInfo.action,
+          userId: this.onLoginUserId,
+        });
+        const that = this;
+        getUser(this.onLoginUserId).then(function(user) {
+          return callCloudFunction(that.appInfo, hookInfo, null, user);
+        }).then(function(result) {
+          that.result = result;
+        }).catch(function(err) {
+          that.result = err.responseText || err.message;
+        })
       },
       restoryHistory: function(operation) {
         if (operation.type === 'cloudFunction') {
@@ -329,11 +388,12 @@ $(document).ready(function() {
       },
     },
     mounted: function() {
-      $.when(getAppInfo(), getCloudFunction(), getHookClasses()).then((function(appInfo, cloudFunctions, hookClasses) {
+      $.when(getAppInfo(), getCloudFunction(), getHookClasses(), getSpecialHooks()).then((function(appInfo, cloudFunctions, hookClasses, specialHooks) {
         this.warnings = appInfo.warnings;
         this.appInfo = appInfo;
         this.cloudFunctions = cloudFunctions;
         this.hookClasses = hookClasses;
+        this.specialHooks = specialHooks;
 
         if (this.hookClasses.length === 0) {
           return [];
