@@ -57,12 +57,12 @@ func deployAction(c *cli.Context) error {
 		return err
 	}
 
-	if prodString == "" {
-		groupInfo, err := api.GetGroup(appID, groupName)
-		if err != nil {
-			return err
-		}
+	groupInfo, err := api.GetGroup(appID, groupName)
+	if err != nil {
+		return err
+	}
 
+	if prodString == "" {
 		if groupInfo.Staging.Deployable {
 			prod = 0
 		} else {
@@ -73,6 +73,11 @@ func deployAction(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+	}
+	if prod == 0 && !groupInfo.Staging.Deployable {
+		return cli.NewExitError("Deployment failed: no staging instance", 1)
+	} else if prod == 1 && !groupInfo.Production.Deployable {
+		return cli.NewExitError("Deployment failed: no production instance", 1)
 	}
 
 	if prod == 1 {

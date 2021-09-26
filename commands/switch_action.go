@@ -65,7 +65,6 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 	// check if arg is an app id
 	for _, app := range currentApps {
 		if app.AppID == arg {
-			fmt.Printf("Switching to app: %s (%s)\r\n", app.AppName, region)
 			err = apps.LinkApp(".", app.AppID)
 			if err != nil {
 				return err
@@ -80,6 +79,7 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 				}
 				groupName = groupList[0].GroupName
 			}
+			fmt.Printf("Switching to %s (region: %s, group: %s)\r\n", app.AppName, region, groupName)
 			return apps.LinkGroup(".", groupName)
 		}
 	}
@@ -93,7 +93,6 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 	}
 	if len(matchedApps) == 1 {
 		matchedApp := matchedApps[0]
-		fmt.Printf("Switching to app: %s (%s)\r\n", matchedApp.AppName, region)
 		err = apps.LinkApp(".", matchedApps[0].AppID)
 		if err != nil {
 			return err
@@ -108,6 +107,8 @@ func checkOutWithAppInfo(arg string, regionString string, groupName string) erro
 			}
 			groupName = groupList[0].GroupName
 		}
+		fmt.Printf("Switching to %s (region: %s, group: %s)\r\n", matchedApp.AppName, region, groupName)
+
 		return apps.LinkGroup(".", groupName)
 	} else if len(matchedApps) > 1 {
 		return cli.NewExitError("Multiple apps are using this name. Please use app ID to identify the app instead.", 1)
@@ -197,7 +198,7 @@ func checkOutWithWizard(regionString string, groupName string) error {
 		}
 	}
 
-	fmt.Printf("Switching to app: %s, group: %s\r\n", app.AppName, group.GroupName)
+	fmt.Printf("Switching to %s (region: %s, group: %s)\r\n", app.AppName, region, group.GroupName)
 
 	err = apps.LinkApp(".", app.AppID)
 	if err != nil {
