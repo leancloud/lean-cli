@@ -87,8 +87,8 @@ function getHookClasses() {
   });
 }
 
-function getSpecialHooks() {
-  return $.get("/__engine/1/special-hooks").then(function(hooks) {
+function getUserHooks() {
+  return $.get("/__engine/1/userHooks").then(function(hooks) {
     return _.indexBy(hooks, 'action')
   });
 }
@@ -230,7 +230,7 @@ $(document).ready(function() {
       selectedClass: 0,
       selectedHook: 0,
 
-      specialHooks: [],
+      userHooks: [],
       authData: null,
       onVerifiedUserId: null,
       onVerifiedType: null,
@@ -311,7 +311,7 @@ $(document).ready(function() {
         }).bind(this));
       },
       executeOnAuthData: function() {
-        const hookInfo = this.specialHooks.onAuthData;
+        const hookInfo = this.userHooks.onAuthData;
         addToHistoryOperations(this.historyOperations, {
           type: 'onAuthData',
           className: hookInfo.className,
@@ -325,7 +325,7 @@ $(document).ready(function() {
         }).bind(this));
       },
       executeOnLogin: function() {
-        const hookInfo = this.specialHooks.onLogin;
+        const hookInfo = this.userHooks.onLogin;
         addToHistoryOperations(this.historyOperations, {
           type: 'onLogin',
           className: hookInfo.className,
@@ -342,7 +342,7 @@ $(document).ready(function() {
         })
       },
       executeOnVerified: function(type) {
-        const hookInfo = this.specialHooks['onVerified' + type];
+        const hookInfo = this.userHooks['onVerified' + type];
         hookInfo.name = 'onVerified/' + type.toLowerCase()
         addToHistoryOperations(this.historyOperations, {
           type: hookInfo.action,
@@ -388,12 +388,12 @@ $(document).ready(function() {
       },
     },
     mounted: function() {
-      $.when(getAppInfo(), getCloudFunction(), getHookClasses(), getSpecialHooks()).then((function(appInfo, cloudFunctions, hookClasses, specialHooks) {
+      $.when(getAppInfo(), getCloudFunction(), getHookClasses(), getUserHooks()).then((function(appInfo, cloudFunctions, hookClasses, userHooks) {
         this.warnings = appInfo.warnings;
         this.appInfo = appInfo;
         this.cloudFunctions = cloudFunctions;
         this.hookClasses = hookClasses;
-        this.specialHooks = specialHooks;
+        this.userHooks = userHooks;
 
         if (this.hookClasses.length === 0) {
           return [];

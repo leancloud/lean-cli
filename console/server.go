@@ -25,7 +25,7 @@ var hookNames = map[string]string{
 	"__before_delete_for_": "beforeDelete",
 	"__after_delete_for_":  "afterDelete",
 }
-var specialHookNames = map[string]string{
+var userHookNames = map[string]string{
 	"__on_authdata_":      "onAuthData",
 	"__on_login_":         "onLogin",
 	"__on_verified_sms":   "onVerifiedSms",
@@ -249,7 +249,7 @@ func (server *Server) classActionHandler(w http.ResponseWriter, req *http.Reques
 	w.Write(j)
 }
 
-func (server *Server) specialHooksHandler(w http.ResponseWriter, req *http.Request) {
+func (server *Server) userHooksHandler(w http.ResponseWriter, req *http.Request) {
 	functions, err := server.getFunctions()
 	if err != nil {
 		fmt.Println("get functions error: ", err)
@@ -258,7 +258,7 @@ func (server *Server) specialHooksHandler(w http.ResponseWriter, req *http.Reque
 
 	result := linq.From(functions).Where(func(in interface{}) bool {
 		funcName := in.(string)
-		for key := range specialHookNames {
+		for key := range userHookNames {
 			if strings.HasPrefix(funcName, key) {
 				return true
 			}
@@ -267,7 +267,7 @@ func (server *Server) specialHooksHandler(w http.ResponseWriter, req *http.Reque
 	}).Select(func(in interface{}) interface{} {
 		funcName := in.(string)
 		action := ""
-		for key, value := range specialHookNames {
+		for key, value := range userHookNames {
 			if strings.HasPrefix(funcName, key) {
 				action = value
 			}
@@ -293,7 +293,7 @@ func (server *Server) Run() {
 	router.HandleFunc("/__engine/1/functions", server.functionsHandler)
 	router.HandleFunc("/__engine/1/classes", server.classesHandler)
 	router.HandleFunc("/__engine/1/classes/{className}/actions", server.classActionHandler)
-	router.HandleFunc("/__engine/1/special-hooks", server.specialHooksHandler)
+	router.HandleFunc("/__engine/1/userHooks", server.userHooksHandler)
 	router.HandleFunc("/resources/{filename}", server.resourcesHandler)
 
 	addr := "localhost:" + server.ConsolePort
