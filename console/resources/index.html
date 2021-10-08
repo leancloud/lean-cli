@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LeanCloud Cloud Code Debug Tool</title>
+  <title>LeanCloud Cloud Function Debug Tool</title>
   <link rel="icon" href="https://leancloud.cn/favicon.png" type="image/png">
   <script type="application/javascript" src="resources/av-min.js"></script>
   <script type="application/javascript" src="resources/jquery.js"></script>
@@ -37,7 +37,7 @@
     <div class="container">
       <div class="navbar-header">
         <a class="navbar-brand" href="/">
-          Cloud Code Debug Console
+          Cloud Function Debug Console
         </a>
       </div>
     </div>
@@ -52,59 +52,102 @@
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-md-6">
-        <h4>Function defined by <code>AV.Cloud.define</code></h4>
-        <div class="form-group">
-          <label>Select a function</label>
-          <select2 :options="cloudFunctions" v-model="selectedFunction" class="form-control">
-          </select2>
-        </div>
-        <div class="form-group">
-          <label>Object Id of the logged-in user (simulated, can be empty)</label>
-          <input v-model="cloudFunctionUserId" class="form-control"></input>
-        </div>
-        <div class="form-group">
-          <label>JSON payload (can be empty)</label>
-          <span>
-            &raquo; <input type="checkbox" v-model="isCall">
-            <label for="isCall">as AVObject (RPC call)</label>
-          </span>
-          <textarea v-model="cloudFunctionParams" rows="10" cols="80" class="form-control"></textarea>
-        </div>
-        <button type="button" v-on:click="executeCloudFunction()" class="btn btn-default">Run</button>
+    <div class="nav nav-tabs">
+      <li v-bind:class="{active: selectedPanel == 0}"><a href="javascript:;" v-on:click="selectedPanel = 0">Cloud Functions</a></li>
+      <li v-bind:class="{active: selectedPanel == 1}"><a href="javascript:;" v-on:click="selectedPanel = 1">Class Hooks</a></li>
+      <li v-bind:class="{active: selectedPanel == 2, disabled: !userHooks.onAuthData}"><a href="javascript:;" v-on:click="userHooks.onAuthData ? selectedPanel = 2 : 0">onAuthData</a></li>
+      <li v-bind:class="{active: selectedPanel == 3, disabled: !userHooks.onLogin}"><a href="javascript:;" v-on:click="userHooks.onLogin ? selectedPanel = 3 : 0">onLogin</a></li>
+      <li v-bind:class="{active: selectedPanel == 4, disabled: !userHooks.onVerifiedSms}"><a href="javascript:;" v-on:click="userHooks.onVerifiedSms ? selectedPanel = 4 : 0">onVerified sms</a></li>
+      <li v-bind:class="{active: selectedPanel == 5, disabled: !userHooks.onVerifiedEmail}"><a href="javascript:;" v-on:click="userHooks.onVerifiedEmail ? selectedPanel = 5 : 0">onVerified email</a></li>
+    </div>
 
-      </div>
 
-      <div class="col-md-6">
-        <h4>Class Hooks (e.g., beforeSave, afterSave)</h4>
-        <div class="form-group">
-          <label>Select a class</label>
-          <select2 :options="hookClasses" v-model="selectedClass" v-on:change="refreshHookFunctions()"  class="form-control">
-          </select2>
-        </div>
-        <div class="form-group">
-          <label>Select a function</label>
-          <select2 :options="hookFunctions" v-model="selectedHook" class="form-control"></select>
-        </div>
-        <div class="form-group">
-          <label>Object Id of the logged-in user (simulated, can be empty)</label>
-          <input v-model="hookUserId" class="form-control" />
-        </div>
-        <div class="form-group" v-if="hookFunctions.length && hookFunctions[selectedHook].action.match(/^(before|after)Update$/)">
-          <label>Updated fields, separated by commas</label>
-          <input type="text" v-model="updatedKeys" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label>Existing objectId</label>
-          <input type="text" v-model="hookObjectId" class="form-control" />
-        </div>
-        <div class="form-group">
-          <label>or an object in JSON format</label>
-          <textarea rows="10" v-model="hookObjectContent" class="form-control"></textarea>
-        </div>
-        <button type="button" v-on:click="executeCloudHook()" class="btn btn-default">Run</button>
+    <div v-if="selectedPanel == 0">
+      <h4>Function defined by <code>AV.Cloud.define</code></h4>
+      <div class="form-group">
+        <label>Select a function</label>
+        <select2 :options="cloudFunctions" v-model="selectedFunction" class="form-control">
+        </select2>
       </div>
+      <div class="form-group">
+        <label>Object Id of the logged-in user (simulated, can be empty)</label>
+        <input v-model="cloudFunctionUserId" class="form-control"></input>
+      </div>
+      <div class="form-group">
+        <label>JSON payload (can be empty)</label>
+        <span>
+          &raquo; <input id="isCall" type="checkbox" v-model="isCall">
+          <label for="isCall">as AVObject (RPC call)</label>
+        </span>
+        <textarea v-model="cloudFunctionParams" rows="10" cols="80" class="form-control"></textarea>
+      </div>
+      <button type="button" v-on:click="executeCloudFunction()" class="btn btn-default">Run</button>
+    </div>
+
+    <div v-if="selectedPanel == 1">
+      <h4>Class Hooks (e.g., beforeSave, afterSave)</h4>
+      <div class="form-group">
+        <label>Select a class</label>
+        <select2 :options="hookClasses" v-model="selectedClass" v-on:change="refreshHookFunctions()"  class="form-control">
+        </select2>
+      </div>
+      <div class="form-group">
+        <label>Select a function</label>
+        <select2 :options="hookFunctions" v-model="selectedHook" class="form-control"></select2>
+      </div>
+      <div class="form-group">
+        <label>Object Id of the logged-in user (simulated, can be empty)</label>
+        <input v-model="hookUserId" class="form-control" />
+      </div>
+      <div class="form-group" v-if="hookFunctions.length && hookFunctions[selectedHook].action.match(/^(before|after)Update$/)">
+        <label>Updated fields, separated by commas</label>
+        <input type="text" v-model="updatedKeys" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label>Existing objectId</label>
+        <input type="text" v-model="hookObjectId" class="form-control" />
+      </div>
+      <div class="form-group">
+        <label>or an object in JSON format</label>
+        <textarea rows="10" v-model="hookObjectContent" class="form-control"></textarea>
+      </div>
+      <button type="button" v-on:click="executeCloudHook()" class="btn btn-default">Run</button>
+    </div>
+
+    <div v-if="selectedPanel == 2">
+      <h4>onAuthData</h4>
+      <div class="form-group">
+        <label>authData</label>
+        <textarea v-model="authData" rows="10" cols="80" class="form-control"></textarea>
+      </div>
+      <button type="button" v-on:click="executeOnAuthData()" class="btn btn-default">Run</button>
+    </div>
+
+    <div v-if="selectedPanel == 3">
+      <h4>onLogin</h4>
+      <div class="form-group">
+        <label>Object Id of the logged-in user (simulated, can be empty)</label>
+        <input v-model="onLoginUserId" class="form-control"></input>
+      </div>
+      <button type="button" v-on:click="executeOnLogin()" class="btn btn-default">Run</button>
+    </div>
+
+    <div v-if="selectedPanel == 4">
+      <h4>onVerified('sms')</h4>
+      <div class="form-group">
+        <label>Object Id of the logged-in user (simulated, can be empty)</label>
+        <input v-model="onLoginUserId" class="form-control"></input>
+      </div>
+      <button type="button" v-on:click="executeOnVerified('Sms')" class="btn btn-default">Run</button>
+    </div>
+
+    <div v-if="selectedPanel == 5">
+      <h4>onVerified('sms')</h4>
+      <div class="form-group">
+        <label>Object Id of the logged-in user (simulated, can be empty)</label>
+        <input v-model="onLoginUserId" class="form-control"></input>
+      </div>
+      <button type="button" v-on:click="executeOnVerified('Email')" class="btn btn-default">Run</button>
     </div>
   </div>
 
