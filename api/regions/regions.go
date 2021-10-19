@@ -22,6 +22,8 @@ func Parse(region string) Region {
 		return USWest
 	case "cn-tds1":
 		return ChinaTDS1
+	case "ap-sg":
+		return APSG
 	default:
 		return Invalid
 	}
@@ -51,6 +53,8 @@ func (r Region) String() string {
 		return "us-w1"
 	case ChinaTDS1:
 		return "cn-tds1"
+	case APSG:
+		return "ap-sg"
 	default:
 		return "invalid"
 	}
@@ -62,6 +66,8 @@ func (r Region) EnvString() string {
 		return "CN"
 	case USWest:
 		return "US"
+	case APSG:
+		return "AP"
 	default:
 		return "invalid"
 	}
@@ -78,6 +84,8 @@ func (r Region) Description() string {
 		return "China East"
 	case ChinaTDS1:
 		return "China TDS"
+	case APSG:
+		return "Singapore TDS"
 	default:
 		return "invalid"
 	}
@@ -90,6 +98,7 @@ const (
 	USWest
 	ChinaEast
 	ChinaTDS1
+	APSG
 )
 
 // Only return available regions

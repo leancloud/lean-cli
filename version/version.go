@@ -19,7 +19,7 @@ var defaultRegionMapping = map[string]regions.Region{
 
 var availableRegionsMapping = map[string][]regions.Region{
 	"lean": {regions.ChinaNorth, regions.USWest, regions.ChinaEast},
-	"tds":  {regions.ChinaTDS1},
+	"tds":  {regions.ChinaTDS1, regions.APSG},
 }
 
 var DefaultRegion = defaultRegionMapping[Distribution]
