@@ -44,6 +44,8 @@ func GetAppAPIURL(region regions.Region, appID string) string {
 		}
 	case regions.ChinaTDS1:
 		return "https://" + strings.ToLower(appID[0:8]) + ".cloud.tds1.tapapis.cn"
+	case regions.APSG:
+		return "https://" + strings.ToLower(appID[0:8]) + ".cloud.ap-sg.tapapis.com"
 	}
 
 	return defaultAPIURL[region]

@@ -68,6 +68,10 @@ func Run(args []string) {
 				} else {
 					return []cli.Flag{
 						cli.StringFlag{
+							Name:  "region,r",
+							Usage: "The TDS region to log in to (e.g., cn-tds1, ap-sg)",
+						},
+						cli.StringFlag{
 							Name:  "token",
 							Usage: "AccessToken generated from the Dashboard",
 						},
@@ -87,24 +91,15 @@ func Run(args []string) {
 			Action:    wrapAction(switchAction),
 			ArgsUsage: "[appID | appName]",
 			Flags: func() []cli.Flag {
-				if version.Distribution == "lean" {
-					return []cli.Flag{
-						cli.StringFlag{
-							Name:  "region",
-							Usage: "LeanCloud region",
-						},
-						cli.StringFlag{
-							Name:  "group",
-							Usage: "LeanEngine group",
-						},
-					}
-				} else {
-					return []cli.Flag{
-						cli.StringFlag{
-							Name:  "group",
-							Usage: "CloudEngine group",
-						},
-					}
+				return []cli.Flag{
+					cli.StringFlag{
+						Name:  "region",
+						Usage: "LeanCloud region",
+					},
+					cli.StringFlag{
+						Name:  "group",
+						Usage: "LeanEngine group",
+					},
 				}
 			}(),
 		},

@@ -6,7 +6,7 @@ import (
 )
 
 // Version is lean-cli's version.
-const Version = "0.27.0"
+const Version = "0.28.0"
 
 var Distribution = "lean"
 
@@ -19,7 +19,7 @@ var defaultRegionMapping = map[string]regions.Region{
 
 var availableRegionsMapping = map[string][]regions.Region{
 	"lean": {regions.ChinaNorth, regions.USWest, regions.ChinaEast},
-	"tds":  {regions.ChinaTDS1},
+	"tds":  {regions.ChinaTDS1, regions.APSG},
 }
 
 var DefaultRegion = defaultRegionMapping[Distribution]
