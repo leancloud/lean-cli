@@ -68,6 +68,10 @@ func Run(args []string) {
 				} else {
 					return []cli.Flag{
 						cli.StringFlag{
+							Name:  "region,r",
+							Usage: "The TDS region to log in to (e.g., cn-tds1, ap-sg)",
+						},
+						cli.StringFlag{
 							Name:  "token",
 							Usage: "AccessToken generated from the Dashboard",
 						},
