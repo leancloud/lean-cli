@@ -334,7 +334,7 @@ $(document).ready(function() {
         });
         const that = this;
         getUser(this.onLoginUserId).then(function(user) {
-          return callCloudHook(that.appInfo, hookInfo, {}, user)
+          return callCloudHook(that.appInfo, hookInfo, {object: user})
         }).then(function(result) {
           that.result = result;
         }).catch(function(err) {
@@ -352,7 +352,7 @@ $(document).ready(function() {
         });
         const that = this;
         getUser(this.onLoginUserId).then(function(user) {
-          return callCloudFunction(that.appInfo, hookInfo, null, user);
+          return callCloudFunction(that.appInfo, hookInfo, JSON.stringify({object: user}));
         }).then(function(result) {
           that.result = result;
         }).catch(function(err) {
