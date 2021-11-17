@@ -2,6 +2,7 @@ package runtimes
 
 import (
 	"encoding/json"
+	"encoding/xml"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -272,6 +273,31 @@ func newNodeRuntime(projectPath string) (*Runtime, error) {
 func newJavaRuntime(projectPath string) (*Runtime, error) {
 	exec := "mvn"
 	args := []string{"jetty:run"}
+
+	// parse pom.xml to check if it's using spring-boot-maven-plugin and hence can be run with `mvn spring-boot:run`
+	content, err := ioutil.ReadFile(filepath.Join(projectPath, "pom.xml"))
+	if err != nil {
+		return nil, err
+	}
+	var pom struct {
+		Build struct {
+			Plugins struct {
+				Plugins []struct {
+					ArtifactId string `xml:"artifactId"`
+				} `xml:"plugin"`
+			} `xml:"plugins"`
+		} `xml:"build"`
+	}
+	if err := xml.Unmarshal(content, &pom); err != nil {
+		return nil, err
+	}
+	for _, plugin := range pom.Build.Plugins.Plugins {
+		if plugin.ArtifactId == "spring-boot-maven-plugin" {
+			args = []string{"spring-boot:run"}
+			break
+		}
+	}
+
 	if config, err := getEngineConfig(projectPath); err == nil {
 		if config.CMD != "" {
 			exec, args = config.parseCMD()
