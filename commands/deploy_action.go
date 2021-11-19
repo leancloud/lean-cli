@@ -156,16 +156,26 @@ func packageWar(repoPath string) (string, error) {
 
 	logp.Info("Found .war file:", warPath)
 
+	file := []struct{ Name, Path string }{{
+		Name: "ROOT.war",
+		Path: warPath,
+	}}
+
+	for _, filename := range []string{"leanengine.yaml", "system.properties"} {
+		path := filepath.Join(repoPath, filename)
+		if utils.IsFileExists(path) {
+			file = append(file, struct{ Name, Path string }{
+				Name: filename,
+				Path: path,
+			})
+		}
+	}
+
 	fileDir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return "", err
 	}
 	archivePath := filepath.Join(fileDir, "ROOT.war.zip")
-
-	file := []struct{ Name, Path string }{{
-		Name: "ROOT.war",
-		Path: warPath,
-	}}
 	if err = utils.ArchiveFiles(archivePath, file); err != nil {
 		return "", err
 	}
