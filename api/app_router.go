@@ -13,7 +13,7 @@ import (
 
 var defaultAPIURL = map[regions.Region]string{
 	regions.ChinaNorth: "https://api.leancloud.cn",
-	regions.USWest:     "https://us-api.leancloud.cn",
+	regions.USWest:     "https://us-w1-console-api.leancloud.app",
 	regions.ChinaEast:  "https://tab.leancloud.cn",
 }
 
