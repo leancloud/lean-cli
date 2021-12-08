@@ -157,7 +157,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		logp.Info("DotNet runtime detected")
 		return newDotnetRuntime(projectPath)
 	}
-	if utils.IsFileExists(filepath.Join(projectPath, "index.html")) {
+	if utils.IsFileExists(filepath.Join(projectPath, "index.html")) || utils.IsFileExists(filepath.Join(projectPath, "static.json")) {
 		logp.Info("Static runtime detected")
 		return newStaticRuntime(projectPath)
 	}

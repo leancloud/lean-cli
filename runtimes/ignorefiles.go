@@ -13,7 +13,7 @@ import (
 // defaultIgnorePatterns returns current runtime's default ignore patterns
 func (runtime *Runtime) defaultIgnorePatterns() []string {
 	switch runtime.Name {
-	case "node.js":
+	case "node.js", "static":
 		return []string{
 			".git/",
 			".DS_Store",
