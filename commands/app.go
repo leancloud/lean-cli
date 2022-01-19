@@ -214,6 +214,10 @@ func Run(args []string) {
 					Name:  "direct",
 					Usage: "Upload project's tarball to remote directly",
 				},
+				cli.BoolFlag{
+					Name:  "build-logs",
+					Usage: "Print build logs",
+				},
 			},
 		},
 		{

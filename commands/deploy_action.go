@@ -32,6 +32,7 @@ func deployAction(c *cli.Context) error {
 	revision := c.String("revision")
 	prodString := c.String("prod")
 	isDirect := c.Bool("direct")
+	buildLogs := c.Bool("build-logs")
 
 	var prod int
 
@@ -89,6 +90,7 @@ func deployAction(c *cli.Context) error {
 	opts := &api.DeployOptions{
 		NoDepsCache:    noDepsCache,
 		OverwriteFuncs: overwriteFuncs,
+		BuildLogs:      buildLogs,
 		Options:        c.String("options"),
 	}
 
