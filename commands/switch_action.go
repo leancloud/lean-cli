@@ -3,6 +3,7 @@ package commands
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/logp"
@@ -218,7 +219,7 @@ func switchAction(c *cli.Context) error {
 		arg := c.Args()[0]
 		err := checkOutWithAppInfo(arg, region, group)
 		if err != nil {
-			return err
+			return handlerSwitchErr(err, region)
 		}
 		return nil
 	}
@@ -228,4 +229,12 @@ func switchAction(c *cli.Context) error {
 func checkOutAction(c *cli.Context) error {
 	logp.Warn("`lean checkout` is deprecated, please use `lean switch` instead")
 	return switchAction(c)
+}
+
+func handlerSwitchErr(err error, region string) error {
+	e, ok := err.(api.Error)
+	if ok && e.Code == 1 && strings.HasPrefix(e.Content, "User doesn't sign in.") {
+		return cli.NewExitError(fmt.Sprintf("User doesn't sign in at region %s.", region), 1)
+	}
+	return err
 }
