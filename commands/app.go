@@ -379,33 +379,6 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "cache",
-			Usage:  "LeanCache shell",
-			Action: wrapAction(cacheAction),
-			Flags: []cli.Flag{
-				cli.IntFlag{
-					Name:  "db",
-					Usage: "Number of LeanCache DB",
-					Value: 0,
-				},
-				cli.StringFlag{
-					Name:  "name",
-					Usage: "Name of LeanCache instance",
-				},
-				cli.StringFlag{
-					Name:  "eval",
-					Usage: "LeanCache command to run",
-				},
-			},
-			Subcommands: []cli.Command{
-				{
-					Name:   "list",
-					Usage:  "Show LeanCache instances of the current project",
-					Action: wrapAction(cacheListAction),
-				},
-			},
-		},
-		{
 			Name:   "cql",
 			Usage:  "Start CQL interactive mode (warn: CQL is deprecated)",
 			Action: wrapAction(cqlAction),
