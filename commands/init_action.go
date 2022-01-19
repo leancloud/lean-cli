@@ -63,16 +63,12 @@ func selectGroup(groupList []*api.GetGroupsResult) (*api.GetGroupsResult, error)
 func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	var selectedBoilerplate boilerplate.Boilerplate
 	var selectedCategory boilerplate.Category
-	categories, err := boilerplate.GetBoilerplates()
-	if err != nil {
-		return nil, err
-	}
 
 	question := wizard.Question{
 		Content: "Please select a language",
 		Answers: []wizard.Answer{},
 	}
-	for _, category := range categories {
+	for _, category := range boilerplate.Boilerplates {
 		answer := wizard.Answer{
 			Content: category.Name,
 		}
@@ -83,7 +79,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 		}(category)
 		question.Answers = append(question.Answers, answer)
 	}
-	err = wizard.Ask([]wizard.Question{question})
+	err := wizard.Ask([]wizard.Question{question})
 
 	question = wizard.Question{
 		Content: "Please select an app template: ",

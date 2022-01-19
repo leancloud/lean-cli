@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/aisk/logp"
 	"github.com/cheggaaa/pb"
@@ -59,29 +60,20 @@ func FetchRepo(boil *Boilerplate, dest string, appID string) error {
 		return err
 	}
 
-	repoURL := "https://lcinternal-cloud-code-update.leanapp.cn" + boil.URL
-
 	dir, err := ioutil.TempDir("", "leanengine")
 	if err != nil {
 		return err
 	}
 	defer os.RemoveAll(dir)
-
-	resp, err := grequests.Get(repoURL, &grequests.RequestOptions{
-		UserAgent: "LeanCloud-CLI/" + version.Version,
-	})
-	if err != nil {
-		return err
-	}
-	defer resp.Close()
-
-	if resp.StatusCode != 200 {
-		return errors.New(utils.FormatServerErrorResult(resp.String()))
-	}
 	zipFilePath := filepath.Join(dir, "getting-started.zip")
-	err = DownloadToFile(resp, zipFilePath)
+
+	err = DownloadToFile("https://releases.leanapp.cn"+boil.URL, zipFilePath)
 	if err != nil {
-		return err
+		logp.Warn("Failed to download boilerplate from mirror, trying GitHub directly...\n")
+		err = DownloadToFile("https://api.github.com/repos"+boil.URL, zipFilePath)
+		if err != nil {
+			return err
+		}
 	}
 
 	logp.Info("Creating project...")
@@ -92,6 +84,8 @@ func FetchRepo(boil *Boilerplate, dest string, appID string) error {
 	}
 	defer zipFile.Close()
 	for _, f := range zipFile.File {
+		// Remove outer directory name.
+		f.Name = f.Name[strings.Index(f.Name, "/"):]
 		err := extractAndWriteFile(f, dest)
 		if err != nil {
 			return err
@@ -113,24 +107,21 @@ type Boilerplate struct {
 	URL      string `json:"url"`
 }
 
-// GetBoilerplates returns all the boilerplate with name and url
-func GetBoilerplates() ([]Category, error) {
-	resp, err := grequests.Get("https://lcinternal-cloud-code-update.leanapp.cn/boilerplates.json", &grequests.RequestOptions{
+// DownloadToFile allows you to download the contents of the URL to a file
+func DownloadToFile(url string, fileName string) error {
+	resp, err := grequests.Get(url, &grequests.RequestOptions{
 		UserAgent: "LeanCloud-CLI/" + version.Version,
 	})
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var result []Category
-	err = resp.JSON(&result)
-	return result, err
-}
+	defer resp.Close()
 
-// DownloadToFile allows you to download the contents of the response to a file
-func DownloadToFile(r *grequests.Response, fileName string) error {
-
-	if r.Error != nil {
-		return r.Error
+	if resp.StatusCode != 200 {
+		return errors.New(utils.FormatServerErrorResult(resp.String()))
+	}
+	if resp.Error != nil {
+		return resp.Error
 	}
 
 	fd, err := os.Create(fileName)
@@ -139,24 +130,111 @@ func DownloadToFile(r *grequests.Response, fileName string) error {
 		return err
 	}
 
-	defer r.Close() // This is a noop if we use the internal ByteBuffer
+	defer resp.Close() // This is a noop if we use the internal ByteBuffer
 	defer fd.Close()
 
-	if length, err := strconv.Atoi(r.Header.Get("Content-Length")); err == nil {
+	if length, err := strconv.Atoi(resp.Header.Get("Content-Length")); err == nil {
 		bar := pb.New(length).SetUnits(pb.U_BYTES).SetMaxWidth(80)
 		bar.Output = colorable.NewColorableStderr()
 		bar.Prefix(color.GreenString("[INFO]") + " Downloading templates")
 		bar.Start()
 		defer bar.Finish()
-		reader := bar.NewProxyReader(r)
+		reader := bar.NewProxyReader(resp)
 		if _, err := io.Copy(fd, reader); err != nil && err != io.EOF {
 			return err
 		}
 	} else {
-		if _, err := io.Copy(fd, r); err != nil && err != io.EOF {
+		if _, err := io.Copy(fd, resp); err != nil && err != io.EOF {
 			return err
 		}
 	}
 
 	return nil
+}
+
+var Boilerplates = []Category{
+	{
+		Name: "Node.js",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     "Express",
+				URL:      "/leancloud/node-js-getting-started/zipball/latest",
+				Homepage: "http://expressjs.com/",
+			},
+			{
+				Name:     "Koa",
+				URL:      "/leancloud/koa-getting-started/zipball/latest",
+				Homepage: "http://koajs.com/",
+			},
+		},
+	},
+	{
+		Name: "Python",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     "Flask",
+				URL:      "/leancloud/python-getting-started/zipball/latest",
+				Homepage: "http://flask.pocoo.org/",
+			},
+			{
+				Name:     "Django",
+				URL:      "/leancloud/django-getting-started/zipball/latest",
+				Homepage: "https://www.djangoproject.com/",
+			},
+		},
+	}, {
+		Name: "Java",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     "Java Serlvet",
+				URL:      "/leancloud/java-war-getting-started/zipball/latest",
+				Homepage: "https://jcp.org/en/jsr/detail?id=340",
+			},
+			{
+				Name:     "Spring Boot",
+				URL:      "/leancloud/spring-boot-getting-started/zipball/latest",
+				Homepage: "https://spring.io/projects/spring-boot",
+			},
+		},
+	},
+	{
+		Name: "PHP",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     "Slim",
+				URL:      "/leancloud/slim-getting-started/zipball/latest",
+				Homepage: "http://www.slimframework.com/",
+			},
+		},
+	},
+	{
+		Name: ".Net",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     ".NET Core",
+				URL:      "/leancloud/dotnet-core-getting-started/zipball/latest",
+				Homepage: "https://dotnet.microsoft.com/",
+			},
+		},
+	},
+	{
+		Name: "Go",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     "Echo",
+				URL:      "/leancloud/golang-getting-started/zipball/latest",
+				Homepage: "https://echo.labstack.com/",
+			},
+		},
+	},
+	{
+		Name: "Others",
+		Boilerplates: []Boilerplate{
+			{
+				Name:     "Static Site",
+				URL:      "/leancloud/static-getting-started/zipball/latest",
+				Homepage: "https://github.com/cloudhead/node-static",
+			},
+		},
+	},
 }
