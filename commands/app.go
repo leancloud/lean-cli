@@ -279,6 +279,23 @@ func Run(args []string) {
 					},
 					ArgsUsage: "<instance-name>",
 				},
+				{
+					Name:   "exec",
+					Usage:  "Proxy LeanDB instance to local port and execute DB commands",
+					Action: wrapAction(dbExecAction),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "app-id",
+							Usage: "Specify appId for same name share instance",
+						},
+						cli.IntFlag{
+							Name:  "port, p",
+							Usage: "Specify local proxy port",
+							Value: 5678,
+						},
+					},
+					ArgsUsage: "<instance-name> <db-commands>",
+				},
 			},
 		},
 		{
