@@ -278,10 +278,16 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:      "upload",
-			Usage:     "Upload files to the current application (available in the '_File' class)",
-			Action:    uploadAction,
-			ArgsUsage: "<file-path> <file-path> ...",
+			Name:   "file",
+			Usage:  "Manage files",
+			Subcommands: []cli.Command{
+				{
+					Name:      "upload",
+					Usage:     "Upload files to the current application (available in the '_File' class)",
+					Action:    uploadAction,
+					ArgsUsage: "<file-path> <file-path> ...",
+				},
+			},
 		},
 		{
 			Name:   "logs",
