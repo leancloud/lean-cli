@@ -103,11 +103,6 @@ func FetchRepo(boil *Boilerplate, dest string, appID string, region regions.Regi
 	return nil
 }
 
-type Category struct {
-	Name         string        `json:"name"`
-	Boilerplates []Boilerplate `json:"boilerplates"`
-}
-
 type Boilerplate struct {
 	Name     string `json:"name"`
 	Homepage string `json:"homepage"`
@@ -159,89 +154,55 @@ func DownloadToFile(url string, fileName string) error {
 	return nil
 }
 
-var Boilerplates = []Category{
+var Boilerplates = []Boilerplate{
 	{
-		Name: "Node.js",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     "Express",
-				URL:      "/leancloud/node-js-getting-started/zipball/latest",
-				Homepage: "http://expressjs.com/",
-			},
-			{
-				Name:     "Koa",
-				URL:      "/leancloud/koa-getting-started/zipball/latest",
-				Homepage: "http://koajs.com/",
-			},
-		},
+		Name:     "Express - Node.js",
+		URL:      "/leancloud/node-js-getting-started/zipball/latest",
+		Homepage: "http://expressjs.com/",
 	},
 	{
-		Name: "Python",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     "Flask",
-				URL:      "/leancloud/python-getting-started/zipball/latest",
-				Homepage: "http://flask.pocoo.org/",
-			},
-			{
-				Name:     "Django",
-				URL:      "/leancloud/django-getting-started/zipball/latest",
-				Homepage: "https://www.djangoproject.com/",
-			},
-		},
-	}, {
-		Name: "Java",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     "Java Serlvet",
-				URL:      "/leancloud/java-war-getting-started/zipball/latest",
-				Homepage: "https://jcp.org/en/jsr/detail?id=340",
-			},
-			{
-				Name:     "Spring Boot",
-				URL:      "/leancloud/spring-boot-getting-started/zipball/latest",
-				Homepage: "https://spring.io/projects/spring-boot",
-			},
-		},
+		Name:     "Koa - Node.js",
+		URL:      "/leancloud/koa-getting-started/zipball/latest",
+		Homepage: "http://koajs.com/",
 	},
 	{
-		Name: "PHP",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     "Slim",
-				URL:      "/leancloud/slim-getting-started/zipball/latest",
-				Homepage: "http://www.slimframework.com/",
-			},
-		},
+		Name:     "Flask - Python",
+		URL:      "/leancloud/python-getting-started/zipball/latest",
+		Homepage: "http://flask.pocoo.org/",
 	},
 	{
-		Name: ".Net",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     ".NET Core",
-				URL:      "/leancloud/dotnet-core-getting-started/zipball/latest",
-				Homepage: "https://dotnet.microsoft.com/",
-			},
-		},
+		Name:     "Django - Python",
+		URL:      "/leancloud/django-getting-started/zipball/latest",
+		Homepage: "https://www.djangoproject.com/",
 	},
 	{
-		Name: "Go",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     "Echo",
-				URL:      "/leancloud/golang-getting-started/zipball/latest",
-				Homepage: "https://echo.labstack.com/",
-			},
-		},
+		Name:     "Serlvet - Java",
+		URL:      "/leancloud/java-war-getting-started/zipball/latest",
+		Homepage: "https://jcp.org/en/jsr/detail?id=340",
 	},
 	{
-		Name: "Others",
-		Boilerplates: []Boilerplate{
-			{
-				Name:     "Static Site",
-				URL:      "/leancloud/static-getting-started/zipball/latest",
-				Homepage: "https://github.com/cloudhead/node-static",
-			},
-		},
+		Name:     "Spring Boot - Java",
+		URL:      "/leancloud/spring-boot-getting-started/zipball/latest",
+		Homepage: "https://spring.io/projects/spring-boot",
+	},
+	{
+		Name:     "Slim - PHP",
+		URL:      "/leancloud/slim-getting-started/zipball/latest",
+		Homepage: "http://www.slimframework.com/",
+	},
+	{
+		Name:     ".NET Core - .Net",
+		URL:      "/leancloud/dotnet-core-getting-started/zipball/latest",
+		Homepage: "https://dotnet.microsoft.com/",
+	},
+	{
+		Name:     "Echo - Go",
+		URL:      "/leancloud/golang-getting-started/zipball/latest",
+		Homepage: "https://echo.labstack.com/",
+	},
+	{
+		Name:     "Static Site",
+		URL:      "/leancloud/static-getting-started/zipball/latest",
+		Homepage: "https://github.com/cloudhead/node-static",
 	},
 }
