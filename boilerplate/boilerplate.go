@@ -13,6 +13,7 @@ import (
 	"github.com/aisk/logp"
 	"github.com/cheggaaa/pb"
 	"github.com/fatih/color"
+	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/utils"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/levigross/grequests"
@@ -55,7 +56,7 @@ func extractAndWriteFile(f *zip.File, dest string) error {
 }
 
 // FetchRepo will download the boilerplate from remote and extract to ${dest}/folder
-func FetchRepo(boil *Boilerplate, dest string, appID string) error {
+func FetchRepo(boil *Boilerplate, dest string, appID string, region regions.Region) error {
 	if err := os.Mkdir(dest, 0775); err != nil {
 		return err
 	}
@@ -67,10 +68,16 @@ func FetchRepo(boil *Boilerplate, dest string, appID string) error {
 	defer os.RemoveAll(dir)
 	zipFilePath := filepath.Join(dir, "getting-started.zip")
 
-	err = DownloadToFile("https://releases.leanapp.cn"+boil.URL, zipFilePath)
+	var downloadURLs []string
+	switch region {
+	case regions.ChinaNorth, regions.ChinaEast, regions.ChinaTDS1:
+		downloadURLs = []string{"https://releases.leanapp.cn", "https://api.github.com/repos"}
+	case regions.USWest, regions.APSG:
+		downloadURLs = []string{"https://api.github.com/repos", "https://releases.leanapp.cn"}
+	}
+	err = DownloadToFile(downloadURLs[0]+boil.URL, zipFilePath)
 	if err != nil {
-		logp.Warn("Failed to download boilerplate from mirror, trying GitHub directly...\n")
-		err = DownloadToFile("https://api.github.com/repos"+boil.URL, zipFilePath)
+		err = DownloadToFile(downloadURLs[1]+boil.URL, zipFilePath)
 		if err != nil {
 			return err
 		}

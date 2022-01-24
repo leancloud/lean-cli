@@ -200,7 +200,7 @@ func newAction(c *cli.Context) error {
 		return err
 	}
 
-	if err = boilerplate.FetchRepo(boil, dest, app.AppID); err != nil {
+	if err = boilerplate.FetchRepo(boil, dest, app.AppID, region); err != nil {
 		return err
 	}
 
