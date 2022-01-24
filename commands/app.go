@@ -149,10 +149,10 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:      "init",
-			Usage:     "Initialize a LeanEngine project",
-			Action:    wrapAction(initAction),
-			ArgsUsage: "[dest]",
+			Name:      "new",
+			Usage:     "Create a new LeanEngine project at <path>",
+			Action:    wrapAction(newAction),
+			ArgsUsage: "<path>",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",

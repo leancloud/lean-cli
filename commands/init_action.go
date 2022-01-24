@@ -126,9 +126,14 @@ func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
 	return region, err
 }
 
-func initAction(c *cli.Context) error {
+func newAction(c *cli.Context) error {
 	groupName := c.String("group")
 	regionString := c.String("region")
+	if c.NArg() < 1 {
+		return cli.NewExitError("<path> argument is required", 1)
+	}
+	dest := c.Args()[0]
+
 	var region regions.Region
 	var err error
 	if regionString == "" {
@@ -197,14 +202,6 @@ func initAction(c *cli.Context) error {
 	boil, err := selectBoilerplate()
 	if err != nil {
 		return err
-	}
-
-	var dest string
-
-	if c.NArg() > 0 {
-		dest = c.Args()[0]
-	} else {
-		dest = app.AppName
 	}
 
 	if err = boilerplate.FetchRepo(boil, dest, app.AppID); err != nil {
