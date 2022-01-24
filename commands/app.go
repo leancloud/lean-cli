@@ -19,7 +19,7 @@ func Run(args []string) {
 	app := cli.NewApp()
 	app.Name = version.Distribution
 	app.Version = version.Version
-	app.Usage = "Command line to manage and deploy LeanCloud apps"
+	app.Usage = "Command line tool to manage and deploy LeanCloud apps"
 	app.EnableBashCompletion = true
 
 	app.CommandNotFound = thirdPartyCommand
@@ -214,6 +214,10 @@ func Run(args []string) {
 					Name:  "direct",
 					Usage: "Upload project's tarball to remote directly",
 				},
+				cli.BoolFlag{
+					Name:  "build-logs",
+					Usage: "Print build logs",
+				},
 			},
 		},
 		{
@@ -233,7 +237,7 @@ func Run(args []string) {
 		},
 		{
 			Name:   "db",
-			Usage:  "List LeanDB instances under current app (include share instances)",
+			Usage:  "List, proxy, and connect to LeanDB instances",
 			Action: wrapAction(dbListAction),
 			Subcommands: []cli.Command{
 				{

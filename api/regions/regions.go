@@ -104,13 +104,9 @@ const (
 // Only return available regions
 func GetLoginedRegions(availableRegions []Region) []Region {
 	var regions []Region
-	for region, logged := range regionLoginStatus {
-		if logged {
-			for _, v := range availableRegions {
-				if region == v {
-					regions = append(regions, region)
-				}
-			}
+	for _, region := range availableRegions {
+		if regionLoginStatus[region] {
+			regions = append(regions, region)
 		}
 	}
 

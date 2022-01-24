@@ -98,7 +98,7 @@ func FetchRepo(boil *Boilerplate, dest string, appID string) error {
 		}
 	}
 	// TODO: Change value of boil.Homepage for English site.
-	logp.Info("Creating ", boil.Name, " succeeded. Please refer to our website ", boil.Homepage, " for documentation about ", boil.Name)
+	logp.Info("Creating", boil.Name, "succeeded. Please refer to the website", boil.Homepage, "for documentation")
 	return nil
 }
 

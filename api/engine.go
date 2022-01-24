@@ -45,6 +45,7 @@ type DeployOptions struct {
 	Message        string
 	NoDepsCache    bool
 	OverwriteFuncs bool
+	BuildLogs      bool
 	Options        string // Additional options in urlencode format
 }
 
@@ -278,6 +279,7 @@ func prepareDeployParams(options *DeployOptions) (map[string]interface{}, error)
 		"noDependenciesCache": options.NoDepsCache,
 		"overwriteFunctions":  options.OverwriteFuncs,
 		"async":               true,
+		"printBuildLogs":      options.BuildLogs,
 	}
 
 	if options.Message != "" {

@@ -47,7 +47,7 @@ func publishAction(c *cli.Context) error {
 
 	tok, err := api.DeployImage(appID, groupName, 1, groupInfo.Staging.Version.VersionTag, &api.DeployOptions{
 		OverwriteFuncs: c.Bool("overwrite-functions"),
-		Options: c.String("options"),
+		Options:        c.String("options"),
 	})
 
 	ok, err := api.PollEvents(appID, tok)
