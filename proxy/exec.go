@@ -9,7 +9,7 @@ import (
 var RuntimeClis = map[string][]string{
 	"udb":   {"mycli", "mysql"},
 	"mysql": {"mycli", "mysql"},
-	"redis": {"iredis", "redis-cli"},
+	"redis": {"iredis", "redis-cli", "memurai-cli"},
 	"mongo": {"mongo"},
 }
 
