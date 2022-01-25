@@ -6,15 +6,6 @@ import (
 	"strings"
 )
 
-// LeanCacheCluster is structure of LeanCache DB instannce
-// TODO remove when remove `lean cache` in 1.0
-type LeanCacheCluster struct {
-	ID        int    `json:"id"`
-	Name      string `json:"name"`
-	Runtime   string `json:"runtime"`
-	NodeQuota string `json:"nodeQuota"`
-}
-
 type LeanDBCluster struct {
 	ID           int    `json:"id"`
 	AppID        string `json:"appId"`
