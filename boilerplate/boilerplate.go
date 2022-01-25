@@ -69,10 +69,9 @@ func FetchRepo(boil *Boilerplate, dest string, appID string, region regions.Regi
 	zipFilePath := filepath.Join(dir, "getting-started.zip")
 
 	var downloadURLs []string
-	switch region {
-	case regions.ChinaNorth, regions.ChinaEast, regions.ChinaTDS1:
+	if region.InChina() {
 		downloadURLs = []string{"https://releases.leanapp.cn", "https://api.github.com/repos"}
-	case regions.USWest, regions.APSG:
+	} else {
 		downloadURLs = []string{"https://api.github.com/repos", "https://releases.leanapp.cn"}
 	}
 	err = DownloadToFile(downloadURLs[0]+boil.URL, zipFilePath)

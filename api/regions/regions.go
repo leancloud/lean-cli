@@ -91,6 +91,15 @@ func (r Region) Description() string {
 	}
 }
 
+func (r Region) InChina() bool {
+	switch r {
+	case ChinaNorth, ChinaEast, ChinaTDS1:
+		return true
+	case USWest, APSG:
+		return false
+	}
+}
+
 // API server regions
 const (
 	Invalid Region = iota
