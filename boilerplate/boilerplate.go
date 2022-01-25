@@ -156,52 +156,52 @@ func DownloadToFile(url string, fileName string) error {
 var Boilerplates = []Boilerplate{
 	{
 		Name:     "Express - Node.js",
-		URL:      "/leancloud/node-js-getting-started/zipball/latest",
+		URL:      "/leancloud/node-js-getting-started/zipball/master",
 		Homepage: "http://expressjs.com/",
 	},
 	{
 		Name:     "Koa - Node.js",
-		URL:      "/leancloud/koa-getting-started/zipball/latest",
+		URL:      "/leancloud/koa-getting-started/zipball/master",
 		Homepage: "http://koajs.com/",
 	},
 	{
 		Name:     "Flask - Python",
-		URL:      "/leancloud/python-getting-started/zipball/latest",
+		URL:      "/leancloud/python-getting-started/zipball/master",
 		Homepage: "http://flask.pocoo.org/",
 	},
 	{
 		Name:     "Django - Python",
-		URL:      "/leancloud/django-getting-started/zipball/latest",
+		URL:      "/leancloud/django-getting-started/zipball/master",
 		Homepage: "https://www.djangoproject.com/",
 	},
 	{
 		Name:     "Serlvet - Java",
-		URL:      "/leancloud/java-war-getting-started/zipball/latest",
+		URL:      "/leancloud/java-war-getting-started/zipball/master",
 		Homepage: "https://jcp.org/en/jsr/detail?id=340",
 	},
 	{
 		Name:     "Spring Boot - Java",
-		URL:      "/leancloud/spring-boot-getting-started/zipball/latest",
+		URL:      "/leancloud/spring-boot-getting-started/zipball/master",
 		Homepage: "https://spring.io/projects/spring-boot",
 	},
 	{
 		Name:     "Slim - PHP",
-		URL:      "/leancloud/slim-getting-started/zipball/latest",
+		URL:      "/leancloud/slim-getting-started/zipball/master",
 		Homepage: "http://www.slimframework.com/",
 	},
 	{
 		Name:     ".NET Core - .Net",
-		URL:      "/leancloud/dotnet-core-getting-started/zipball/latest",
+		URL:      "/leancloud/dotnet-core-getting-started/zipball/master",
 		Homepage: "https://dotnet.microsoft.com/",
 	},
 	{
 		Name:     "Echo - Go",
-		URL:      "/leancloud/golang-getting-started/zipball/latest",
+		URL:      "/leancloud/golang-getting-started/zipball/master",
 		Homepage: "https://echo.labstack.com/",
 	},
 	{
 		Name:     "Static Site",
-		URL:      "/leancloud/static-getting-started/zipball/latest",
+		URL:      "/leancloud/static-getting-started/zipball/master",
 		Homepage: "https://github.com/cloudhead/node-static",
 	},
 }
