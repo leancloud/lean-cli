@@ -98,6 +98,7 @@ func (r Region) InChina() bool {
 	case USWest, APSG:
 		return false
 	}
+	panic("invalid region")
 }
 
 // API server regions
