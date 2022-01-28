@@ -34,7 +34,9 @@ func GetAppAPIURL(region regions.Region, appID string) string {
 	}
 
 	switch region {
-	case regions.ChinaNorth, regions.ChinaEast:
+	case regions.ChinaNorth:
+		return "https://" + strings.ToLower(appID[0:8]) + ".lc-cn-n1-shared.com"
+	case regions.ChinaEast:
 		routerInfo, err := QueryAppRouter(appID)
 
 		if err != nil {
