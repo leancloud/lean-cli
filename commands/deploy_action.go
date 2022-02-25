@@ -72,7 +72,7 @@ func deployAction(c *cli.Context) error {
 	} else if prodBool {
 		prod = 1
 	} else {
-		logp.Info("`lean deploy` now has no default environment, please add `--prod` or `--staging` flag")
+		logp.Info("`lean deploy` now has no default environment. Specify the target environment by `--prod` or `--staging` flag to avoid this prompt.")
 		question := wizard.Question{
 			Content: "Please select the environment: ",
 			Answers: []wizard.Answer{
