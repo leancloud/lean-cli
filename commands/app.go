@@ -170,6 +170,18 @@ func Run(args []string) {
 			Action: wrapAction(deployAction),
 			Flags: []cli.Flag{
 				cli.BoolFlag{
+					Name:  "prod",
+					Usage: "Deploy to production environment",
+				},
+				cli.BoolFlag{
+					Name:  "staging",
+					Usage: "Deploy to staging environment",
+				},
+				cli.BoolFlag{
+					Name:  "build-logs",
+					Usage: "Print build logs",
+				},
+				cli.BoolFlag{
 					Name:  "g",
 					Usage: "Deploy from git repo",
 				},
@@ -206,17 +218,9 @@ func Run(args []string) {
 					Name:  "options",
 					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app&atomic=true`)",
 				},
-				cli.StringFlag{
-					Name:  "prod",
-					Usage: "Deploy to production(`--prod 1`) or staging(`--prod 0`) environment, default to staging if it exists",
-				},
 				cli.BoolFlag{
 					Name:  "direct",
 					Usage: "Upload project's tarball to remote directly",
-				},
-				cli.BoolFlag{
-					Name:  "build-logs",
-					Usage: "Print build logs",
 				},
 			},
 		},

@@ -6,10 +6,10 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strconv"
 	"strings"
 
 	"github.com/aisk/logp"
+	"github.com/aisk/wizard"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
@@ -30,7 +30,8 @@ func deployAction(c *cli.Context) error {
 	message := c.String("message")
 	keepFile := c.Bool("keep-deploy-file")
 	revision := c.String("revision")
-	prodString := c.String("prod")
+	prodBool := c.Bool("prod")
+	staging := c.Bool("staging")
 	isDirect := c.Bool("direct")
 	buildLogs := c.Bool("build-logs")
 
@@ -63,18 +64,38 @@ func deployAction(c *cli.Context) error {
 		return err
 	}
 
-	if prodString == "" {
-		if groupInfo.Staging.Deployable {
-			prod = 0
-		} else {
-			prod = 1
-		}
+	if staging && prodBool {
+		return cli.NewExitError("`--prod` and `--staging` flags are mutually exclusive", 1)
+	}
+	if staging {
+		prod = 0
+	} else if prodBool {
+		prod = 1
 	} else {
-		prod, err = strconv.Atoi(prodString)
+		logp.Info("`lean deploy` now has no default environment. Specify the target environment by `--prod` or `--staging` flag to avoid this prompt.")
+		question := wizard.Question{
+			Content: "Please select the environment: ",
+			Answers: []wizard.Answer{
+				{
+					Content: "Production",
+					Handler: func() {
+						prod = 1
+					},
+				},
+				{
+					Content: "Staging",
+					Handler: func() {
+						prod = 0
+					},
+				},
+			},
+		}
+		err = wizard.Ask([]wizard.Question{question})
 		if err != nil {
 			return err
 		}
 	}
+
 	if prod == 0 && !groupInfo.Staging.Deployable {
 		return cli.NewExitError("Deployment failed: no staging instance", 1)
 	} else if prod == 1 && !groupInfo.Production.Deployable {
