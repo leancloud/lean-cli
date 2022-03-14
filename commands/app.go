@@ -62,7 +62,7 @@ func Run(args []string) {
 						},
 						cli.StringFlag{
 							Name:  "token",
-							Usage: "AccessToken generated from the Dashboard",
+							Usage: "AccessToken from LeanCloud Console => your App => LeanEngine => Deploy of your group => Deploy using CLI",
 						},
 					}
 				} else {
@@ -73,7 +73,7 @@ func Run(args []string) {
 						},
 						cli.StringFlag{
 							Name:  "token",
-							Usage: "AccessToken generated from the Dashboard",
+							Usage: "AccessToken from TapTap Developer Center => your Game => Game Services => Cloud Services => Cloud Engine => Deploy of your group => Deploy using CLI",
 						},
 					}
 				}
@@ -303,8 +303,8 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "file",
-			Usage:  "Manage files",
+			Name:  "file",
+			Usage: "Manage files",
 			Subcommands: []cli.Command{
 				{
 					Name:      "upload",

@@ -36,7 +36,13 @@ func inputAcessToken() (string, error) {
 	accessToken := new(string)
 	err := wizard.Ask([]wizard.Question{
 		{
-			Content: "AccessToken from the Dashboard: ",
+			Content: func() string {
+				if version.Distribution == "lean" {
+					return "Paste AccessToken from LeanCloud Console => your App => LeanEngine => Deploy of your group => Deploy using CLI: "
+				} else {
+					return "Paste AccessToken from TapTap Developer Center => your Game => Game Services => Cloud Services => Cloud Engine => Deploy of your group => Deploy using CLI: "
+				}
+			}(),
 			Input: &wizard.Input{
 				Result: accessToken,
 				Hidden: false,
