@@ -5,17 +5,12 @@ import (
 	"os"
 	"os/exec"
 
-	"github.com/leancloud/lean-cli/logo"
 	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
 )
 
 // Run the command line
 func Run(args []string) {
-	// add banner text to help text
-	cli.AppHelpTemplate = logo.Logo() + cli.AppHelpTemplate
-	cli.SubcommandHelpTemplate = logo.Logo() + cli.SubcommandHelpTemplate
-
 	app := cli.NewApp()
 	app.Name = version.Distribution
 	app.Version = version.Version
