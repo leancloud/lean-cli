@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 
 	"github.com/leancloud/lean-cli/version"
 	"github.com/urfave/cli"
@@ -14,29 +15,31 @@ func Run(args []string) {
 	app := cli.NewApp()
 	app.Name = version.Distribution
 	app.Version = version.Version
-	app.Usage = "Command line tool to manage and deploy LeanCloud apps"
+	app.Usage = fmt.Sprintf("Command line tool to manage and deploy %s apps", version.EngineBrandName)
 	app.EnableBashCompletion = true
 
 	app.CommandNotFound = thirdPartyCommand
 	app.Commands = []cli.Command{
 		{
-			Name: "login",
-			Usage: func() string {
-				if version.Distribution == "lean" {
-					return "Log in to LeanCloud"
-				} else {
-					return "Log in to TapTap Developer Services"
-				}
-			}(),
+			Name:   "login",
+			Usage:  fmt.Sprintf("Log in to %s", version.BrandName),
 			Action: wrapAction(loginAction),
 			ArgsUsage: func() string {
 				if version.Distribution == "lean" {
-					return "[-u <username>] [-p <password>] [--use-token] [--token <token>] [--region (cn-n1 | cn-e1 | us-w1)]"
+					return "[(-u <username>) (-p <password>) [--use-token] (--token <token>)]"
 				} else {
-					return "[--token [<token>]]"
+					return "[(--token <token>)]"
 				}
 			}(),
 			Flags: func() []cli.Flag {
+				regionsString := []string{}
+
+				for _, r := range version.AvailableRegions {
+					regionsString = append(regionsString, r.String())
+				}
+
+				regions := strings.Join(regionsString, ", ")
+
 				if version.Distribution == "lean" {
 					return []cli.Flag{
 						cli.StringFlag{
@@ -49,11 +52,11 @@ func Run(args []string) {
 						},
 						cli.StringFlag{
 							Name:  "region,r",
-							Usage: "The LeanCloud region to log in to (e.g., cn-n1, us-w1)",
+							Usage: "The LeanCloud region to log in to (" + regions + ")",
 						},
 						cli.BoolFlag{
 							Name:  "use-token",
-							Usage: "Use AccessToken to log in",
+							Usage: "Use AccessToken to log in (ask AccessToken)",
 						},
 						cli.StringFlag{
 							Name:  "token",
@@ -64,7 +67,7 @@ func Run(args []string) {
 					return []cli.Flag{
 						cli.StringFlag{
 							Name:  "region,r",
-							Usage: "The TDS region to log in to (e.g., cn-tds1, ap-sg)",
+							Usage: "The TapTap Developer Services region to log in to (" + regions + ")",
 						},
 						cli.StringFlag{
 							Name:  "token",
@@ -75,25 +78,19 @@ func Run(args []string) {
 			}(),
 		},
 		{
-			Name: "switch",
-			Usage: func() string {
-				if version.Distribution == "lean" {
-					return "Change the associated LeanCloud app"
-				} else {
-					return "Change the associated CloudEngine app"
-				}
-			}(),
+			Name:      "switch",
+			Usage:     fmt.Sprintf("Change the associated %s app", version.EngineBrandName),
 			Action:    wrapAction(switchAction),
-			ArgsUsage: "[appID | appName]",
+			ArgsUsage: "[<appID> | <appName>]",
 			Flags: func() []cli.Flag {
 				return []cli.Flag{
 					cli.StringFlag{
 						Name:  "region",
-						Usage: "LeanCloud region",
+						Usage: fmt.Sprintf("%s region", version.BrandName),
 					},
 					cli.StringFlag{
 						Name:  "group",
-						Usage: "LeanEngine group",
+						Usage: fmt.Sprintf("%s group", version.EngineBrandName),
 					},
 				}
 			}(),
@@ -102,35 +99,36 @@ func Run(args []string) {
 			Name:      "metric",
 			Usage:     "Obtain LeanStorage performance metrics of current project",
 			Action:    wrapAction(statusAction),
-			ArgsUsage: "[--from fromTime --to toTime --format default|json]",
+			ArgsUsage: "[--from <fromTime> --to <toTime> (--format default|json)]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "Start date, formatted as YYYY-MM-DD，e.g., 1926-08-17",
+					Usage: "Start date, formatted as YYYY-MM-DD, e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "End date formatted as YYYY-MM-DD，e.g., 1926-08-17",
+					Usage: "End date formatted as YYYY-MM-DD, e.g., 1926-08-17",
 				},
 				cli.StringFlag{
 					Name:  "format",
-					Usage: "Output format，'default' or 'json'",
+					Usage: "Output format, 'default' or 'json'",
 				},
 			},
 		},
 		{
 			Name:   "info",
-			Usage:  "Show information about the current user and app",
+			Usage:  "Show information about the associated user and app",
 			Action: wrapAction(infoAction),
 		},
 		{
-			Name:   "up",
-			Usage:  "Start a development instance locally",
-			Action: wrapAction(upAction),
+			Name:      "up",
+			Usage:     "Start a development instance locally with debug console",
+			ArgsUsage: "[(--port <port>) (--console-port <port>) (--cmd <cmd>)]",
+			Action:    wrapAction(upAction),
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "Local port to listen on",
+					Usage: "Local port to listen on [default: 3000]",
 					Value: 3000,
 				},
 				cli.IntFlag{
@@ -145,24 +143,25 @@ func Run(args []string) {
 		},
 		{
 			Name:      "new",
-			Usage:     "Create a new LeanEngine project at <path>",
+			Usage:     fmt.Sprintf("Create a new %s project from official examples", version.EngineBrandName),
 			Action:    wrapAction(newAction),
 			ArgsUsage: "<path>",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "region",
-					Usage: "LeanCloud region for the project",
+					Usage: fmt.Sprintf("%s region", version.BrandName),
 				},
 				cli.StringFlag{
 					Name:  "group",
-					Usage: "LeanEngine group",
+					Usage: fmt.Sprintf("%s group", version.EngineBrandName),
 				},
 			},
 		},
 		{
-			Name:   "deploy",
-			Usage:  "Deploy the project to LeanEngine",
-			Action: wrapAction(deployAction),
+			Name:      "deploy",
+			Usage:     fmt.Sprintf("Deploy the project to %s", version.EngineBrandName),
+			Action:    wrapAction(deployAction),
+			ArgsUsage: "(--prod | --staging) [--no-cache --build-logs --overwrite-functions]",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "prod",
@@ -186,7 +185,7 @@ func Run(args []string) {
 				},
 				cli.BoolFlag{
 					Name:  "no-cache",
-					Usage: "Force download dependencies",
+					Usage: "Disable buliding cache",
 				},
 				cli.BoolFlag{
 					Name:  "overwrite-functions",
@@ -199,7 +198,7 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "message,m",
-					Usage: "Comment for this deployment, only applicable when deploying from local files",
+					Usage: "Comment for this version, only applicable when deploying from local files",
 				},
 				cli.BoolFlag{
 					Name: "keep-deploy-file",
@@ -211,7 +210,7 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "options",
-					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app&atomic=true`)",
+					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app`)",
 				},
 				cli.BoolFlag{
 					Name:  "direct",
@@ -220,9 +219,10 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "publish",
-			Usage:  "Publish code from staging to production",
-			Action: wrapAction(publishAction),
+			Name:      "publish",
+			Usage:     "Publish the version of staging to production",
+			Action:    wrapAction(publishAction),
+			ArgsUsage: "[--overwrite-functions]",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "overwrite-functions",
@@ -230,24 +230,26 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "options",
-					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app&atomic=true`)",
+					Usage: "Send additional deploy options to server, in urlencode format(like `--options build-root=app`)",
 				},
 			},
 		},
 		{
-			Name:   "db",
-			Usage:  "List, proxy, and connect to LeanDB instances",
-			Action: wrapAction(dbListAction),
+			Name:      "db",
+			Usage:     fmt.Sprintf("Access to to %s instances", version.DBBrandName),
+			Action:    wrapAction(dbListAction),
+			ArgsUsage: "(list | proxy | shell | exec)",
 			Subcommands: []cli.Command{
 				{
 					Name:   "list",
-					Usage:  "List LeanDB instances under current app (include share instances)",
+					Usage:  fmt.Sprintf("List %s instances of current app (include share instances)", version.DBBrandName),
 					Action: wrapAction(dbListAction),
 				},
 				{
-					Name:   "proxy",
-					Usage:  "Proxy LeanDB instance to local port",
-					Action: wrapAction(dbProxyAction),
+					Name:      "proxy",
+					Usage:     fmt.Sprintf("Proxy %s instance to local port", version.DBBrandName),
+					Action:    wrapAction(dbProxyAction),
+					ArgsUsage: "<instance-name>",
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "app-id",
@@ -255,16 +257,16 @@ func Run(args []string) {
 						},
 						cli.IntFlag{
 							Name:  "port, p",
-							Usage: "Specify local proxy port",
+							Usage: "Specify local proxy port [default: 5678]",
 							Value: 5678,
 						},
 					},
-					ArgsUsage: "<instance-name>",
 				},
 				{
-					Name:   "shell",
-					Usage:  "Proxy LeanDB instance to local port and connect using local cli",
-					Action: wrapAction(dbShellAction),
+					Name:      "shell",
+					Usage:     fmt.Sprintf("Open shell to %s instance", version.DBBrandName),
+					Action:    wrapAction(dbShellAction),
+					ArgsUsage: "<instance-name>",
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "app-id",
@@ -272,16 +274,16 @@ func Run(args []string) {
 						},
 						cli.IntFlag{
 							Name:  "port, p",
-							Usage: "Specify local proxy port",
+							Usage: "Specify local proxy port [default: 5678]",
 							Value: 5678,
 						},
 					},
-					ArgsUsage: "<instance-name>",
 				},
 				{
-					Name:   "exec",
-					Usage:  "Proxy LeanDB instance to local port and execute DB commands",
-					Action: wrapAction(dbExecAction),
+					Name:      "exec",
+					Usage:     fmt.Sprintf("Exce commands on %s instance", version.DBBrandName),
+					Action:    wrapAction(dbExecAction),
+					ArgsUsage: "<instance-name> <db-commands>...",
 					Flags: []cli.Flag{
 						cli.StringFlag{
 							Name:  "app-id",
@@ -289,30 +291,31 @@ func Run(args []string) {
 						},
 						cli.IntFlag{
 							Name:  "port, p",
-							Usage: "Specify local proxy port",
+							Usage: "Specify local proxy port [default: 5678]",
 							Value: 5678,
 						},
 					},
-					ArgsUsage: "<instance-name> <db-commands>",
 				},
 			},
 		},
 		{
-			Name:  "file",
-			Usage: "Manage files",
+			Name:      "file",
+			Usage:     "Manage files ('_File' class in Data Storage)",
+			ArgsUsage: "(upload)",
 			Subcommands: []cli.Command{
 				{
 					Name:      "upload",
-					Usage:     "Upload files to the current application (available in the '_File' class)",
+					Usage:     "Upload files",
 					Action:    uploadAction,
-					ArgsUsage: "<file-path> <file-path> ...",
+					ArgsUsage: "<file-path>...",
 				},
 			},
 		},
 		{
-			Name:   "logs",
-			Usage:  "Show LeanEngine logs",
-			Action: wrapAction(logsAction),
+			Name:      "logs",
+			Usage:     fmt.Sprintf("Show %s logs", version.EngineBrandName),
+			Action:    wrapAction(logsAction),
+			ArgsUsage: "[-f (--env staging|production)]",
 			Flags: []cli.Flag{
 				cli.BoolFlag{
 					Name:  "f",
@@ -325,12 +328,12 @@ func Run(args []string) {
 				},
 				cli.IntFlag{
 					Name:  "limit,l",
-					Usage: "Maximum number of lines to show",
+					Usage: "Maximum number of lines to show [default: 30]",
 					Value: 30,
 				},
 				cli.StringFlag{
 					Name:  "from",
-					Usage: "Start date formatted as YYYY-MM-DD (local time) or RFC3339，e.g., 2006-01-02 or 2006-01-02T15:04:05+08:00",
+					Usage: "Start date formatted as YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05+08:00",
 				},
 				cli.StringFlag{
 					Name:  "to",
@@ -344,39 +347,41 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "debug",
-			Usage:  "Start the debug console without running the project",
-			Action: wrapAction(debugAction),
+			Name:      "debug",
+			Usage:     "Start the debug console without running the project",
+			Action:    wrapAction(debugAction),
+			ArgsUsage: "[(--remote <url>) (--port <port>)]",
 			Flags: []cli.Flag{
 				cli.StringFlag{
 					Name:  "remote,r",
-					Usage: "URL of target app",
+					Usage: "URL of target app running on",
 					Value: "http://localhost:3000",
 				},
 				cli.StringFlag{
 					Name:  "app-id",
-					Usage: "Target AppID, use the AppID of the current project by default",
+					Usage: "Target App ID, use the App ID of the current project by default",
 				},
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "Port to listen on",
+					Usage: "Port to listen on [default: 3001]",
 					Value: 3001,
 				},
 			},
 		},
 		{
-			Name:   "env",
-			Usage:  "Output environment variables used by the current project",
-			Action: wrapAction(envAction),
+			Name:      "env",
+			Usage:     fmt.Sprintf("Print custom environment variables on %s (secret variables not included)", version.EngineBrandName),
+			Action:    wrapAction(envAction),
+			ArgsUsage: "[(set | unset)]",
 			Flags: []cli.Flag{
 				cli.IntFlag{
 					Name:  "port,p",
-					Usage: "Local port for the app (affects value of LC_APP_PORT)",
+					Usage: "Local port for the app (affects value of LEANCLOUD_APP_PORT) [default: 3000]",
 					Value: 3000,
 				},
 				cli.StringFlag{
 					Name:  "template",
-					Usage: "Template for output, 'export {{name}}={{value}}' by default",
+					Usage: "Template for output [default: export {{name}}={{value}}]",
 				},
 			},
 			Subcommands: []cli.Command{
@@ -384,13 +389,13 @@ func Run(args []string) {
 					Name:      "set",
 					Usage:     "Set the value of an environment variable",
 					Action:    wrapAction(envSetAction),
-					ArgsUsage: "[env-name] [env-value]",
+					ArgsUsage: "<name> <value>",
 				},
 				{
 					Name:      "unset",
 					Usage:     "Delete an environment variable",
 					Action:    wrapAction(envUnsetAction),
-					ArgsUsage: "[env-name]",
+					ArgsUsage: "<name>",
 				},
 			},
 		},
@@ -410,13 +415,12 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:    "help",
-			Aliases: []string{"h"},
-			Usage:   "Show all commands or help info for one command",
+			Name:  "help",
+			Usage: "Show usages of all subcommands",
 			Action: func(c *cli.Context) error {
 				args := c.Args()
 				if args.Present() {
-					_, err := fmt.Printf("Please use `lean %s -h` for subcommand usage.\n", args.First())
+					_, err := fmt.Printf("Please use `%s %s --help` for subcommand usage.\n", os.Args[0], args.First())
 					return err
 				}
 				return cli.ShowAppHelp(c)

@@ -24,9 +24,28 @@ var availableRegionsMapping = map[string][]regions.Region{
 	"tds":  {regions.ChinaTDS1, regions.APSG},
 }
 
+var brandNameMapping = map[string]string{
+	"lean": "LeanCloud",
+	"tds":  "TapTap Developer Services",
+}
+
+var engineBrandNameMapping = map[string]string{
+	"lean": "LeanEngine",
+	"tds":  "Cloud Engine",
+}
+
+var dbBrandNameMapping = map[string]string{
+	"lean": "LeanDB",
+	"tds":  "Database",
+}
+
 var LoginViaAccessTokenOnly bool
 var DefaultRegion regions.Region
 var AvailableRegions []regions.Region
+
+var BrandName string
+var EngineBrandName string
+var DBBrandName string
 
 func init() {
 	Distribution = filepath.Base(os.Args[0])
@@ -43,6 +62,10 @@ func init() {
 	LoginViaAccessTokenOnly = Distribution == "tds"
 	DefaultRegion = defaultRegionMapping[Distribution]
 	AvailableRegions = availableRegionsMapping[Distribution]
+
+	BrandName = brandNameMapping[Distribution]
+	EngineBrandName = engineBrandNameMapping[Distribution]
+	DBBrandName = dbBrandNameMapping[Distribution]
 }
 
 func PrintCurrentVersion() {

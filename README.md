@@ -2,12 +2,13 @@
 
 [![Build Status](https://travis-ci.org/leancloud/lean-cli.svg?branch=master)](https://travis-ci.org/leancloud/lean-cli) [![GoDoc](https://godoc.org/github.com/leancloud/lean-cli?status.svg)](https://godoc.org/github.com/leancloud/lean-cli)
 
-Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) apps.
+Command-line tool to develop and manage [LeanCloud](https://leancloud.cn) and TapTap Developer Services apps.
 
 ## Install
 
-- via `homebrew`: `$ brew install lean-cli`
-- via `https://releases.leanapp.cn/#/leancloud/lean-cli/releases`(In case of your connection with GitHub cracked)
+- Homebrew: `brew install lean-cli`
+- Download from [GitHub Release](https://github.com/leancloud/lean-cli/releases)
+- Download from [releases.leanapp.cn](https://releases.leanapp.cn/#/leancloud/lean-cli/releases) (CDN Accelerated in China mainland)
 
 lean-cli will send statistics information such as your os version and lean-cli version to Google Analytics.
 This statistics information helps us to improve LeanEngine services.
@@ -28,6 +29,8 @@ Clone this repo then run `make all` to build releases.
 Please run `go mod tidy` and `go mod vendor` to make vendored copy of dependencies after importing new dependencies.
 
 Ensure all codes is formatted by [gofmt](https://golang.org/cmd/gofmt/). Commit message should write in [gitmoji](https://gitmoji.carloscuesta.me/).
+
+Command-line interface design following [docopt](http://docopt.org/).
 
 ## Release
 
