@@ -146,6 +146,10 @@ func Run(args []string) {
 					Name:  "cmd",
 					Usage: "Command to start the project, other arguments except --console-port are ignored",
 				},
+				cli.BoolFlag{
+					Name:  "fetch-env",
+					Usage: "Fetch environment variables from LeanEngine (secret variables not included)",
+				},
 			},
 		},
 		{
