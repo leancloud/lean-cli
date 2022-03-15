@@ -96,26 +96,6 @@ func Run(args []string) {
 			}(),
 		},
 		{
-			Name:      "metric",
-			Usage:     "Obtain LeanStorage performance metrics of current project",
-			Action:    wrapAction(statusAction),
-			ArgsUsage: "[--from <fromTime> --to <toTime> (--format default|json)]",
-			Flags: []cli.Flag{
-				cli.StringFlag{
-					Name:  "from",
-					Usage: "Start date, formatted as YYYY-MM-DD, e.g., 1926-08-17",
-				},
-				cli.StringFlag{
-					Name:  "to",
-					Usage: "End date formatted as YYYY-MM-DD, e.g., 1926-08-17",
-				},
-				cli.StringFlag{
-					Name:  "format",
-					Usage: "Output format, 'default' or 'json'",
-				},
-			},
-		},
-		{
 			Name:   "info",
 			Usage:  "Show information about the associated user and app",
 			Action: wrapAction(infoAction),
@@ -264,7 +244,7 @@ func Run(args []string) {
 				},
 				{
 					Name:      "shell",
-					Usage:     fmt.Sprintf("Open shell to %s instance", version.DBBrandName),
+					Usage:     fmt.Sprintf("Enter interactive shell to %s instance", version.DBBrandName),
 					Action:    wrapAction(dbShellAction),
 					ArgsUsage: "<instance-name>",
 					Flags: []cli.Flag{
@@ -400,12 +380,13 @@ func Run(args []string) {
 			},
 		},
 		{
-			Name:   "cql",
-			Usage:  "Start CQL interactive mode (warn: CQL is deprecated)",
-			Action: wrapAction(cqlAction),
+			Name:      "cql",
+			Usage:     "Enter CQL interactive shell (warn: CQL is deprecated)",
+			Action:    wrapAction(cqlAction),
+			ArgsUsage: "[(--format json) (--eval <cql>)]",
 			Flags: []cli.Flag{
 				cli.StringFlag{Name: "format,f",
-					Usage: "CQL result format",
+					Usage: "CQL result format can be 'table' or 'json' [default: table]",
 					Value: "table",
 				},
 				cli.StringFlag{
