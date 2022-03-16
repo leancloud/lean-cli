@@ -298,11 +298,6 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 		}
 	}
 
-	if config, err := getEngineConfig(projectPath); err == nil {
-		if config.CMD != "" {
-			exec, args = config.parseCMD()
-		}
-	}
 	return &Runtime{
 		ProjectPath: projectPath,
 		Name:        "java",
