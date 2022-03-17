@@ -6,6 +6,7 @@ import (
 	"os"
 	"runtime"
 
+	"github.com/aisk/logp"
 	"github.com/getsentry/raven-go"
 	"github.com/leancloud/lean-cli/commands"
 	"github.com/leancloud/lean-cli/stats"
@@ -37,6 +38,11 @@ func run() {
 	log.SetFlags(0)
 
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				logp.Warnf("Failed to check updates: %s\n", err)
+			}
+		}()
 		_ = checkUpdate()
 	}()
 

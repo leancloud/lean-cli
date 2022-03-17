@@ -418,7 +418,7 @@ func Run(args []string) {
 		if !ok || disableGA == "false" {
 			args := []string{"--_collect-stats"}
 			args = append(args, c.Args()...)
-			_ = exec.Command(os.Args[0], args...).Start()
+			StartBackgroundCommand(exec.Command(os.Args[0], args...))
 		}
 		return nil
 	}
