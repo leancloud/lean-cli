@@ -2,8 +2,10 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/aisk/logp"
+	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/leancloud/lean-cli/version"
@@ -11,7 +13,7 @@ import (
 )
 
 func publishAction(c *cli.Context) error {
-	version.PrintCurrentVersion()
+	version.PrintVersionAndEnvironment()
 	appID, err := apps.GetCurrentAppID("")
 	if err == apps.ErrNoAppLinked {
 		return cli.NewExitError("Please use `lean checkout` to designate a LeanCloud app first.", 1)
@@ -25,7 +27,6 @@ func publishAction(c *cli.Context) error {
 		return err
 	}
 
-	logp.Info("Retrieving app info ...")
 	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
@@ -40,15 +41,20 @@ func publishAction(c *cli.Context) error {
 	}
 
 	if !groupInfo.Staging.Deployable {
-		return errors.New("For development apps, `lean deploy` directly deploys to production. There is no need to use this command.")
+		return errors.New("staging environment not available for trial version")
 	}
 
-	logp.Infof("Deploying %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
+	logp.Info(fmt.Sprintf("Current app: %s (%s), group: %s, region: %s", color.GreenString(appInfo.AppName), appID, color.GreenString(groupName), region))
+	logp.Info(fmt.Sprintf("Deploying verison %s to %s", groupInfo.Staging.Version.VersionTag, color.GreenString("production")))
 
 	tok, err := api.DeployImage(appID, groupName, 1, groupInfo.Staging.Version.VersionTag, &api.DeployOptions{
 		OverwriteFuncs: c.Bool("overwrite-functions"),
 		Options:        c.String("options"),
 	})
+
+	if err != nil {
+		return err
+	}
 
 	ok, err := api.PollEvents(appID, tok)
 	if err != nil {

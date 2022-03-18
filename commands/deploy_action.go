@@ -2,6 +2,7 @@ package commands
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"os/exec"
@@ -10,6 +11,7 @@ import (
 
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
+	"github.com/fatih/color"
 	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
@@ -21,7 +23,7 @@ import (
 )
 
 func deployAction(c *cli.Context) error {
-	version.PrintCurrentVersion()
+	version.PrintVersionAndEnvironment()
 	isDeployFromGit := c.Bool("g")
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
@@ -47,19 +49,7 @@ func deployAction(c *cli.Context) error {
 		return err
 	}
 
-	logp.Info("Retrieving app info ...")
-
 	region, err := apps.GetAppRegion(appID)
-	if err != nil {
-		return err
-	}
-
-	appInfo, err := api.GetAppInfo(appID)
-	if err != nil {
-		return err
-	}
-
-	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		return err
 	}
@@ -72,7 +62,7 @@ func deployAction(c *cli.Context) error {
 	} else if prodBool {
 		prod = 1
 	} else {
-		logp.Info("`lean deploy` now has no default environment. Specify the target environment by `--prod` or `--staging` flag to avoid this prompt.")
+		logp.Info("`lean deploy` now has no default target. Specify the environment by `--prod` or `--staging` flag to avoid this prompt:")
 		question := wizard.Question{
 			Content: "Please select the environment: ",
 			Answers: []wizard.Answer{
@@ -96,16 +86,29 @@ func deployAction(c *cli.Context) error {
 		}
 	}
 
+	appInfo, err := api.GetAppInfo(appID)
+	if err != nil {
+		return err
+	}
+
+	envText := "production"
+
+	if prod == 0 {
+		envText = "staging"
+	}
+
+	logp.Info(fmt.Sprintf("Current app: %s (%s), group: %s, region: %s", color.GreenString(appInfo.AppName), appID, color.GreenString(groupName), region))
+	logp.Info(fmt.Sprintf("Deploying new verison to %s", color.GreenString(envText)))
+
+	groupInfo, err := api.GetGroup(appID, groupName)
+	if err != nil {
+		return err
+	}
+
 	if prod == 0 && !groupInfo.Staging.Deployable {
 		return cli.NewExitError("Deployment failed: no staging instance", 1)
 	} else if prod == 1 && !groupInfo.Production.Deployable {
 		return cli.NewExitError("Deployment failed: no production instance", 1)
-	}
-
-	if prod == 1 {
-		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s production\r\n", appInfo.AppName, appID, region, groupName)
-	} else {
-		logp.Infof("Preparing to deploy %s(%s) to region: %s group: %s staging\r\n", appInfo.AppName, appID, region, groupName)
 	}
 
 	opts := &api.DeployOptions{
@@ -245,7 +248,6 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	if !opts.DirectUpload {
 		if !keepFile {
 			defer func() {
-				logp.Info("Deleting temporary files")
 				err := api.DeleteFromRepoStorage(region, file.ObjectID)
 				if err != nil {
 					logp.Error(err)

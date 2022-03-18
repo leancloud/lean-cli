@@ -13,7 +13,7 @@ import (
 )
 
 func debugAction(c *cli.Context) error {
-	version.PrintCurrentVersion()
+	version.PrintVersionAndEnvironment()
 	remote := c.String("remote")
 	port := strconv.Itoa(c.Int("port"))
 	appID := c.String("app-id")

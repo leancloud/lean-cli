@@ -30,7 +30,7 @@ func getConsolePort(runtimePort int) int {
 }
 
 func upAction(c *cli.Context) error {
-	version.PrintCurrentVersion()
+	version.PrintVersionAndEnvironment()
 	customArgs := c.Args()
 	customCommand := c.String("cmd")
 	rtmPort := c.Int("port")
