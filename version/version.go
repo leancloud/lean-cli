@@ -1,8 +1,10 @@
 package version
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/aisk/logp"
@@ -68,8 +70,9 @@ func init() {
 	DBBrandName = dbBrandNameMapping[Distribution]
 }
 
-func PrintCurrentVersion() {
-	logp.Info("Current CLI tool version: ", Version)
+func PrintVersionAndEnvironment() {
+	// Print all environment info to improve the efficiency of technical support
+	logp.Info(fmt.Sprintf("%s (v%s) running on %s/%s", os.Args[0], Version, runtime.GOOS, runtime.GOARCH))
 }
 
 func GetUserAgent() string {
