@@ -69,19 +69,9 @@ func CreateProject(boil *Boilerplate, dest string, appID string, region regions.
 	if boil.CMD != nil {
 		args := boil.CMD(dest)
 		cmd := exec.Command(args[0], args[1:]...)
+		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-
-		stdin, err := cmd.StdinPipe()
-
-		if err != nil {
-			return err
-		}
-
-		go func() {
-			defer stdin.Close()
-			io.Copy(stdin, os.Stdin)
-		}()
 
 		if err := cmd.Run(); err != nil {
 			return err
