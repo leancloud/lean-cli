@@ -69,6 +69,8 @@ func CreateProject(boil *Boilerplate, dest string, appID string, region regions.
 	if boil.CMD != nil {
 		args := boil.CMD(dest)
 
+		logp.Info(fmt.Sprintf("Executing `%s`", strings.Join(args, " ")))
+
 		_, err := exec.LookPath(args[0])
 
 		if err != nil {
@@ -93,7 +95,7 @@ func CreateProject(boil *Boilerplate, dest string, appID string, region regions.
 		}
 	}
 
-	logp.Info(fmt.Printf("Created %s project in `%s`", boil.Name, dest))
+	logp.Info(fmt.Sprintf("Created %s project in `%s`", boil.Name, dest))
 
 	if boil.Message != "" {
 		logp.Info(boil.Message)
