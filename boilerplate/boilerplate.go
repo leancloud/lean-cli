@@ -68,6 +68,13 @@ func CreateProject(boil *Boilerplate, dest string, appID string, region regions.
 
 	if boil.CMD != nil {
 		args := boil.CMD(dest)
+
+		_, err := exec.LookPath(args[0])
+
+		if err != nil {
+			return fmt.Errorf("You should install `%s` before create %s project", args[0], boil.Name)
+		}
+
 		cmd := exec.Command(args[0], args[1:]...)
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
@@ -149,14 +156,14 @@ var Boilerplates = []Boilerplate{
 		Message:     "Lean how to use Echo at https://echo.labstack.com/",
 	},
 	{
-		Name:  "Web App - React (via create-react-app, require NPM installed)",
+		Name:  "React Web App (via create-react-app)",
 		Files: prepareWebAppFiles("build"),
 		CMD: func(dest string) []string {
 			return []string{"npx", "create-react-app", dest, "--use-npm"}
 		},
 	},
 	{
-		Name:  "Web App - Vue (via @vue/cli, require NPM installed)",
+		Name:  "Vue Web App (via @vue/cli)",
 		Files: prepareWebAppFiles("dist"),
 		CMD: func(dest string) []string {
 			return []string{"npx", "@vue/cli", "create", "--default", "--packageManager", "npm", dest}
