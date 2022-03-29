@@ -2,6 +2,8 @@ package commands
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/wizard"
@@ -108,12 +110,16 @@ func newAction(c *cli.Context) error {
 	groupName := c.String("group")
 	regionString := c.String("region")
 	if c.NArg() < 1 {
-		return cli.NewExitError("<path> argument is required", 1)
+		return cli.NewExitError(fmt.Sprintf("You must specify a directory name like `%s new engine-project`", os.Args[0]), 1)
 	}
 	dest := c.Args()[0]
 
+	boil, err := selectBoilerplate()
+	if err != nil {
+		return err
+	}
+
 	var region regions.Region
-	var err error
 	if regionString == "" {
 		loginedRegions := regions.GetLoginedRegions(version.AvailableRegions)
 		if len(loginedRegions) == 0 {
@@ -177,12 +183,7 @@ func newAction(c *cli.Context) error {
 		}
 	}
 
-	boil, err := selectBoilerplate()
-	if err != nil {
-		return err
-	}
-
-	if err = boilerplate.FetchRepo(boil, dest, app.AppID, region); err != nil {
+	if err = boilerplate.CreateProject(boil, dest, app.AppID, region); err != nil {
 		return err
 	}
 
