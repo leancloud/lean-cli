@@ -2,6 +2,8 @@ package commands
 
 import (
 	"errors"
+	"fmt"
+	"os"
 
 	"github.com/ahmetalpbalkan/go-linq"
 	"github.com/aisk/wizard"
@@ -62,34 +64,12 @@ func selectGroup(groupList []*api.GetGroupsResult) (*api.GetGroupsResult, error)
 
 func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 	var selectedBoilerplate boilerplate.Boilerplate
-	var selectedCategory boilerplate.Category
-	categories, err := boilerplate.GetBoilerplates()
-	if err != nil {
-		return nil, err
-	}
 
 	question := wizard.Question{
-		Content: "Please select a language",
-		Answers: []wizard.Answer{},
-	}
-	for _, category := range categories {
-		answer := wizard.Answer{
-			Content: category.Name,
-		}
-		func(category boilerplate.Category) {
-			answer.Handler = func() {
-				selectedCategory = category
-			}
-		}(category)
-		question.Answers = append(question.Answers, answer)
-	}
-	err = wizard.Ask([]wizard.Question{question})
-
-	question = wizard.Question{
 		Content: "Please select an app template: ",
 		Answers: []wizard.Answer{},
 	}
-	for _, boil := range selectedCategory.Boilerplates {
+	for _, boil := range boilerplate.Boilerplates {
 		answer := wizard.Answer{
 			Content: boil.Name,
 		}
@@ -100,7 +80,7 @@ func selectBoilerplate() (*boilerplate.Boilerplate, error) {
 		}(boil)
 		question.Answers = append(question.Answers, answer)
 	}
-	err = wizard.Ask([]wizard.Question{question})
+	err := wizard.Ask([]wizard.Question{question})
 	return &selectedBoilerplate, err
 }
 
@@ -126,11 +106,20 @@ func selectRegion(loginedRegions []regions.Region) (regions.Region, error) {
 	return region, err
 }
 
-func initAction(c *cli.Context) error {
+func newAction(c *cli.Context) error {
 	groupName := c.String("group")
 	regionString := c.String("region")
+	if c.NArg() < 1 {
+		return cli.NewExitError(fmt.Sprintf("You must specify a directory name like `%s new engine-project`", os.Args[0]), 1)
+	}
+	dest := c.Args()[0]
+
+	boil, err := selectBoilerplate()
+	if err != nil {
+		return err
+	}
+
 	var region regions.Region
-	var err error
 	if regionString == "" {
 		loginedRegions := regions.GetLoginedRegions(version.AvailableRegions)
 		if len(loginedRegions) == 0 {
@@ -194,20 +183,7 @@ func initAction(c *cli.Context) error {
 		}
 	}
 
-	boil, err := selectBoilerplate()
-	if err != nil {
-		return err
-	}
-
-	var dest string
-
-	if c.NArg() > 0 {
-		dest = c.Args()[0]
-	} else {
-		dest = app.AppName
-	}
-
-	if err = boilerplate.FetchRepo(boil, dest, app.AppID); err != nil {
+	if err = boilerplate.CreateProject(boil, dest, app.AppID, region); err != nil {
 		return err
 	}
 

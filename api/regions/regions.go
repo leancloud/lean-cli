@@ -9,25 +9,16 @@ import (
 	"github.com/leancloud/lean-cli/utils"
 )
 
-// Region is region's type
 type Region int
 
-func Parse(region string) Region {
-	switch region {
-	case "cn", "CN", "cn-n1":
-		return ChinaNorth
-	case "tab", "TAB", "cn-e1":
-		return ChinaEast
-	case "us", "US", "us-w1":
-		return USWest
-	case "cn-tds1":
-		return ChinaTDS1
-	case "ap-sg":
-		return APSG
-	default:
-		return Invalid
-	}
-}
+const (
+	Invalid Region = iota
+	ChinaNorth
+	USWest
+	ChinaEast
+	ChinaTDS1
+	APSG
+)
 
 var regionLoginStatus = make(map[Region]bool)
 
@@ -43,6 +34,7 @@ func init() {
 		}
 	}
 }
+
 func (r Region) String() string {
 	switch r {
 	case ChinaNorth:
@@ -73,33 +65,49 @@ func (r Region) EnvString() string {
 	}
 }
 
-// Description is region's readable description
 func (r Region) Description() string {
 	switch r {
 	case ChinaNorth:
-		return "China North"
+		return "LeanCloud (China North)"
 	case USWest:
-		return "United States"
+		return "LeanCloud (International)"
 	case ChinaEast:
-		return "China East"
+		return "LeanCloud (China East)"
 	case ChinaTDS1:
-		return "China TDS"
+		return "TDS (China Mainland)"
 	case APSG:
-		return "Singapore TDS"
+		return "TDS (Global)"
 	default:
-		return "invalid"
+		return "Invalid"
 	}
 }
 
-// API server regions
-const (
-	Invalid Region = iota
-	ChinaNorth
-	USWest
-	ChinaEast
-	ChinaTDS1
-	APSG
-)
+func Parse(region string) Region {
+	switch region {
+	case "cn", "CN", "cn-n1":
+		return ChinaNorth
+	case "tab", "TAB", "cn-e1":
+		return ChinaEast
+	case "us", "US", "us-w1":
+		return USWest
+	case "cn-tds1":
+		return ChinaTDS1
+	case "ap-sg", "AP":
+		return APSG
+	default:
+		return Invalid
+	}
+}
+
+func (r Region) InChina() bool {
+	switch r {
+	case ChinaNorth, ChinaEast, ChinaTDS1:
+		return true
+	case USWest, APSG:
+		return false
+	}
+	panic("invalid region")
+}
 
 // Only return available regions
 func GetLoginedRegions(availableRegions []Region) []Region {
@@ -111,10 +119,6 @@ func GetLoginedRegions(availableRegions []Region) []Region {
 	}
 
 	return regions
-}
-
-func GetRegionLoginStatus() map[Region]bool {
-	return regionLoginStatus
 }
 
 func SetRegionLoginStatus(region Region) {

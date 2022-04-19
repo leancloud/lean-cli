@@ -46,6 +46,18 @@ func run() {
 		_ = checkUpdate()
 	}()
 
+	// In v1.0 `--prod 1` changed to `--prod`, and `--prod 0` changed to `--staging`.
+	for idx, arg := range os.Args {
+		if arg == "--prod" && idx+1 < len(os.Args) {
+			if os.Args[idx+1] == "0" {
+				os.Args[idx] = "--staging"
+				os.Args = append(os.Args[:idx+1], os.Args[idx+2:]...)
+			} else if os.Args[idx+1] == "1" {
+				os.Args = append(os.Args[:idx+1], os.Args[idx+2:]...)
+			}
+		}
+	}
+
 	commands.Run(os.Args)
 }
 

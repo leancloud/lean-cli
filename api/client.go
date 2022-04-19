@@ -9,7 +9,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/cloudfoundry-attic/jibber_jabber"
 	cookiejar "github.com/juju/persistent-cookiejar"
@@ -312,7 +311,7 @@ func getSystemLanguage() string {
 	language, err := jibber_jabber.DetectLanguage()
 
 	if err != nil {
-		logp.Info("unsupported locale setting & set to default en_US.UTF-8: ", err)
+		// unsupported locale setting (Could not detect Language)
 		language = "en"
 	}
 

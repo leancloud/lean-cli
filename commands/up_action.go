@@ -30,9 +30,8 @@ func getConsolePort(runtimePort int) int {
 }
 
 func upAction(c *cli.Context) error {
-	version.PrintCurrentVersion()
+	version.PrintVersionAndEnvironment()
 	customArgs := c.Args()
-	watchChanges := c.Bool("watch")
 	customCommand := c.String("cmd")
 	rtmPort := c.Int("port")
 	consPort := c.Int("console-port")
@@ -63,10 +62,6 @@ func upAction(c *cli.Context) error {
 		cmds := regexp.MustCompile(" +").Split(customCommand, -1)
 		rtm.Exec = cmds[0]
 		rtm.Args = cmds[1:]
-	}
-
-	if watchChanges {
-		printDeprecatedWatchWarning(rtm)
 	}
 
 	if rtm.Name == "cloudcode" {
@@ -113,14 +108,16 @@ func upAction(c *cli.Context) error {
 		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
 	}...)
 
-	for k, v := range groupInfo.Environments {
-		localVar := os.Getenv(k)
-		if localVar == "" {
-			logp.Info("Exporting custome environment variables from server: ", k)
-			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
-		} else {
-			logp.Info("Using local environment variables: ", k)
-			rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, localVar))
+	if c.Bool("fetch-env") {
+		for k, v := range groupInfo.Environments {
+			localVar := os.Getenv(k)
+			if localVar == "" {
+				logp.Info("Exporting custome environment variables from LeanEngine: ", k)
+				rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, v))
+			} else {
+				logp.Info("Using local environment variables: ", k)
+				rtm.Envs = append(rtm.Envs, fmt.Sprintf("%s=%s", k, localVar))
+			}
 		}
 	}
 
@@ -148,17 +145,5 @@ func upAction(c *cli.Context) error {
 			}
 			panic(err)
 		}
-	}
-}
-
-func printDeprecatedWatchWarning(rtm *runtimes.Runtime) {
-	logp.Warn("--watch is no longer supported. Please implement the functionality in your project code.")
-	if rtm.Name == "python" {
-		logp.Warn("Please refer to this pull request to support auto-reloading in debugging")
-		logp.Warn("https://github.com/leancloud/python-getting-started/pull/12/files")
-	}
-	if rtm.Name == "node.js" {
-		logp.Warn("Please refer to this pull request to support auto-reloading in debugging")
-		logp.Warn("https://github.com/leancloud/node-js-getting-started/pull/26/files")
 	}
 }

@@ -1,10 +1,14 @@
 package commands
 
 import (
+	"errors"
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 	"sort"
 	"strconv"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/aisk/logp"
@@ -154,7 +158,7 @@ func dbProxyAction(c *cli.Context) error {
 	return proxy.RunProxy(p)
 }
 
-func dbShellAction(c *cli.Context) error {
+func runDBShell(c *cli.Context, stdin io.Reader) error {
 	p, err := parseProxyInfo(c)
 	if err != nil {
 		return err
@@ -166,14 +170,32 @@ func dbShellAction(c *cli.Context) error {
 
 	started := make(chan bool, 1)
 	term := make(chan bool, 1)
-	go func() {
-		<-started
-		err := proxy.ForkExecCli(p, term)
-		if err != nil {
-			logp.Warnf("Start cli get error: %s", err)
-			term <- true
-		}
-	}()
+	cli, err := proxy.GetCli(p)
+	if err != nil {
+		return err
+	}
+	go proxy.RunShellProxy(p, started, term)
+	cmd := exec.Command(cli[0], cli[1:]...)
+	cmd.Stdin = stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	<-started
+	err = cmd.Run()
+	term <- true
+	if err != nil {
+		logp.Warnf("Start cli get error: %s", err)
+	}
+	return err
+}
 
-	return proxy.RunShellProxy(p, started, term)
+func dbShellAction(c *cli.Context) error {
+	return runDBShell(c, os.Stdin)
+}
+
+func dbExecAction(c *cli.Context) error {
+	if c.NArg() != 2 {
+		return errors.New("instance and db commands are required")
+	}
+	dbCmds := c.Args().Get(1)
+	return runDBShell(c, strings.NewReader(dbCmds))
 }
