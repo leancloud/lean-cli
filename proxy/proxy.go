@@ -34,7 +34,10 @@ func RunProxy(p *ProxyInfo) error {
 		return err
 	}
 
-	cli, _ := GetCli(p)
+	cli, err := GetCli(p)
+	if err != nil {
+		return err
+	}
 	logp.Infof("Now, you can connect [%s] via %s\r\n", p.Name, cli)
 
 	for {
