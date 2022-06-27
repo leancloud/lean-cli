@@ -170,7 +170,7 @@ func runDBShell(c *cli.Context, stdin io.Reader) error {
 
 	started := make(chan bool, 1)
 	term := make(chan bool, 1)
-	cli, err := proxy.GetCli(p)
+	cli, err := proxy.GetCli(p, true)
 	if err != nil {
 		return err
 	}
