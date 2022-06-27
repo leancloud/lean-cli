@@ -9,11 +9,11 @@ import (
 var RuntimeClis = map[string][]string{
 	"udb":   {"mycli", "mysql"},
 	"mysql": {"mycli", "mysql"},
-	"redis": {"iredis", "redis-cli", "memurai-cli"},
+	"redis": {"iredis", "memurai-cli", "redis-cli"},
 	"mongo": {"mongo"},
 }
 
-func GetCli(p *ProxyInfo) ([]string, error) {
+func GetCli(p *ProxyInfo, lookPath bool) ([]string, error) {
 	var cli string
 	if p.Runtime == "es" {
 		cli = "curl"
@@ -23,16 +23,20 @@ func GetCli(p *ProxyInfo) ([]string, error) {
 			panic("invalid runtime")
 		}
 
-		for _, v := range clis {
-			_, err := exec.LookPath(v)
-			if err == nil {
-				cli = v
-				break
+		if lookPath {
+			for _, v := range clis {
+				_, err := exec.LookPath(v)
+				if err == nil {
+					cli = v
+					break
+				}
 			}
-		}
-		if cli == "" {
-			msg := fmt.Sprintf("No cli client for LeanDB runtime %s. Please install cli for runtime first.", p.Runtime)
-			return nil, errors.New(msg)
+			if cli == "" {
+				msg := fmt.Sprintf("No cli client for LeanDB runtime %s. Please install cli for runtime first.", p.Runtime)
+				return nil, errors.New(msg)
+			}
+		} else {
+			cli = clis[len(clis)-1]
 		}
 	}
 

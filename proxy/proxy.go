@@ -34,7 +34,7 @@ func RunProxy(p *ProxyInfo) error {
 		return err
 	}
 
-	cli, err := GetCli(p)
+	cli, err := GetCli(p, false)
 	if err != nil {
 		return err
 	}
