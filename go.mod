@@ -38,6 +38,7 @@ require (
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/urfave/cli v1.19.1
 	golang.org/x/sys v0.0.0-20220624220833-87e55d714810 // indirect
+	gopkg.in/alessio/shellescape.v1 v1.0.0-20170105083845-52074bc9df61 // indirect
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f // indirect
 	gopkg.in/cheggaaa/pb.v1 v1.0.28 // indirect
 	gopkg.in/errgo.v1 v1.0.0-20151007153157-66cb46252b94 // indirect
