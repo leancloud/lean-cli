@@ -13,11 +13,12 @@ import (
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/apps"
 	"github.com/urfave/cli"
+	"gopkg.in/alessio/shellescape.v1"
 )
 
 var (
-	defaultBashEnvTemplateString = "export {{name}}={{value}}"
-	defaultDOSEnvTemplateString  = "SET {{name}}={{value}}"
+	defaultBashEnvTemplateString = "export {{{name}}}={{{value}}}"
+	defaultDOSEnvTemplateString = "SET {{{name}}}={{{value}}}"
 )
 
 // this function is not reliable
@@ -40,9 +41,12 @@ func detectDOS() bool {
 func envAction(c *cli.Context) error {
 	port := strconv.Itoa(c.Int("port"))
 	tmplString := c.String("template")
+	shellEscape := true
 	if tmplString == "" {
 		if detectDOS() {
 			tmplString = defaultDOSEnvTemplateString
+			// DOS SET command already allows spaces in value: SET name=v a l
+			shellEscape = false
 		} else {
 			tmplString = defaultBashEnvTemplateString
 		}
@@ -108,6 +112,9 @@ func envAction(c *cli.Context) error {
 	}
 
 	for _, env := range envs {
+		if shellEscape {
+			env["value"] = shellescape.Quote(env["value"])
+		}
 		result, err := tmpl.Render(env)
 		if err != nil {
 			return err

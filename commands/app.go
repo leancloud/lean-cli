@@ -365,7 +365,7 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "template",
-					Usage: "Template for output [default: export {{name}}={{value}}]",
+					Usage: "Template for output [default: export {{{name}}}={{{value}}}]",
 				},
 			},
 			Subcommands: []cli.Command{
