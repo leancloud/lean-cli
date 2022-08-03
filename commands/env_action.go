@@ -105,6 +105,7 @@ func envAction(c *cli.Context) error {
 		{"name": "LEANCLOUD_REGION", "value": region.EnvString()},
 		{"name": "LEANCLOUD_APP_DOMAIN", "value": groupInfo.Domain},
 		{"name": "LEAN_CLI_HAVE_STAGING", "value": haveStaging},
+		{"name": "LEANCLOUD_APP_GROUP", "value": groupName},
 	}
 
 	for name, value := range groupInfo.Environments {
