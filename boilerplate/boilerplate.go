@@ -134,7 +134,7 @@ var Boilerplates = []Boilerplate{
 		Message:     "Lean how to use Django at https://docs.djangoproject.com",
 	},
 	{
-		Name:        "Java - Serlvet",
+		Name:        "Java - Servlet",
 		DownloadURL: "/leancloud/servlet-getting-started/zipball/master",
 	},
 	{
