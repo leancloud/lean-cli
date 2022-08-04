@@ -25,8 +25,8 @@ var dashboardBaseUrls = map[regions.Region]string{
 	regions.ChinaNorth: "https://cn-n1-console-api.leancloud.cn",
 	regions.USWest:     "https://us-w1-console-api.leancloud.app",
 	regions.ChinaEast:  "https://cn-e1-console-api.leancloud.cn",
-	regions.ChinaTDS1:  "https://tds-console-api.leancloud.cn",
-	regions.APSG:       "https://console-api.ap-sg.cloud.developer.taptap.com",
+	regions.ChinaTDS1:  "https://console-api.cloud.developer.taptap.com",
+	regions.APSG:       "https://console-api.ap-sg.cloud.developer.taptap.io",
 }
 
 var (
