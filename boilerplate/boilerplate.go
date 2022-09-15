@@ -161,14 +161,14 @@ var Boilerplates = []Boilerplate{
 		Name:  "React Web App (via create-react-app)",
 		Files: prepareWebAppFiles("build"),
 		CMD: func(dest string) []string {
-			return []string{"npx", "create-react-app", dest, "--use-npm"}
+			return []string{"npx", "create-react-app", dest}
 		},
 	},
 	{
-		Name:  "Vue Web App (via @vue/cli)",
+		Name:  "Vue Web App (via create-vite)",
 		Files: prepareWebAppFiles("dist"),
 		CMD: func(dest string) []string {
-			return []string{"npx", "@vue/cli", "create", "--default", "--packageManager", "npm", dest}
+			return []string{"npx", "create-vite", dest, "--template", "vue"}
 		},
 	},
 }
