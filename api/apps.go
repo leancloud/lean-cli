@@ -7,11 +7,11 @@ import (
 
 // GetAppListResult is GetAppList function's result type
 type GetAppListResult struct {
-	AppID     string `json:"app_id"`
-	AppKey    string `json:"app_key"`
-	AppName   string `json:"app_name"`
-	MasterKey string `json:"master_key"`
-	AppDomain string `json:"app_domain"`
+	AppID     string `json:"appId"`
+	AppKey    string `json:"appKey"`
+	AppName   string `json:"appName"`
+	MasterKey string `json:"masterKey"`
+	AppDomain string `json:"appDomain"`
 }
 
 // GetAppList returns the current user's all LeanCloud application
@@ -19,7 +19,7 @@ type GetAppListResult struct {
 func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 	client := NewClientByRegion(region)
 
-	resp, err := client.get("/1/clients/self/apps", nil)
+	resp, err := client.get("/client-center/2/clients/self/apps", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -43,19 +43,19 @@ func GetAppList(region regions.Region) ([]*GetAppListResult, error) {
 
 // GetAppInfoResult is GetAppInfo function's result type
 type GetAppInfoResult struct {
-	AppDomain string `json:"app_domain"`
-	AppID     string `json:"app_id"`
-	AppKey    string `json:"app_key"`
-	AppName   string `json:"app_name"`
-	HookKey   string `json:"hook_key"`
-	MasterKey string `json:"master_key"`
+	AppDomain string `json:"appDomain"`
+	AppID     string `json:"appId"`
+	AppKey    string `json:"appKey"`
+	AppName   string `json:"appName"`
+	HookKey   string `json:"hookKey"`
+	MasterKey string `json:"masterKey"`
 }
 
 // GetAppInfo returns the application's detail info
 func GetAppInfo(appID string) (*GetAppInfoResult, error) {
 	client := NewClientByApp(appID)
 
-	resp, err := client.get("/1.1/clients/self/apps/"+appID, nil)
+	resp, err := client.get("/client-center/2/clients/self/apps/"+appID, nil)
 	if err != nil {
 		return nil, err
 	}

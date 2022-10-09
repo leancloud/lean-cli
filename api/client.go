@@ -32,7 +32,7 @@ var dashboardBaseUrls = map[regions.Region]string{
 var (
 	// Get2FACode is the function to get the user's two-factor-authentication code.
 	// You can override it with your custom function.
-	Get2FACode = func() (int, error) {
+	Get2FACode = func() (string, error) {
 		result := new(string)
 		wizard.Ask([]wizard.Question{
 			{
@@ -45,9 +45,9 @@ var (
 		})
 		code, err := strconv.Atoi(*result)
 		if err != nil {
-			return 0, errors.New("2-factor auth code should be numerical")
+			return "", errors.New("2-factor auth code should be numerical")
 		}
-		return code, nil
+		return strconv.Itoa(code), nil
 	}
 )
 
@@ -129,16 +129,16 @@ func (client *Client) GetAuthHeaders() map[string]string {
 		}
 
 		cookies := client.CookieJar.Cookies(url)
-		xsrf := ""
+		csrf := ""
 
 		for _, cookie := range cookies {
-			if cookie.Name == "XSRF-TOKEN" {
-				xsrf = cookie.Value
+			if cookie.Name == "csrf-token" {
+				csrf = cookie.Value
 				break
 			}
 		}
 
-		headers["X-XSRF-TOKEN"] = xsrf
+		headers["X-CSRF-TOKEN"] = csrf
 	}
 
 	return headers
@@ -199,11 +199,6 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		return nil, err
 	}
 
-	resp, err = client.checkAndDo2FA(resp)
-	if err != nil {
-		return nil, err
-	}
-
 	if !resp.Ok {
 		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
 			return nil, NewErrorFromResponse(resp)
@@ -215,59 +210,6 @@ func doRequest(client *Client, method string, path string, params map[string]int
 		if err = client.CookieJar.Save(); err != nil {
 			return nil, err
 		}
-	}
-
-	return resp, nil
-}
-
-// check if the requests need two-factor-authentication and then do it.
-func (client *Client) checkAndDo2FA(resp *grequests.Response) (*grequests.Response, error) {
-	if resp.StatusCode != 401 || strings.Contains(resp.String(), "User doesn't sign in.") {
-		// don't need 2FA
-		return resp, nil
-	}
-	var result struct {
-		Token string `json:"token"`
-	}
-	err := resp.JSON(&result)
-	if err != nil {
-		return nil, err
-	}
-	token := result.Token
-	if token == "" {
-		return resp, nil
-	}
-	code, err := Get2FACode()
-	if err != nil {
-		return nil, err
-	}
-
-	jar, err := cookiejar.New(&cookiejar.Options{
-		Filename: filepath.Join(utils.ConfigDir(), "leancloud", "cookies"),
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	resp, err = grequests.Post(client.GetBaseURL()+"/1.1/do2fa", &grequests.RequestOptions{
-		JSON: map[string]interface{}{
-			"token": token,
-			"code":  code,
-		},
-		CookieJar: jar,
-	})
-	if err != nil {
-		return nil, err
-	}
-	if !resp.Ok {
-		if strings.HasPrefix(strings.TrimSpace(resp.Header.Get("Content-Type")), "application/json") {
-			return nil, NewErrorFromResponse(resp)
-		}
-		return nil, fmt.Errorf("HTTP Error: %d, %s %s", resp.StatusCode, "POST", "/do2fa")
-	}
-
-	if err := jar.Save(); err != nil {
-		return nil, err
 	}
 
 	return resp, nil

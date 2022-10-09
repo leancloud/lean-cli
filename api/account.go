@@ -21,12 +21,30 @@ func Login(email string, password string, region regions.Region) (*GetUserInfoRe
 	}
 	client := NewClientByRegion(region)
 
-	resp, err := grequests.Post(client.GetBaseURL()+"/1/signin", options)
-	if err != nil {
-		return nil, err
+	resp, err := grequests.Post(client.GetBaseURL()+"/client-center/2/signin", options)
+	if resp.StatusCode == 401 {
+		var result struct {
+			Token string `json:"token"`
+		}
+
+		if err = resp.JSON(&result); err != nil {
+			return nil, err
+		}
+		token := result.Token
+		if token != "" {
+			code, err := Get2FACode()
+			if err != nil {
+				return nil, err
+			}
+			options.JSON = map[string]string{
+				"email":    email,
+				"password": password,
+				"code":     code,
+			}
+			resp, err = grequests.Post(client.GetBaseURL()+"/client-center/2/signin", options)
+		}
 	}
 
-	resp, err = client.checkAndDo2FA(resp)
 	if err != nil {
 		return nil, err
 	}
@@ -53,7 +71,7 @@ func LoginWithAccessToken(accessToken string, region regions.Region) (*GetUserIn
 	client := NewClientByRegion(region)
 	client.AccessToken = accessToken
 
-	resp, err := client.get("/1.1/clients/self", nil)
+	resp, err := client.get("/client-center/2/clients/self", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +102,7 @@ type GetUserInfoResult struct {
 func GetUserInfo(region regions.Region) (*GetUserInfoResult, error) {
 	client := NewClientByRegion(region)
 
-	resp, err := client.get("/1.1/clients/self", nil)
+	resp, err := client.get("/client-center/2/clients/self", nil)
 	if err != nil {
 		return nil, err
 	}
