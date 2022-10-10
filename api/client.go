@@ -134,7 +134,13 @@ func (client *Client) GetAuthHeaders() map[string]string {
 		for _, cookie := range cookies {
 			if cookie.Name == "csrf-token" {
 				csrf = cookie.Value
-				break
+			}
+
+			// unsupported uluru cookie
+			if cookie.Name == "uluru_user" || cookie.Name == "XSRF-TOKEN" {
+				client.CookieJar.RemoveAllHost(url.Host)
+				client.CookieJar.Save()
+				panic("Please log in")
 			}
 		}
 
