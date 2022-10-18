@@ -290,7 +290,7 @@ func Run(args []string) {
 				{
 					Name:      "upload",
 					Usage:     "Upload files",
-					Action:    uploadAction,
+					Action:    wrapAction(uploadAction),
 					ArgsUsage: "<file-path>...",
 				},
 			},

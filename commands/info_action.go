@@ -1,6 +1,8 @@
 package commands
 
 import (
+	"strings"
+
 	"github.com/aisk/logp"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
@@ -23,9 +25,14 @@ func infoAction(c *cli.Context) error {
 		logp.Infof("Retrieving user info from region: %s\r\n", loginedRegion)
 		userInfo, err := api.GetUserInfo(loginedRegion)
 		if err != nil {
-			callbacks = append(callbacks, func() {
-				logp.Errorf("Failed to retrieve user info from region: %s: %v\r\n", loginedRegion, err)
-			})
+			e, ok := err.(api.Error)
+			if ok && strings.HasPrefix(e.Content, "unauthorized") {
+				logp.Errorf("User doesn't sign in at region: %s\r\n", loginedRegion)
+			} else {
+				callbacks = append(callbacks, func() {
+					logp.Errorf("Failed to retrieve user info from region: %s: %v\r\n", loginedRegion, err)
+				})
+			}
 		} else {
 			callbacks = append(callbacks, func() {
 				logp.Infof("Current region:  %s User: %s (%s)\r\n", loginedRegion, userInfo.UserName, userInfo.Email)
@@ -47,9 +54,14 @@ func infoAction(c *cli.Context) error {
 	} else {
 		appInfo, err := api.GetAppInfo(appID)
 		if err != nil {
-			callbacks = append(callbacks, func() {
-				logp.Error("Failed to retrieve app info: ", err)
-			})
+			e, ok := err.(api.Error)
+			if ok && strings.HasPrefix(e.Content, "unauthorized") {
+				logp.Errorf("User doesn't sign in.\r\n")
+			} else {
+				callbacks = append(callbacks, func() {
+					logp.Error("Failed to retrieve app info: ", err)
+				})
+			}
 		} else {
 			region, err := apps.GetAppRegion(appID)
 			if err != nil {

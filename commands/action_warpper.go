@@ -2,11 +2,11 @@ package commands
 
 import (
 	"fmt"
-	"github.com/leancloud/lean-cli/apps"
 	"strings"
 
 	"github.com/fatih/color"
 	"github.com/leancloud/lean-cli/api"
+	"github.com/leancloud/lean-cli/apps"
 	"github.com/urfave/cli"
 )
 
@@ -33,8 +33,8 @@ func wrapAction(action cli.ActionFunc) cli.ActionFunc {
 		case api.Error:
 			var msg string
 			// Make error message more friendly to users having applications at multi regions.
-			if e.Code == 1 && strings.HasPrefix(e.Content, "User doesn't sign in.") {
-				msg = msgWithRegion(e.Content)
+			if strings.HasPrefix(e.Content, "unauthorized") {
+				msg = msgWithRegion("User doesn't sign in.")
 			} else {
 				msg = e.Content
 			}
