@@ -140,7 +140,6 @@ func (client *Client) GetAuthHeaders() map[string]string {
 			if cookie.Name == "uluru_user" || cookie.Name == "XSRF-TOKEN" {
 				client.CookieJar.RemoveAllHost(url.Host)
 				client.CookieJar.Save()
-				panic("Please log in")
 			}
 		}
 
