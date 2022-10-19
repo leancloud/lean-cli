@@ -106,6 +106,7 @@ func upAction(c *cli.Context) error {
 		"LEANCLOUD_REGION=" + region.EnvString(),
 		"LEANCLOUD_APP_DOMAIN=" + groupInfo.Domain,
 		"LEAN_CLI_HAVE_STAGING=" + haveStaging,
+ 		"LEANCLOUD_APP_GROUP=" + groupName,
 	}...)
 
 	if c.Bool("fetch-env") {
