@@ -60,7 +60,7 @@ func Run(args []string) {
 						},
 						cli.StringFlag{
 							Name:  "token",
-							Usage: "AccessToken from LeanCloud Console => your App => LeanEngine => Deploy of your group => Deploy using CLI",
+							Usage: "AccessToken from LeanCloud Console => Account settings => Access tokens: ",
 						},
 					}
 				} else {
@@ -155,6 +155,10 @@ func Run(args []string) {
 					Name:  "staging",
 					Usage: "Deploy to staging environment",
 				},
+        cli.StringSliceFlag{
+          Name: "preview",
+          Usage: "Deploy to preview environment",
+        },
 				cli.BoolFlag{
 					Name:  "build-logs",
 					Usage: "Print build logs",
