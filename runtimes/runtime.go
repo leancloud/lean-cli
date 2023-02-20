@@ -147,7 +147,6 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		logp.Info("PHP runtime detected")
 		return newPhpRuntime(projectPath)
 	}
-	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) || utils.IsFileExists(filepath.Join(projectPath, "gradlew")) {
 		logp.Info("Java runtime detected")
 		return newJavaRuntime(projectPath)
@@ -273,27 +272,32 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 	exec := "mvn"
 	args := []string{"jetty:run"}
 
-	// parse pom.xml to check if it's using spring-boot-maven-plugin and hence can be run with `mvn spring-boot:run`
-	content, err := ioutil.ReadFile(filepath.Join(projectPath, "pom.xml"))
-	if err != nil {
-		return nil, err
-	}
-	var pom struct {
-		Build struct {
-			Plugins struct {
-				Plugins []struct {
-					ArtifactId string `xml:"artifactId"`
-				} `xml:"plugin"`
-			} `xml:"plugins"`
-		} `xml:"build"`
-	}
-	if err := xml.Unmarshal(content, &pom); err != nil {
-		return nil, err
-	}
-	for _, plugin := range pom.Build.Plugins.Plugins {
-		if plugin.ArtifactId == "spring-boot-maven-plugin" {
-			args = []string{"spring-boot:run"}
-			break
+	if utils.IsFileExists(filepath.Join(projectPath, "gradlew")) {
+		exec = "./gradlew"
+		args = []string{"appRun"}
+	} else {
+		// parse pom.xml to check if it's using spring-boot-maven-plugin and hence can be run with `mvn spring-boot:run`
+		content, err := ioutil.ReadFile(filepath.Join(projectPath, "pom.xml"))
+		if err != nil {
+			return nil, err
+		}
+		var pom struct {
+			Build struct {
+				Plugins struct {
+					Plugins []struct {
+						ArtifactId string `xml:"artifactId"`
+					} `xml:"plugin"`
+				} `xml:"plugins"`
+			} `xml:"build"`
+		}
+		if err := xml.Unmarshal(content, &pom); err != nil {
+			return nil, err
+		}
+		for _, plugin := range pom.Build.Plugins.Plugins {
+			if plugin.ArtifactId == "spring-boot-maven-plugin" {
+				args = []string{"spring-boot:run"}
+				break
+			}
 		}
 	}
 
