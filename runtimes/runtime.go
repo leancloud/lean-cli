@@ -46,6 +46,7 @@ func (runtime *Runtime) Run() {
 	go func() {
 		runtime.command = exec.Command(runtime.Exec, runtime.Args...)
 		runtime.command.Dir = runtime.WorkDir
+		runtime.command.Stdin = os.Stdin
 		runtime.command.Stdout = os.Stdout
 		runtime.command.Stderr = os.Stderr
 		runtime.command.Env = os.Environ()
@@ -56,10 +57,7 @@ func (runtime *Runtime) Run() {
 
 		logp.Infof("Use %s to start the project\r\n", runtime.command.Args)
 		logp.Infof("The project is running at: http://localhost:%s\r\n", runtime.Port)
-		err := runtime.command.Run()
-		if err != nil {
-			runtime.Errors <- err
-		}
+		runtime.Errors <- runtime.command.Run()
 	}()
 }
 
@@ -150,6 +148,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		return newPhpRuntime(projectPath)
 	}
 	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
+	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) || utils.IsFileExists(filepath.Join(projectPath, "gradlew")) {
 		logp.Info("Java runtime detected")
 		return newJavaRuntime(projectPath)
 	}
