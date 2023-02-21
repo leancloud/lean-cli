@@ -139,7 +139,11 @@ func upAction(c *cli.Context) error {
 	for {
 		select {
 		case err = <-cons.Errors:
-			panic(err)
+			if err != nil {
+				panic(err)
+			} else {
+				return cli.NewExitError("", 0)
+			}
 		case err = <-rtm.Errors:
 			if _, ok := err.(*exec.ExitError); ok {
 				return cli.NewExitError("", 1)

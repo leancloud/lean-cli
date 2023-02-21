@@ -46,6 +46,7 @@ func (runtime *Runtime) Run() {
 	go func() {
 		runtime.command = exec.Command(runtime.Exec, runtime.Args...)
 		runtime.command.Dir = runtime.WorkDir
+		runtime.command.Stdin = os.Stdin
 		runtime.command.Stdout = os.Stdout
 		runtime.command.Stderr = os.Stderr
 		runtime.command.Env = os.Environ()
@@ -56,10 +57,7 @@ func (runtime *Runtime) Run() {
 
 		logp.Infof("Use %s to start the project\r\n", runtime.command.Args)
 		logp.Infof("The project is running at: http://localhost:%s\r\n", runtime.Port)
-		err := runtime.command.Run()
-		if err != nil {
-			runtime.Errors <- err
-		}
+		runtime.Errors <- runtime.command.Run()
 	}()
 }
 
@@ -149,7 +147,7 @@ func DetectRuntime(projectPath string) (*Runtime, error) {
 		logp.Info("PHP runtime detected")
 		return newPhpRuntime(projectPath)
 	}
-	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) {
+	if utils.IsFileExists(filepath.Join(projectPath, "pom.xml")) || utils.IsFileExists(filepath.Join(projectPath, "gradlew")) {
 		logp.Info("Java runtime detected")
 		return newJavaRuntime(projectPath)
 	}
@@ -274,27 +272,32 @@ func newJavaRuntime(projectPath string) (*Runtime, error) {
 	exec := "mvn"
 	args := []string{"jetty:run"}
 
-	// parse pom.xml to check if it's using spring-boot-maven-plugin and hence can be run with `mvn spring-boot:run`
-	content, err := ioutil.ReadFile(filepath.Join(projectPath, "pom.xml"))
-	if err != nil {
-		return nil, err
-	}
-	var pom struct {
-		Build struct {
-			Plugins struct {
-				Plugins []struct {
-					ArtifactId string `xml:"artifactId"`
-				} `xml:"plugin"`
-			} `xml:"plugins"`
-		} `xml:"build"`
-	}
-	if err := xml.Unmarshal(content, &pom); err != nil {
-		return nil, err
-	}
-	for _, plugin := range pom.Build.Plugins.Plugins {
-		if plugin.ArtifactId == "spring-boot-maven-plugin" {
-			args = []string{"spring-boot:run"}
-			break
+	if utils.IsFileExists(filepath.Join(projectPath, "gradlew")) {
+		exec = "./gradlew"
+		args = []string{"appRun"}
+	} else {
+		// parse pom.xml to check if it's using spring-boot-maven-plugin and hence can be run with `mvn spring-boot:run`
+		content, err := ioutil.ReadFile(filepath.Join(projectPath, "pom.xml"))
+		if err != nil {
+			return nil, err
+		}
+		var pom struct {
+			Build struct {
+				Plugins struct {
+					Plugins []struct {
+						ArtifactId string `xml:"artifactId"`
+					} `xml:"plugin"`
+				} `xml:"plugins"`
+			} `xml:"build"`
+		}
+		if err := xml.Unmarshal(content, &pom); err != nil {
+			return nil, err
+		}
+		for _, plugin := range pom.Build.Plugins.Plugins {
+			if plugin.ArtifactId == "spring-boot-maven-plugin" {
+				args = []string{"spring-boot:run"}
+				break
+			}
 		}
 	}
 
