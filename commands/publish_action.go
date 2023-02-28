@@ -45,7 +45,7 @@ func publishAction(c *cli.Context) error {
 	}
 
 	logp.Info(fmt.Sprintf("Current app: %s (%s), group: %s, region: %s", color.GreenString(appInfo.AppName), appID, color.GreenString(groupName), region))
-	logp.Info(fmt.Sprintf("Deploying verison %s to %s", groupInfo.Staging.Version.VersionTag, color.GreenString("production")))
+	logp.Info(fmt.Sprintf("Deploying version %s to %s", groupInfo.Staging.Version.VersionTag, color.GreenString("production")))
 
 	tok, err := api.DeployImage(appID, groupName, 1, groupInfo.Staging.Version.VersionTag, &api.DeployOptions{
 		OverwriteFuncs: c.Bool("overwrite-functions"),

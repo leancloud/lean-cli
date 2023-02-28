@@ -173,7 +173,7 @@ func Run(args []string) {
 				},
 				cli.BoolFlag{
 					Name:  "no-cache",
-					Usage: "Disable buliding cache",
+					Usage: "Disable building cache",
 				},
 				cli.BoolFlag{
 					Name:  "overwrite-functions",
@@ -325,7 +325,7 @@ func Run(args []string) {
 				},
 				cli.StringFlag{
 					Name:  "to",
-					Usage: "End date formated as YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05+08:00",
+					Usage: "End date formatted as YYYY-MM-DD (local time) or RFC3339, e.g., 2006-01-02 or 2006-01-02T15:04:05+08:00",
 				},
 				cli.StringFlag{
 					Name:  "format",

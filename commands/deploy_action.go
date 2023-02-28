@@ -98,7 +98,7 @@ func deployAction(c *cli.Context) error {
 	}
 
 	logp.Info(fmt.Sprintf("Current app: %s (%s), group: %s, region: %s", color.GreenString(appInfo.AppName), appID, color.GreenString(groupName), region))
-	logp.Info(fmt.Sprintf("Deploying new verison to %s", color.GreenString(envText)))
+	logp.Info(fmt.Sprintf("Deploying new version to %s", color.GreenString(envText)))
 
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
