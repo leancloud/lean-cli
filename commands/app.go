@@ -155,10 +155,6 @@ func Run(args []string) {
 					Name:  "staging",
 					Usage: "Deploy to staging environment",
 				},
-        cli.StringSliceFlag{
-          Name: "preview",
-          Usage: "Deploy to preview environment",
-        },
 				cli.BoolFlag{
 					Name:  "build-logs",
 					Usage: "Print build logs",
@@ -203,6 +199,56 @@ func Run(args []string) {
 				cli.BoolFlag{
 					Name:  "direct",
 					Usage: "Upload project's tarball to remote directly",
+				},
+			},
+		},
+		{
+			Name:      "preview",
+			Usage:     "Manage preview environments",
+			ArgsUsage: "(deploy | delete)",
+			Subcommands: []cli.Command{
+				{
+					Name:   "deploy",
+					Usage:  "Deploy to preview environment",
+					Action: wrapAction(deployPreviewAction),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "name",
+							Usage: "Name of the preview environment. Will be created if it does not exist.",
+						},
+						cli.StringFlag{
+							Name:  "url",
+							Usage: "Pull/Merge request URL",
+						},
+						cli.StringFlag{
+							Name:  "commit",
+							Usage: "Commit hash",
+						},
+						cli.BoolFlag{
+							Name:  "build-logs",
+							Usage: "Print build logs",
+						},
+						cli.BoolFlag{
+							Name:  "war",
+							Usage: "Deploy .war file for Java project. The first .war file in target/ is used by default",
+						},
+						cli.StringFlag{
+							Name:  "leanignore",
+							Usage: "Rule file for ignored files in deployment",
+							Value: ".leanignore",
+						},
+					},
+				},
+				{
+					Name:   "delete",
+					Usage:  "Delete preview environment",
+					Action: wrapAction(deletePreviewAction),
+					Flags: []cli.Flag{
+						cli.StringFlag{
+							Name:  "name",
+							Usage: "Name of the preview environment",
+						},
+					},
 				},
 			},
 		},
