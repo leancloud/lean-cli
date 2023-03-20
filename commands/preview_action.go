@@ -87,6 +87,29 @@ func deployPreviewAction(c *cli.Context) error {
 		return err
 	}
 
+	domainBindings, err := api.GetDomainBindings(appID, api.EnginePreview, groupName)
+	if err != nil {
+		return err
+	}
+	if len(domainBindings) == 0 {
+		logp.Warn("There are no preview domains associated with this group. Please bind one first.")
+	} else {
+		getUrl := func(domain api.DomainBinding) string {
+			proto := "http"
+			if domain.SslType != "none" {
+				proto = "https"
+			}
+			return fmt.Sprintf("%s://%s.%s", proto, name, strings.TrimPrefix(domain.Domain, "*."))
+		}
+		for _, domain := range domainBindings {
+			logp.Info("Preview URL:", color.GreenString(getUrl(domain)))
+		}
+		// Print preview URL to *stdout* when used as URL=$(lean preview deploy ...)
+		if !isatty.IsTerminal(1) {
+			fmt.Println(getUrl(domainBindings[0]))
+		}
+	}
+
 	return nil
 }
 
