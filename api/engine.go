@@ -46,10 +46,12 @@ type DeployOptions struct {
 	NoDepsCache    bool
 	OverwriteFuncs bool
 	BuildLogs      bool
+	Commit         string
+	Url            string
 	Options        string // Additional options in urlencode format
 }
 
-func deploy(appID string, group string, prod int, params map[string]interface{}) (*grequests.Response, error) {
+func deploy(appID string, group string, env string, params map[string]interface{}) (*grequests.Response, error) {
 	client := NewClientByApp(appID)
 
 	opts, err := client.options()
@@ -58,15 +60,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 	}
 	opts.Headers["X-LC-Id"] = appID
 
-	var url string
-	switch prod {
-	case 0:
-		url = "/1.1/engine/groups/" + group + "/staging/version"
-	case 1:
-		url = "/1.1/engine/groups/" + group + "/production/version"
-	default:
-		return nil, fmt.Errorf("invalid prod value %d", prod)
-	}
+	url := fmt.Sprintf("/1.1/engine/groups/%s/envs/%s/version", group, env)
 
 	directUpload, _ := params["direct"].(bool)
 	delete(params, "direct")
@@ -116,7 +110,7 @@ func deploy(appID string, group string, prod int, params map[string]interface{})
 }
 
 // DeployImage will deploy the engine group with specify image tag
-func DeployImage(appID string, group string, prod int, imageTag string, opts *DeployOptions) (string, error) {
+func DeployImage(appID string, group string, env string, imageTag string, opts *DeployOptions) (string, error) {
 	params, err := prepareDeployParams(opts)
 
 	if err != nil {
@@ -125,7 +119,7 @@ func DeployImage(appID string, group string, prod int, imageTag string, opts *De
 
 	params["versionTag"] = imageTag
 
-	resp, err := deploy(appID, group, prod, params)
+	resp, err := deploy(appID, group, env, params)
 	if err != nil {
 		return "", err
 	}
@@ -138,7 +132,7 @@ func DeployImage(appID string, group string, prod int, imageTag string, opts *De
 
 // DeployAppFromGit will deploy applications with user's git repo
 // returns the event token for polling deploy log
-func DeployAppFromGit(appID string, group string, prod int, revision string, opts *DeployOptions) (string, error) {
+func DeployAppFromGit(appID string, group string, env string, revision string, opts *DeployOptions) (string, error) {
 	params, err := prepareDeployParams(opts)
 
 	if err != nil {
@@ -147,7 +141,7 @@ func DeployAppFromGit(appID string, group string, prod int, revision string, opt
 
 	params["gitTag"] = revision
 
-	resp, err := deploy(appID, group, prod, params)
+	resp, err := deploy(appID, group, env, params)
 	if err != nil {
 		return "", err
 	}
@@ -160,7 +154,7 @@ func DeployAppFromGit(appID string, group string, prod int, revision string, opt
 
 // DeployAppFromFile will deploy applications with specific file
 // returns the event token for polling deploy log
-func DeployAppFromFile(appID string, group string, prod int, fileURL string, opts *DeployOptions) (string, error) {
+func DeployAppFromFile(appID string, group string, env string, fileURL string, opts *DeployOptions) (string, error) {
 	params, err := prepareDeployParams(opts)
 
 	if err != nil {
@@ -170,7 +164,7 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, opt
 	params["direct"] = opts.DirectUpload
 	params["zipUrl"] = fileURL
 
-	resp, err := deploy(appID, group, prod, params)
+	resp, err := deploy(appID, group, env, params)
 	if err != nil {
 		return "", err
 	}
@@ -180,6 +174,19 @@ func DeployAppFromFile(appID string, group string, prod int, fileURL string, opt
 	})
 	err = resp.JSON(result)
 	return result.EventToken, err
+}
+
+func DeleteEnvironment(appID string, group string, env string) error {
+	client := NewClientByApp(appID)
+
+	opts, err := client.options()
+	if err != nil {
+		return err
+	}
+	opts.Headers["X-LC-Id"] = appID
+
+	_, err = client.delete(fmt.Sprintf("/1.1/engine/groups/%s/envs/%s", group, env), opts)
+	return err
 }
 
 // GetGroups returns the application's engine groups
@@ -284,6 +291,12 @@ func prepareDeployParams(options *DeployOptions) (map[string]interface{}, error)
 
 	if options.Message != "" {
 		params["comment"] = options.Message
+	}
+	if options.Commit != "" {
+		params["commit"] = options.Commit
+	}
+	if options.Url != "" {
+		params["url"] = options.Url
 	}
 
 	if options.Options != "" {

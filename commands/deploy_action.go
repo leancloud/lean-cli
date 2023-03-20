@@ -37,7 +37,7 @@ func deployAction(c *cli.Context) error {
 	isDirect := c.Bool("direct")
 	buildLogs := c.Bool("build-logs")
 
-	var prod int
+	var env string
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -58,9 +58,9 @@ func deployAction(c *cli.Context) error {
 		return cli.NewExitError("`--prod` and `--staging` flags are mutually exclusive", 1)
 	}
 	if staging {
-		prod = 0
+		env = "0"
 	} else if prodBool {
-		prod = 1
+		env = "1"
 	} else {
 		logp.Info("`lean deploy` now has no default target. Specify the environment by `--prod` or `--staging` flag to avoid this prompt:")
 		question := wizard.Question{
@@ -69,13 +69,13 @@ func deployAction(c *cli.Context) error {
 				{
 					Content: "Production",
 					Handler: func() {
-						prod = 1
+						env = "1"
 					},
 				},
 				{
 					Content: "Staging",
 					Handler: func() {
-						prod = 0
+						env = "0"
 					},
 				},
 			},
@@ -93,21 +93,21 @@ func deployAction(c *cli.Context) error {
 
 	envText := "production"
 
-	if prod == 0 {
+	if env == "0" {
 		envText = "staging"
 	}
 
 	logp.Info(fmt.Sprintf("Current app: %s (%s), group: %s, region: %s", color.GreenString(appInfo.AppName), appID, color.GreenString(groupName), region))
-	logp.Info(fmt.Sprintf("Deploying new verison to %s", color.GreenString(envText)))
+	logp.Info(fmt.Sprintf("Deploying new version to %s", color.GreenString(envText)))
 
 	groupInfo, err := api.GetGroup(appID, groupName)
 	if err != nil {
 		return err
 	}
 
-	if prod == 0 && !groupInfo.Staging.Deployable {
+	if env == "0" && !groupInfo.Staging.Deployable {
 		return cli.NewExitError("Deployment failed: no staging instance", 1)
-	} else if prod == 1 && !groupInfo.Production.Deployable {
+	} else if env == "1" && !groupInfo.Production.Deployable {
 		return cli.NewExitError("Deployment failed: no production instance", 1)
 	}
 
@@ -119,14 +119,14 @@ func deployAction(c *cli.Context) error {
 	}
 
 	if isDeployFromGit {
-		err = deployFromGit(appID, groupName, prod, revision, opts)
+		err = deployFromGit(appID, groupName, env, revision, opts)
 		if err != nil {
 			return err
 		}
 	} else {
 		opts.Message = getCommentMessage(message)
 		opts.DirectUpload = isDirect
-		err = deployFromLocal(appID, groupName, prod, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
+		err = deployFromLocal(appID, groupName, env, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
 		if err != nil {
 			return err
 		}
@@ -217,7 +217,7 @@ func uploadWar(appID string, region regions.Region, repoPath string) (*upload.Fi
 	return api.UploadToRepoStorage(region, archivePath)
 }
 
-func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *api.DeployOptions) error {
+func deployFromLocal(appID string, group string, env string, isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *api.DeployOptions) error {
 	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
@@ -258,9 +258,9 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 
 	var eventTok string
 	if opts.DirectUpload {
-		eventTok, err = api.DeployAppFromFile(appID, group, prod, archiveFilePath, opts)
+		eventTok, err = api.DeployAppFromFile(appID, group, env, archiveFilePath, opts)
 	} else {
-		eventTok, err = api.DeployAppFromFile(appID, group, prod, file.URL, opts)
+		eventTok, err = api.DeployAppFromFile(appID, group, env, file.URL, opts)
 	}
 	if err != nil {
 		return err
@@ -275,8 +275,8 @@ func deployFromLocal(appID string, group string, prod int, isDeployFromJavaWar b
 	return nil
 }
 
-func deployFromGit(appID string, group string, prod int, revision string, opts *api.DeployOptions) error {
-	eventTok, err := api.DeployAppFromGit(appID, group, prod, revision, opts)
+func deployFromGit(appID string, group string, env string, revision string, opts *api.DeployOptions) error {
+	eventTok, err := api.DeployAppFromGit(appID, group, env, revision, opts)
 	if err != nil {
 		return err
 	}
