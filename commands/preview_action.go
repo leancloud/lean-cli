@@ -57,6 +57,8 @@ func deployPreviewAction(c *cli.Context) error {
 		return err
 	}
 	buildLogs := c.Bool("build-logs")
+	isDeployFromGit := c.Bool("g")
+	noDepsCache := c.Bool("no-cache")
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
 
@@ -82,9 +84,23 @@ func deployPreviewAction(c *cli.Context) error {
 	logp.Info(fmt.Sprintf("Current app: %s (%s), group: %s, region: %s", color.GreenString(appInfo.AppName), appID, color.GreenString(groupName), region))
 	logp.Info(fmt.Sprintf("Deploying %s to preview environment %s", color.GreenString(commit), color.GreenString(name)))
 
-	err = deployFromLocal(appID, groupName, name, isDeployFromJavaWar, ignoreFilePath, false, &api.DeployOptions{BuildLogs: buildLogs, Commit: commit, Url: url})
-	if err != nil {
-		return err
+	opts := &api.DeployOptions{
+		Commit:      commit,
+		Url:         url,
+		NoDepsCache: noDepsCache,
+		BuildLogs:   buildLogs,
+	}
+
+	if isDeployFromGit {
+		err = deployFromGit(appID, groupName, name, commit, opts)
+		if err != nil {
+			return err
+		}
+	} else {
+		err = deployFromLocal(appID, groupName, name, isDeployFromJavaWar, ignoreFilePath, false, opts)
+		if err != nil {
+			return err
+		}
 	}
 
 	domainBindings, err := api.GetDomainBindings(appID, api.EnginePreview, groupName)
