@@ -229,6 +229,14 @@ func Run(args []string) {
 							Usage: "Print build logs",
 						},
 						cli.BoolFlag{
+							Name:  "g",
+							Usage: "Deploy from git repo",
+						},
+						cli.BoolFlag{
+							Name:  "no-cache",
+							Usage: "Disable building cache",
+						},
+						cli.BoolFlag{
 							Name:  "war",
 							Usage: "Deploy .war file for Java project. The first .war file in target/ is used by default",
 						},
