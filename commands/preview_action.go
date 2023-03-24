@@ -1,7 +1,9 @@
 package commands
 
 import (
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strings"
 
@@ -24,9 +26,27 @@ func getEnvInfo(c *cli.Context) (name, commit, url string, err error) {
 		// e.g. "refs/pull/123/merge"
 		ref := os.Getenv("GITHUB_REF")
 		pr = strings.Split(ref, "/")[2]
-		ciCommit = os.Getenv("GITHUB_SHA")
 		repo := os.Getenv("GITHUB_REPOSITORY")
 		ciUrl = fmt.Sprintf("https://github.com/%s/pull/%s", repo, pr)
+
+		// https://github.com/orgs/community/discussions/26325
+		eventPath := os.Getenv("GITHUB_EVENT_PATH")
+		var data []byte
+		data, err = ioutil.ReadFile(eventPath)
+		if err != nil {
+			return
+		}
+		var githubEvent struct {
+			PullRequest struct {
+				Head struct {
+					Sha string `json:"sha"`
+				} `json:"head"`
+			} `json:"pull_request"`
+		}
+		if err = json.Unmarshal(data, &githubEvent); err != nil {
+			return
+		}
+		ciCommit = githubEvent.PullRequest.Head.Sha
 	}
 
 	commit = c.String("commit")
