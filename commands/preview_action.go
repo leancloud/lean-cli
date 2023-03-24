@@ -23,13 +23,9 @@ func getEnvInfo(c *cli.Context) (name, commit, url string, err error) {
 		projectUrl := os.Getenv("CI_PROJECT_URL")
 		ciUrl = fmt.Sprintf("%s/merge_request/%s", projectUrl, pr)
 	} else if os.Getenv("GITHUB_ACTIONS") == "true" {
-		// e.g. "refs/pull/123/merge"
-		ref := os.Getenv("GITHUB_REF")
-		pr = strings.Split(ref, "/")[2]
-		repo := os.Getenv("GITHUB_REPOSITORY")
-		ciUrl = fmt.Sprintf("https://github.com/%s/pull/%s", repo, pr)
-
+		// $GITHUB_SHA and $GITHUB_REF environment variables are not reliable, see
 		// https://github.com/orgs/community/discussions/26325
+		// https://github.com/actions/runner/issues/256
 		eventPath := os.Getenv("GITHUB_EVENT_PATH")
 		var data []byte
 		data, err = ioutil.ReadFile(eventPath)
@@ -38,7 +34,8 @@ func getEnvInfo(c *cli.Context) (name, commit, url string, err error) {
 		}
 		var githubEvent struct {
 			PullRequest struct {
-				Head struct {
+				Number int `json:"number"`
+				Head   struct {
 					Sha string `json:"sha"`
 				} `json:"head"`
 			} `json:"pull_request"`
@@ -47,6 +44,9 @@ func getEnvInfo(c *cli.Context) (name, commit, url string, err error) {
 			return
 		}
 		ciCommit = githubEvent.PullRequest.Head.Sha
+		pr = fmt.Sprint(githubEvent.PullRequest.Number)
+		repo := os.Getenv("GITHUB_REPOSITORY")
+		ciUrl = fmt.Sprintf("https://github.com/%s/pull/%s", repo, pr)
 	}
 
 	commit = c.String("commit")
