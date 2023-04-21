@@ -245,6 +245,14 @@ func Run(args []string) {
 							Usage: "Rule file for ignored files in deployment",
 							Value: ".leanignore",
 						},
+						cli.StringFlag{
+							Name:  "options",
+							Usage: "Send additional deploy options to server, in urlencode format(like `--options build='npm run build-preview'`)",
+						},
+						cli.BoolFlag{
+							Name:  "direct",
+							Usage: "Upload project's tarball to remote directly",
+						},
 					},
 				},
 				{
