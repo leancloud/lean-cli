@@ -81,6 +81,7 @@ func deployPreviewAction(c *cli.Context) error {
 	noDepsCache := c.Bool("no-cache")
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
+	isDirect := c.Bool("direct")
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -109,6 +110,7 @@ func deployPreviewAction(c *cli.Context) error {
 		Url:         url,
 		NoDepsCache: noDepsCache,
 		BuildLogs:   buildLogs,
+		Options:     c.String("options"),
 	}
 
 	if isDeployFromGit {
@@ -117,6 +119,7 @@ func deployPreviewAction(c *cli.Context) error {
 			return err
 		}
 	} else {
+		opts.DirectUpload = isDirect
 		err = deployFromLocal(appID, groupName, name, isDeployFromJavaWar, ignoreFilePath, false, opts)
 		if err != nil {
 			return err
