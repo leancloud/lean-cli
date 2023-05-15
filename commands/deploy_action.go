@@ -214,7 +214,9 @@ func deployFromLocal(appID string, group string, env string, isDeployFromJavaWar
 	} else {
 		archiveFilePath, err = packageProject(".", ignoreFilePath)
 	}
-	if directUpload == nil {
+	if directUpload != nil {
+		opts.DirectUpload = *directUpload
+	} else {
 		if region != regions.USWest {
 			opts.DirectUpload = false
 		} else {
