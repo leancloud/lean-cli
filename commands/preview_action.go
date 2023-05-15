@@ -82,6 +82,10 @@ func deployPreviewAction(c *cli.Context) error {
 	isDeployFromJavaWar := c.Bool("war")
 	ignoreFilePath := c.String("leanignore")
 	isDirect := c.Bool("direct")
+	directUpload := &isDirect
+	if !c.IsSet("direct") {
+		directUpload = nil
+	}
 
 	appID, err := apps.GetCurrentAppID(".")
 	if err != nil {
@@ -119,8 +123,7 @@ func deployPreviewAction(c *cli.Context) error {
 			return err
 		}
 	} else {
-		opts.DirectUpload = isDirect
-		err = deployFromLocal(appID, groupName, name, isDeployFromJavaWar, ignoreFilePath, false, opts)
+		err = deployFromLocal(appID, groupName, name, isDeployFromJavaWar, ignoreFilePath, false, directUpload, opts)
 		if err != nil {
 			return err
 		}

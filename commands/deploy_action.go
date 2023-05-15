@@ -12,7 +12,6 @@ import (
 	"github.com/aisk/logp"
 	"github.com/aisk/wizard"
 	"github.com/fatih/color"
-	"github.com/leancloud/go-upload"
 	"github.com/leancloud/lean-cli/api"
 	"github.com/leancloud/lean-cli/api/regions"
 	"github.com/leancloud/lean-cli/apps"
@@ -35,6 +34,10 @@ func deployAction(c *cli.Context) error {
 	prodBool := c.Bool("prod")
 	staging := c.Bool("staging")
 	isDirect := c.Bool("direct")
+	directUpload := &isDirect
+	if !c.IsSet("direct") {
+		directUpload = nil
+	}
 	buildLogs := c.Bool("build-logs")
 
 	var env string
@@ -125,8 +128,7 @@ func deployAction(c *cli.Context) error {
 		}
 	} else {
 		opts.Message = getCommentMessage(message)
-		opts.DirectUpload = isDirect
-		err = deployFromLocal(appID, groupName, env, isDeployFromJavaWar, ignoreFilePath, keepFile, opts)
+		err = deployFromLocal(appID, groupName, env, isDeployFromJavaWar, ignoreFilePath, keepFile, directUpload, opts)
 		if err != nil {
 			return err
 		}
@@ -154,15 +156,6 @@ func packageProject(repoPath, ignoreFilePath string) (string, error) {
 	}
 
 	return archiveFile, nil
-}
-
-func uploadProject(appID string, region regions.Region, repoPath string, ignoreFilePath string) (*upload.File, error) {
-	archiveFile, err := packageProject(repoPath, ignoreFilePath)
-	if err != nil {
-		return nil, err
-	}
-
-	return api.UploadToRepoStorage(region, archiveFile)
 }
 
 func packageWar(repoPath string) (string, error) {
@@ -209,43 +202,48 @@ func packageWar(repoPath string) (string, error) {
 	return archivePath, nil
 }
 
-func uploadWar(appID string, region regions.Region, repoPath string) (*upload.File, error) {
-	archivePath, err := packageWar(repoPath)
-	if err != nil {
-		return nil, err
-	}
-	return api.UploadToRepoStorage(region, archivePath)
-}
-
-func deployFromLocal(appID string, group string, env string, isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, opts *api.DeployOptions) error {
+func deployFromLocal(appID string, group string, env string, isDeployFromJavaWar bool, ignoreFilePath string, keepFile bool, directUpload *bool, opts *api.DeployOptions) error {
 	region, err := apps.GetAppRegion(appID)
 	if err != nil {
 		return err
 	}
 
-	var file *upload.File
 	var archiveFilePath string
 	if isDeployFromJavaWar {
-		if opts.DirectUpload {
-			archiveFilePath, err = packageWar(".")
+		archiveFilePath, err = packageWar(".")
+	} else {
+		archiveFilePath, err = packageProject(".", ignoreFilePath)
+	}
+	if directUpload == nil {
+		if region != regions.USWest {
+			opts.DirectUpload = false
 		} else {
-			file, err = uploadWar(appID, region, ".")
+			fileInfo, err := os.Stat(archiveFilePath)
+			if err != nil {
+				return err
+			}
+			if fileInfo.Size() < 100*1024*1024 {
+				opts.DirectUpload = true
+			} else {
+				opts.DirectUpload = false
+			}
 		}
+	}
+	var eventTok string
+	if opts.DirectUpload {
+		eventTok, err = api.DeployAppFromFile(appID, group, env, archiveFilePath, opts)
 		if err != nil {
 			return err
 		}
 	} else {
-		if opts.DirectUpload {
-			archiveFilePath, err = packageProject(".", ignoreFilePath)
-		} else {
-			file, err = uploadProject(appID, region, ".", ignoreFilePath)
-		}
+		file, err := api.UploadToRepoStorage(region, archiveFilePath)
 		if err != nil {
 			return err
 		}
-	}
-
-	if !opts.DirectUpload {
+		eventTok, err = api.DeployAppFromFile(appID, group, env, file.URL, opts)
+		if err != nil {
+			return err
+		}
 		if !keepFile {
 			defer func() {
 				err := api.DeleteFromRepoStorage(region, file.ObjectID)
@@ -256,15 +254,6 @@ func deployFromLocal(appID string, group string, env string, isDeployFromJavaWar
 		}
 	}
 
-	var eventTok string
-	if opts.DirectUpload {
-		eventTok, err = api.DeployAppFromFile(appID, group, env, archiveFilePath, opts)
-	} else {
-		eventTok, err = api.DeployAppFromFile(appID, group, env, file.URL, opts)
-	}
-	if err != nil {
-		return err
-	}
 	ok, err := api.PollEvents(appID, eventTok)
 	if err != nil {
 		return err
